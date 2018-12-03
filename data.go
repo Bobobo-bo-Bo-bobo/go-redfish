@@ -90,6 +90,138 @@ type RoleData struct {
 	SelfEndpoint *string
 }
 
+type ChassisData struct {
+	Id           *string         `json:"Id"`
+	Name         *string         `json:"Name"`
+	ChassisType  *string         `json:"ChassisType"`
+	Manufacturer *string         `json:"Manufacturer"`
+	Model        *string         `json:"Model"`
+	SerialNumber *string         `json:"SerialNumber"`
+	PartNumber   *string         `json:"PartNumber"`
+	AssetTag     *string         `json:"AssetTag"`
+	IndicatorLED *string         `json:"IndicatorLED"`
+	Status       Status          `json:"Status"`
+	Oem          json.RawMessage `json:"Oem"`
+	Therma       ThermalData     `json:"Thermal"`
+	Power        PowerData       `json:"Power"`
+
+	SelfEndpoint *string
+}
+
+type TemperatureData struct {
+	ODataId                   *string `json:"@odata.id"`
+	MemberId                  *string `json:"MemberId"`
+	SensorNumber              *int    `json:"SensorNumber"`
+	Name                      *string `json:"Name"`
+	ReadingCelsius            *int    `json:"ReadingCelsius"`
+	LowerThresholdNonCritical *int    `json:"LowerThresholdNonCritical"`
+	LowerThresholdCritical    *int    `json:"LowerThresholdCritical"`
+	LowerThresholdFatal       *int    `json:"LowerThresholdFatal"`
+	UpperThresholdCritical    *int    `json:"UpperThresholdCritical"`
+	UpperThresholdFatal       *int    `json:"UpperThresholdFatal"`
+	MinReadingRangeTemp       *int    `json:"MinReadingRangeTemp"`
+	MaxReadingRangeTemp       *int    `json:"MaxReadingRangeTemp"`
+	Status                    Status  `json:"Status"`
+}
+
+type FanData struct {
+	ODataId                   *string         `json:"@odata.id"`
+	MemberId                  *string         `json:"MemberId"`
+	SensorNumber              *int            `json:"SensorNumber"`
+	FanName                   *string         `json:"FanName"`
+	Name                      *string         `json:"Name"`
+	ReadingCelsius            *int            `json:"ReadingCelsius"`
+	LowerThresholdNonCritical *int            `json:"LowerThresholdNonCritical"`
+	LowerThresholdCritical    *int            `json:"LowerThresholdCritical"`
+	LowerThresholdFatal       *int            `json:"LowerThresholdFatal"`
+	UpperThresholdCritical    *int            `json:"UpperThresholdCritical"`
+	UpperThresholdFatal       *int            `json:"UpperThresholdFatal"`
+	MinReadingRangeTemp       *int            `json:"MinReadingRangeTemp"`
+	MaxReadingRangeTemp       *int            `json:"MaxReadingRangeTemp"`
+	Status                    Status          `json:"Status"`
+	ReadingUnits              *string         `json:"ReadingUnits"`
+	PartNumber                *string         `json:"PartNumber"`
+	PhysicalContext           *string         `json:"PhysicalContext"`
+	Oem                       json.RawMessage `json:"Oem"`
+}
+
+type ThermalData struct {
+	ODataId      *string           `json:"@odata.id"`
+	Id           *string           `json:"Id"`
+	Status       Status            `json:"Status"`
+	Temperatures []TemperatureData `json:"Temperatures"`
+	Fans         []FanData         `json:"Fans"`
+}
+
+type PowerMetricsData struct {
+	MinConsumedWatts     *int `json:"MinConsumedWatts"`
+	MaxConsumedWatts     *int `json:"MaxConsumedWatts"`
+	AverageConsumedWatts *int `json:"AverageConsumedWatts"`
+	IntervalInMin        *int `json:"IntervalInMin"`
+}
+
+type PowerLimitData struct {
+	LimitInWatts   *int    `json:"LimitInWatts"`
+	LimitException *string `json:"LimitException"`
+}
+
+type PowerControlData struct {
+	Id                 *string `json:"@odata.id"`
+	MemberId           *string `json:"MemberId"`
+	Name               *string `json:"Name"`
+	PowerConsumedWatts *int
+	PowerMetrics       PowerMetricsData `json:"PowerMetrics"`
+	PowerLimit         PowerLimitData   `json:"PowerLimit"`
+	Status             Status           `json:"Status"`
+	Oem                json.RawMessage  `json:"Oem"`
+}
+
+type VoltageData struct {
+	ODataId                   *string  `json:"@odata.id"`
+	MemberId                  *string  `json:"MemberId"`
+	Name                      *string  `json:"Name"`
+	SensorNumber              *int     `json:"SensorNumber"`
+	Status                    Status   `json:"Status"`
+	ReadingVolts              *float64 `json:"ReadingVolts"`
+	UpperThresholdNonCritical *float64 `json:"UpperThresholdNonCritical"`
+	UpperThresholdCritical    *float64 `json:"UpperThresholdCritical"`
+	UpperThresholdFatal       *float64 `json:"UpperThresholdFatal"`
+	LowerThresholdNonCritical *float64 `json:"LowerThresholdNonCritical"`
+	LowerThresholdCritical    *float64 `json:"LowerThresholdCritical"`
+	LowerThresholdFatal       *float64 `json:"LowerThresholdFatal"`
+	MinReadingRange           *float64 `json:"MinReadingRange"`
+	MaxReadingRange           *float64 `json:"MaxReadingRange"`
+	PhysicalContext           *string  `json:"PhysicalContext"`
+}
+
+type PSUData struct {
+	ODataId              *string         `json:"@odata.id"`
+	MemberId             *string         `json:"MemberId"`
+	Name                 *string         `json:"Name"`
+	Status               Status          `json:"Status"`
+	PowerSupplyType      *string         `json:"PowerSupplyType"`
+	LineInputVoltage     *string         `json:"LineInputVoltage"`
+	LineInputVoltageType *string         `json:"LineInputVoltageType"`
+	LastPowerOutputWatts *int            `json:"LastPowerOutputWatts"`
+	PowerCapacityWatts   *int            `json:"PowerCapacityWatts"`
+	Model                *string         `json:"Model"`
+	FirmwareVersion      *string         `json:"FirmwareVersion"`
+	SerialNumber         *string         `json:"SerialNumber"`
+	Manufacturer         *string         `json:"Manufacturer"`
+	PartNumber           *string         `json:"PartNumber"`
+	Oem                  json.RawMessage `json:"Oem"`
+	Redundancy           []OData         `json:"Redundancy"`
+}
+
+type PowerData struct {
+	OdataId       *string            `json:"@odata.id"`
+	Context       *string            `json:"@odata.context"`
+	Id            *string            `json:"Id"`
+	PowerControl  []PowerControlData `json:"PowerControl"`
+	Voltages      []VoltageData      `json:"Voltages"`
+	PowerSupplies []PSUData          `json:"PowerSupplies"`
+}
+
 type ManagerActionsData struct {
 	ManagerReset LinkTargets `json:"#Manager.Reset"`
 }
@@ -151,18 +283,19 @@ const (
 
 // service processor capabilities
 const (
-    HAS_ACCOUNTSERVICE uint = 1 << iota // has AccountService endpoint
-    HAS_SECURITYSERVICE
-    HAS_ACCOUNT_ROLES
+	HAS_ACCOUNTSERVICE uint = 1 << iota // has AccountService endpoint
+	HAS_SECURITYSERVICE
+	HAS_ACCOUNT_ROLES
+	HAS_CHASSIS
 )
 
 // map capabilities by vendor
 var VendorCapabilities = map[string]uint{
-    "hp": HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE,
-    "huawei": HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES,
-    "inspur": 0,
-    "supermicro": HAS_ACCOUNTSERVICE | HAS_ACCOUNT_ROLES,
-    "vanilla": HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES,
+	"hp":         HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_CHASSIS,
+	"huawei":     HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
+	"inspur":     0,
+	"supermicro": HAS_ACCOUNTSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
+	"vanilla":    HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
 }
 
 type HttpResult struct {
@@ -229,6 +362,6 @@ type Redfish struct {
 	Systems        string
 
 	// Vendor "flavor"
-	Flavor uint
-    FlavorString    string
+	Flavor       uint
+	FlavorString string
 }
