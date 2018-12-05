@@ -81,3 +81,13 @@ type HttpsCertDataOemHp struct {
 	Id      *string               `json:"Id"`
 	Actions HttpsCertActionsOemHp `json:"Actions"`
 }
+
+// HP(E) uses it's own privilege map instead of roles
+type AccountPrivilegeMapOemHp struct {
+	Login                bool
+	RemoteConsole        bool
+	UserConfig           bool
+	VirtualMedia         bool
+	VirtualPowerAndReset bool
+	iLOConfig            bool
+}

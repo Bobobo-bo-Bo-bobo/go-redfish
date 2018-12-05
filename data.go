@@ -9,6 +9,25 @@ import (
 
 const UserAgent string = "go-redfish/1.0.0"
 
+type RedfishError struct {
+	Error RedfishErrorMessage `json:"error"`
+}
+
+type RedfishErrorMessage struct {
+	Code                *string                           `json:"code"`
+	Message             *string                           `json:"Message"`
+	MessageExtendedInfo []RedfishErrorMessageExtendedInfo `json:"@Message.ExtendedInfo"`
+}
+
+type RedfishErrorMessageExtendedInfo struct {
+	MessageId         *string  `json:"MessageId"`
+	Severity          *string  `json:"Severity"`
+	Resolution        *string  `json:"Resolution"`
+	Message           *string  `json:"Message"`
+	MessageArgs       []string `json:"MessageArgs"`
+	RelatedProperties []string `json:"RelatedProperties"`
+}
+
 type OData struct {
 	Id           *string `json:"@odata.id"`
 	Type         *string `json:"@odata.type"`
@@ -272,6 +291,16 @@ type CSRData struct {
 	CN string // Common name
 }
 
+// data for account creation
+type AccountCreateData struct {
+	UserName string
+	Password string
+	// for service processors supporting roles
+	Role string
+	// for HP(E) iLO which supports Oem specific
+	OemHpPrivilegeMap *AccountPrivilegeMapOemHp
+}
+
 const (
 	REDFISH_GENERAL uint = iota
 	REDFISH_HP
@@ -328,6 +357,9 @@ type BaseRedfish interface {
 	ImportCertificate(string) error
 	ResetSP() error
 	GetVendorFlavor() error
+	AddAccount(AccountCreateData) error
+	DeleteAccount(string) error
+	ChangePassword(string, string) error
 
 	httpRequest(string, string, *map[string]string, io.Reader, bool) (HttpResult, error)
 	getCSRTarget_HP(*ManagerData) (string, error)
