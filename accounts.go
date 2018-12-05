@@ -193,8 +193,8 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 			return errors.New("ERROR: Required field(s) missing")
 		}
 
-		// check of requested role exists
-		rmap, err := r.MapRolesByName()
+		// check of requested role exists, role Names are _NOT_ unique (e.g. Supermicro report all names as "User Role") but Id is
+		rmap, err := r.MapRolesById()
 		if err != nil {
 			return err
 		}
