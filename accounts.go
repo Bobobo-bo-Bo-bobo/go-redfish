@@ -413,3 +413,4 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 	}
 	return nil
 }
+

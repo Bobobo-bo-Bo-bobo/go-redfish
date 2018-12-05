@@ -358,6 +358,7 @@ type BaseRedfish interface {
 	ResetSP() error
 	GetVendorFlavor() error
 	AddAccount(AccountCreateData) error
+	ModifyAccount(AccountCreateData) error
 	DeleteAccount(string) error
 	ChangePassword(string, string) error
 
