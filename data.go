@@ -293,12 +293,16 @@ type CSRData struct {
 
 // data for account creation
 type AccountCreateData struct {
-	UserName string
-	Password string
+	UserName string `json:",omitempty"`
+	Password string `json:",omitempty"`
 	// for service processors supporting roles
-	Role string
+	Role string `json:"RoleId,omitempty"`
+
+	Enabled *bool `json:",omitempty"`
+	Locked  *bool `json:",omitempty"`
+
 	// for HP(E) iLO which supports Oem specific
-	OemHpPrivilegeMap *AccountPrivilegeMapOemHp
+	OemHpPrivilegeMap *AccountPrivilegeMapOemHp `json:",omitempty"`
 }
 
 const (
@@ -358,7 +362,7 @@ type BaseRedfish interface {
 	ResetSP() error
 	GetVendorFlavor() error
 	AddAccount(AccountCreateData) error
-	ModifyAccount(AccountCreateData) error
+	ModifyAccount(string, AccountCreateData) error
 	DeleteAccount(string) error
 	ChangePassword(string, string) error
 
@@ -372,6 +376,7 @@ type BaseRedfish interface {
 	fetchCSR_Huawei(*ManagerData) (string, error)
 	getImportCertTarget_HP(*ManagerData) (string, error)
 	getImportCertTarget_Huawei(*ManagerData) (string, error)
+	makeAccountCreateModifyPayload(AccountCreateData) (string, error)
 }
 
 type Redfish struct {

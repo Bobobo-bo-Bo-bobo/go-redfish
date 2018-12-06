@@ -414,3 +414,100 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 	return nil
 }
 
+func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string, error) {
+	var payload string
+
+	// handle HP(E) PrivilegeMap
+	if r.Flavor == REDFISH_HP {
+		//FIXME: handle HP(E) PrivilegeMap
+	} else {
+		// force exclustion of privilege map for non-HP(E) systems
+		acd.OemHpPrivilegeMap = nil
+		raw, err := json.Marshal(acd)
+		if err != nil {
+			return payload, err
+		}
+		payload = string(raw)
+	}
+	return payload, nil
+}
+
+func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
+	var rerr RedfishError
+
+	if r.AuthToken == nil || *r.AuthToken == "" {
+		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+	}
+
+	err := r.GetVendorFlavor()
+	if err != nil {
+		return err
+	}
+
+	// check if vendor supports account management
+	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+		return errors.New("ERROR: Account management is not support for this vendor")
+	}
+
+	// get endpoint for account to modify/check if account with this name already exists
+	umap, err := r.MapAccountsByName()
+	if err != nil {
+		return err
+	}
+
+	udata, found := umap[u]
+	if !found {
+		return errors.New(fmt.Sprintf("ERROR: User %s not found", u))
+	}
+	if udata.SelfEndpoint == nil || *udata.SelfEndpoint == "" {
+		return errors.New(fmt.Sprintf("BUG: SelfEndpoint is not set or empty for user %s", u))
+	}
+
+	if r.Flavor == REDFISH_HP {
+		// XXX: Use Oem specific privilege map
+	} else {
+
+		payload, err := r.makeAccountCreateModifyPayload(acd)
+		if err != nil {
+			return err
+		}
+
+		response, err := r.httpRequest(*udata.SelfEndpoint, "PATCH", nil, strings.NewReader(payload), false)
+		if err != nil {
+			return err
+		}
+
+		// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
+		if response.StatusCode == http.StatusBadRequest {
+			err = json.Unmarshal(response.Content, &rerr)
+			if err != nil {
+				return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
+			}
+			errmsg := ""
+			if len(rerr.Error.MessageExtendedInfo) > 0 {
+				for _, e := range rerr.Error.MessageExtendedInfo {
+					if e.Message != nil || *e.Message != "" {
+						if errmsg == "" {
+							errmsg += *e.Message
+						} else {
+							errmsg += "; " + *e.Message
+						}
+					}
+				}
+			} else {
+				if rerr.Error.Message != nil || *rerr.Error.Message != "" {
+					errmsg = *rerr.Error.Message
+				} else {
+					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+				}
+			}
+			return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
+		}
+
+		// any other error ? (HTTP 400 has been handled above)
+		if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
+			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+		}
+	}
+	return nil
+}
