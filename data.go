@@ -121,8 +121,8 @@ type ChassisData struct {
 	IndicatorLED *string         `json:"IndicatorLED"`
 	Status       Status          `json:"Status"`
 	Oem          json.RawMessage `json:"Oem"`
-	Therma       ThermalData     `json:"Thermal"`
-	Power        PowerData       `json:"Power"`
+	Thermal      *OData          `json:"Thermal"`
+	Power        *OData          `json:"Power"`
 
 	SelfEndpoint *string
 }
