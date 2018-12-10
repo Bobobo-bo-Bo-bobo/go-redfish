@@ -156,7 +156,7 @@ type FanData struct {
 	SensorNumber              *int            `json:"SensorNumber"`
 	FanName                   *string         `json:"FanName"`
 	Name                      *string         `json:"Name"`
-	ReadingCelsius            *int            `json:"ReadingCelsius"`
+	Reading                   *int            `json:"Reading"`
 	LowerThresholdNonCritical *int            `json:"LowerThresholdNonCritical"`
 	LowerThresholdCritical    *int            `json:"LowerThresholdCritical"`
 	LowerThresholdFatal       *int            `json:"LowerThresholdFatal"`
