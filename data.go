@@ -142,6 +142,7 @@ type TemperatureData struct {
 	LowerThresholdNonCritical *int    `json:"LowerThresholdNonCritical"`
 	LowerThresholdCritical    *int    `json:"LowerThresholdCritical"`
 	LowerThresholdFatal       *int    `json:"LowerThresholdFatal"`
+	UpperThresholdNonCritical *int    `json:"UpperThresholdNonCritical"`
 	UpperThresholdCritical    *int    `json:"UpperThresholdCritical"`
 	UpperThresholdFatal       *int    `json:"UpperThresholdFatal"`
 	MinReadingRangeTemp       *int    `json:"MinReadingRangeTemp"`
