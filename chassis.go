@@ -95,3 +95,47 @@ func (r *Redfish) MapChassisById() (map[string]*ChassisData, error) {
 
 	return result, nil
 }
+
+// get Power data from
+func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
+	var result PowerData
+
+	response, err := r.httpRequest(powerEndpoint, "GET", nil, nil, false)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+	}
+
+	err = json.Unmarshal(response.Content, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	result.SelfEndpoint = &powerEndpoint
+	return &result, nil
+}
+
+// get Thermal data from
+func (r *Redfish) GetThermalData(thermalEndpoint string) (*ThermalData, error) {
+	var result ThermalData
+
+	response, err := r.httpRequest(thermalEndpoint, "GET", nil, nil, false)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+	}
+
+	err = json.Unmarshal(response.Content, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	result.SelfEndpoint = &thermalEndpoint
+	return &result, nil
+}

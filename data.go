@@ -176,6 +176,7 @@ type ThermalData struct {
 	Status       Status            `json:"Status"`
 	Temperatures []TemperatureData `json:"Temperatures"`
 	Fans         []FanData         `json:"Fans"`
+	SelfEndpoint *string
 }
 
 type PowerMetricsData struct {
@@ -245,6 +246,7 @@ type PowerData struct {
 	PowerControl  []PowerControlData `json:"PowerControl"`
 	Voltages      []VoltageData      `json:"Voltages"`
 	PowerSupplies []PSUData          `json:"PowerSupplies"`
+	SelfEndpoint  *string
 }
 
 type ManagerActionsData struct {
