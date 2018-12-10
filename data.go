@@ -161,8 +161,8 @@ type FanData struct {
 	LowerThresholdFatal       *int            `json:"LowerThresholdFatal"`
 	UpperThresholdCritical    *int            `json:"UpperThresholdCritical"`
 	UpperThresholdFatal       *int            `json:"UpperThresholdFatal"`
-	MinReadingRangeTemp       *int            `json:"MinReadingRangeTemp"`
-	MaxReadingRangeTemp       *int            `json:"MaxReadingRangeTemp"`
+	MinReadingRange           *int            `json:"MinReadingRange"`
+	MaxReadingRange           *int            `json:"MaxReadingRange"`
 	Status                    Status          `json:"Status"`
 	ReadingUnits              *string         `json:"ReadingUnits"`
 	PartNumber                *string         `json:"PartNumber"`
@@ -226,7 +226,7 @@ type PSUData struct {
 	Name                 *string         `json:"Name"`
 	Status               Status          `json:"Status"`
 	PowerSupplyType      *string         `json:"PowerSupplyType"`
-	LineInputVoltage     *int         `json:"LineInputVoltage"`
+	LineInputVoltage     *int            `json:"LineInputVoltage"`
 	LineInputVoltageType *string         `json:"LineInputVoltageType"`
 	LastPowerOutputWatts *int            `json:"LastPowerOutputWatts"`
 	PowerCapacityWatts   *int            `json:"PowerCapacityWatts"`
