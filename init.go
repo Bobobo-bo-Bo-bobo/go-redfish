@@ -13,7 +13,7 @@ import (
 func (r *Redfish) Initialise() error {
 	var base baseEndpoint
 
-	if r.Verbose {
+	if r.Debug {
 		r.logger = log.New(os.Stderr, "", log.Lshortfile|log.Ldate|log.Ltime|log.Lmicroseconds)
 	}
 
