@@ -160,6 +160,7 @@ type FanData struct {
 	LowerThresholdNonCritical *int            `json:"LowerThresholdNonCritical"`
 	LowerThresholdCritical    *int            `json:"LowerThresholdCritical"`
 	LowerThresholdFatal       *int            `json:"LowerThresholdFatal"`
+	UpperThresholdNonCritical *int            `json:"UpperThresholdNonCritical"`
 	UpperThresholdCritical    *int            `json:"UpperThresholdCritical"`
 	UpperThresholdFatal       *int            `json:"UpperThresholdFatal"`
 	MinReadingRange           *int            `json:"MinReadingRange"`
