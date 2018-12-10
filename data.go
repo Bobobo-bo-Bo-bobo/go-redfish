@@ -59,18 +59,24 @@ type Status struct {
 type SystemProcessorSummary struct {
 	Count  int    `json:"Count"`
 	Status Status `json:"Status"`
+    Model   *string `json:"Model"`
+}
+
+type SystemMemorySummary struct {
+    TotalSystemMemoryGiB    int `json:"TotalSystemMemoryGiB"`
+    Status  Status  `json:"Status"`
 }
 
 type SystemData struct {
 	UUID         *string `json:"UUID"`
 	Status       Status  `json:"Status"`
 	SerialNumber *string `json:"SerialNumber"`
-	//ProcessorSummary  *SystemProcessorSummary  `json:"ProcessorSummary"`
+	ProcessorSummary  *SystemProcessorSummary  `json:"ProcessorSummary"`
 	Processors *OData  `json:"Processors"`
 	PowerState *string `json:"Powerstate"`
 	Name       *string `json:"Name"`
 	Model      *string `json:"Model"`
-	//MemorySummary *SystemMemorySummary    `json:"MemorySummary"`
+	MemorySummary *SystemMemorySummary    `json:"MemorySummary"`
 	Memory             *OData  `json:"Memory"`
 	Manufacturer       *string `json:"Manufacturer"`
 	LogServices        *OData  `json:"LogServices"`
