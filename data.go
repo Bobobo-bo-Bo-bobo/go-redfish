@@ -226,7 +226,7 @@ type PSUData struct {
 	Name                 *string         `json:"Name"`
 	Status               Status          `json:"Status"`
 	PowerSupplyType      *string         `json:"PowerSupplyType"`
-	LineInputVoltage     *string         `json:"LineInputVoltage"`
+	LineInputVoltage     *int         `json:"LineInputVoltage"`
 	LineInputVoltageType *string         `json:"LineInputVoltageType"`
 	LastPowerOutputWatts *int            `json:"LastPowerOutputWatts"`
 	PowerCapacityWatts   *int            `json:"PowerCapacityWatts"`
