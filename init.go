@@ -4,12 +4,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 )
 
 // Initialise Redfish basic data
 func (r *Redfish) Initialise() error {
 	var base baseEndpoint
+
+	if r.Verbose {
+		r.logger = log.New(os.Stderr, "", log.Lshortfile|log.Ldate|log.Ltime|log.Lmicroseconds)
+	}
 
 	response, err := r.httpRequest("/redfish/v1/", "GET", nil, nil, false)
 	if err != nil {

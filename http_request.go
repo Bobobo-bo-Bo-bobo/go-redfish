@@ -17,6 +17,9 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 		transp = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
+		if r.Verbose {
+			r.logger.Println("Enabling insecure SSL")
+		}
 	} else {
 		transp = &http.Transport{
 			TLSClientConfig: &tls.Config{},
@@ -46,12 +49,19 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 
 	result.Url = url
 
+	if r.Verbose {
+		r.logger.Printf("Sending HTTP %s to %s with reader interface at %p\n", method, url, reader)
+	}
+
 	request, err := http.NewRequest(method, url, reader)
 	if err != nil {
 		return result, err
 	}
 
 	if basic_auth {
+		if r.Verbose {
+			r.logger.Printf("Setting HTTP basic authentication for HTTP %s to %s", method, url)
+		}
 		request.SetBasicAuth(r.Username, r.Password)
 	}
 
@@ -79,12 +89,21 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 		}
 	}
 
+	if r.Verbose {
+		r.logger.Printf("HTTP headers for %s request to %s: %+v\n", method, url, request.Header)
+	}
+
 	response, err := client.Do(request)
 	if err != nil {
 		return result, err
 	}
 
 	defer response.Body.Close()
+
+	if r.Verbose {
+		r.logger.Printf("HTTP %s to %s returned with status %s\n", method, url, response.Status)
+		r.logger.Printf("HTTP headers returned from HTTP %s to %s: %+v\n", method, url, response.Header)
+	}
 
 	result.Status = response.Status
 	result.StatusCode = response.StatusCode
