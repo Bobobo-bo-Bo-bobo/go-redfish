@@ -16,41 +16,45 @@ func (r *Redfish) Login() error {
 		return errors.New(fmt.Sprintf("ERROR: Both Username and Password must be set"))
 	}
 
-	response, err := r.httpRequest(r.SessionService, "GET", nil, nil, true)
-	if err != nil {
-		return err
-	}
-
-	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
-	}
-
-	raw := response.Content
-
-	err = json.Unmarshal(raw, &sessions)
-	if err != nil {
-		return err
-	}
-
-	// check if management boards reports "ServiceEnabled" and if it does, check if is true
-	if sessions.Enabled != nil {
-		if !*sessions.Enabled {
-			return errors.New(fmt.Sprintf("ERROR: Session information from %s reports session service as disabled\n", response.Url))
+	// Get session endpoint if not already defined by information from base endpoint .Links.Sessions
+	// because some implementations (e.g. INSPUR) report SessionService endpoint but don't implement it.
+	if r.Sessions == "" {
+		response, err := r.httpRequest(r.SessionService, "GET", nil, nil, true)
+		if err != nil {
+			return err
 		}
-	}
 
-	if sessions.Sessions == nil {
-		return errors.New(fmt.Sprintf("BUG: No Sessions endpoint reported from %s\n", response.Url))
-	}
+		if response.StatusCode != http.StatusOK {
+			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		}
 
-	if sessions.Sessions.Id == nil {
-		return errors.New(fmt.Sprintf("BUG: Malformed Sessions endpoint reported from %s: no @odata.id field found\n", response.Url))
-	}
+		raw := response.Content
 
-	r.Sessions = *sessions.Sessions.Id
+		err = json.Unmarshal(raw, &sessions)
+		if err != nil {
+			return err
+		}
+
+		// check if management boards reports "ServiceEnabled" and if it does, check if is true
+		if sessions.Enabled != nil {
+			if !*sessions.Enabled {
+				return errors.New(fmt.Sprintf("ERROR: Session information from %s reports session service as disabled\n", response.Url))
+			}
+		}
+
+		if sessions.Sessions == nil {
+			return errors.New(fmt.Sprintf("BUG: No Sessions endpoint reported from %s\n", response.Url))
+		}
+
+		if sessions.Sessions.Id == nil {
+			return errors.New(fmt.Sprintf("BUG: Malformed Sessions endpoint reported from %s: no @odata.id field found\n", response.Url))
+		}
+
+		r.Sessions = *sessions.Sessions.Id
+	}
 
 	jsonPayload := fmt.Sprintf("{ \"UserName\":\"%s\",\"Password\":\"%s\" }", r.Username, r.Password)
-	response, err = r.httpRequest(*sessions.Sessions.Id, "POST", nil, strings.NewReader(jsonPayload), false)
+	response, err := r.httpRequest(r.Sessions, "POST", nil, strings.NewReader(jsonPayload), false)
 	if err != nil {
 		return err
 	}

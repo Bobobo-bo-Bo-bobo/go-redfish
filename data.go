@@ -38,11 +38,16 @@ type OData struct {
 }
 
 type baseEndpoint struct {
-	AccountService OData `json:"AccountService"`
-	Chassis        OData `json:"Chassis"`
-	Managers       OData `json:"Managers"`
-	SessionService OData `json:"SessionService"`
-	Systems        OData `json:"Systems"`
+	AccountService OData             `json:"AccountService"`
+	Chassis        OData             `json:"Chassis"`
+	Managers       OData             `json:"Managers"`
+	SessionService OData             `json:"SessionService"`
+	Systems        OData             `json:"Systems"`
+	Links          baseEndpointLinks `json:"Links"`
+}
+
+type baseEndpointLinks struct {
+	Sessions *OData `json:"Sessions"`
 }
 
 type sessionServiceEndpoint struct {

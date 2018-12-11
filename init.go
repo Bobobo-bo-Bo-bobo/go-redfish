@@ -55,6 +55,13 @@ func (r *Redfish) Initialise() error {
 	}
 	r.SessionService = *base.SessionService.Id
 
+	// Get session endpoint from .Links.Sessions because some implementations (e.g. INSPUR) report SessionService endpoint but don't implement it.
+	if base.Links.Sessions != nil {
+		if base.Links.Sessions.Id != nil && *base.Links.Sessions.Id != "" {
+			r.Sessions = *base.Links.Sessions.Id
+		}
+	}
+
 	if base.Systems.Id == nil {
 		return errors.New(fmt.Sprintf("BUG: No Systems endpoint found in base configuration from %s", response.Url))
 	}
