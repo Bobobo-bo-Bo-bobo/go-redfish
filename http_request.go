@@ -113,5 +113,9 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 		return result, err
 	}
 
+	if r.Debug {
+		r.logger.Printf("HTTP content returned from HTTP %s to %s: %s\n", method, url, string(result.Content))
+	}
+
 	return result, nil
 }
