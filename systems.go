@@ -180,3 +180,62 @@ func (r *Redfish) GetVendorFlavor() error {
 
 	return nil
 }
+
+// set reset type map to map normalized state to supported variable value
+func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
+	if sd.Actions == nil {
+		return errors.New(fmt.Sprintf("BUG: SystemData object don't define an Actions key"))
+	}
+	if sd.Actions.ComputerReset == nil {
+		return errors.New(fmt.Sprintf("BUG: SystemData.Actions don't define a #ComputerSystem.Reset key"))
+	}
+	if sd.Actions.ComputerReset.Target == "" {
+		return errors.New(fmt.Sprintf("BUG: SystemData.Actions.#ComputerSystem.Reset don't define a target key"))
+	}
+
+	if sd.Actions.ComputerReset.ActionInfo != "" {
+		// TODO: Fetch information from ActionInfo URL
+	} else {
+		if len(sd.Actions.ComputerReset.ResetTypeValues) == 0 {
+			return errors.New(fmt.Sprintf("BUG: List of supported reset types is not defined or empty"))
+		}
+
+		sd.allowedResetTypes = make(map[string]string)
+		for _, t := range sd.Actions.ComputerReset.ResetTypeValues {
+			_t := strings.ToLower(t)
+			sd.allowedResetTypes[_t] = t
+		}
+		// XXX: Is there a way to check the name of the reset type (is it always ResetType ?) ?
+		//      For instance HPE define an extra key "AvailableActions" containing "PropertyName" for "Reset" action
+		sd.resetTypeProperty = "ResetType"
+	}
+	return nil
+}
+
+// set power state
+func (r *Redfish) SetSytemPowerState(sd *SystemData, state string) error {
+	// do we already know the supported reset types?
+	if len(sd.allowedResetTypes) == 0 {
+		err := r.setAllowedResetTypes(sd)
+		return err
+	}
+
+	_state := strings.TrimSpace(strings.ToLower(state))
+	resetType, found := sd.allowedResetTypes[_state]
+	if found {
+		// build payload
+		payload := fmt.Sprintf("{ \"%s\": \"%s\" }", sd.resetTypeProperty, resetType)
+		result, err := r.httpRequest(sd.Actions.ComputerReset.Target, "POST", nil, strings.NewReader(payload), false)
+		if err != nil {
+			return err
+		}
+		// DTMF Redfish schema definition defines the list of return codes following a POST operation
+		// (see https://redfish.dmtf.org/schemas/DSP0266_1.7.0.html#post-action-a-id-post-action-a-)
+		if result.StatusCode != 200 && result.StatusCode != 202 && result.StatusCode != 204 {
+			return errors.New(fmt.Sprintf("ERROR: HTTP POST to %s returns HTTP status %d - %s (expect 200, 202 or 204)", sd.Actions.ComputerReset.Target, result.StatusCode, result.Status))
+		}
+	} else {
+		return errors.New("ERROR: Requested PowerState is not supported for this system")
+	}
+	return nil
+}

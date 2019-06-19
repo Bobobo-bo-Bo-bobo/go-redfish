@@ -18,11 +18,11 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
 		err := r.GetVendorFlavor()
 		if err != nil {
-			return err
+			return result, err
 		}
 	}
 	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
-		return errors.New("ERROR: Account management is not support for this vendor")
+		return result, errors.New("ERROR: Account management is not support for this vendor")
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
@@ -82,11 +82,11 @@ func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
 		err := r.GetVendorFlavor()
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
-		return errors.New("ERROR: Account management is not support for this vendor")
+		return nil, errors.New("ERROR: Account management is not support for this vendor")
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {

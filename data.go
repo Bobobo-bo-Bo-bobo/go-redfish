@@ -73,6 +73,16 @@ type SystemMemorySummary struct {
 	Status               Status `json:"Status"`
 }
 
+type SystemActionsComputerReset struct {
+	Target          string   `json:"target"`
+	ResetTypeValues []string `json:"ResetType@Redfish.AllowableValues"`
+	ActionInfo      string   `json:"@Redfish.ActionInfo"`
+}
+
+type SystemActions struct {
+	ComputerReset *SystemActionsComputerReset `json:"#ComputerSystem.Reset"`
+}
+
 type SystemData struct {
 	UUID               *string                 `json:"UUID"`
 	Status             Status                  `json:"Status"`
@@ -90,8 +100,12 @@ type SystemData struct {
 	EthernetInterfaces *OData                  `json:"EthernetInterfaces"`
 	BIOSVersion        *string                 `json:"BiosVersion"`
 	BIOS               *OData                  `json:"Bios"`
-	// Actions
-	SelfEndpoint *string
+	Actions            *SystemActions          `json:"Actions"`
+	SelfEndpoint       *string
+	// map normalized (converted to lowercase) to supported reset types
+	allowedResetTypes map[string]string
+	// name of the reset type property, usually "ResetType", but may vary (e.g. when specified otherwise in @Redfish.ActionInfo)
+	resetTypeProperty string
 }
 
 type AccountService struct {
@@ -383,6 +397,7 @@ type BaseRedfish interface {
 	ModifyAccount(string, AccountCreateData) error
 	DeleteAccount(string) error
 	ChangePassword(string, string) error
+	SetSytemPowerState(*SystemData, string) error
 
 	httpRequest(string, string, *map[string]string, io.Reader, bool) (HttpResult, error)
 	getCSRTarget_HP(*ManagerData) (string, error)
@@ -395,6 +410,7 @@ type BaseRedfish interface {
 	getImportCertTarget_HP(*ManagerData) (string, error)
 	getImportCertTarget_Huawei(*ManagerData) (string, error)
 	makeAccountCreateModifyPayload(AccountCreateData) (string, error)
+	setAllowedResetTypes(*SystemData) error
 }
 
 type Redfish struct {
