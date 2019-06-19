@@ -35,10 +35,10 @@ func (r *Redfish) Initialise() error {
 	}
 
 	// extract required endpoints
-    // some systems don't have the (mandatory!) AccountService endpoint (e.g. LENOVO)
+	// some systems don't have the (mandatory!) AccountService endpoint (e.g. LENOVO)
 	if base.AccountService.Id != nil {
-        r.AccountService = *base.AccountService.Id
-    }
+		r.AccountService = *base.AccountService.Id
+	}
 
 	if base.Chassis.Id == nil {
 		return errors.New(fmt.Sprintf("BUG: No Chassis endpoint found in base configuration from %s", response.Url))

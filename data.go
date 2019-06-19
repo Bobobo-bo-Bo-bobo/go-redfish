@@ -322,7 +322,8 @@ type AccountCreateData struct {
 }
 
 const (
-	REDFISH_GENERAL uint = iota
+	REDFISH_FLAVOR_NOT_INITIALIZED uint = iota
+	REDFISH_GENERAL
 	REDFISH_HP
 	REDFISH_HUAWEI
 	REDFISH_INSPUR

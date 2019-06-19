@@ -14,6 +14,17 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 	var accs OData
 	var result = make([]string, 0)
 
+	// check if vendor supports account management
+	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+		err := r.GetVendorFlavor()
+		if err != nil {
+			return err
+		}
+	}
+	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+		return errors.New("ERROR: Account management is not support for this vendor")
+	}
+
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return result, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
@@ -66,6 +77,17 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 // get account data for a particular account
 func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 	var result AccountData
+
+	// check if vendor supports account management
+	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+		err := r.GetVendorFlavor()
+		if err != nil {
+			return err
+		}
+	}
+	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+		return errors.New("ERROR: Account management is not support for this vendor")
+	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return nil, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
@@ -151,9 +173,11 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
-	err := r.GetVendorFlavor()
-	if err != nil {
-		return err
+	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+		err := r.GetVendorFlavor()
+		if err != nil {
+			return err
+		}
 	}
 
 	// check if vendor supports account management
@@ -274,12 +298,13 @@ func (r *Redfish) DeleteAccount(u string) error {
 		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
-	err := r.GetVendorFlavor()
-	if err != nil {
-		return err
-	}
-
 	// check if vendor supports account management
+	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+		err := r.GetVendorFlavor()
+		if err != nil {
+			return err
+		}
+	}
 	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
 		return errors.New("ERROR: Account management is not support for this vendor")
 	}
@@ -326,12 +351,13 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
-	err := r.GetVendorFlavor()
-	if err != nil {
-		return err
-	}
-
 	// check if vendor supports account management
+	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+		err := r.GetVendorFlavor()
+		if err != nil {
+			return err
+		}
+	}
 	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
 		return errors.New("ERROR: Account management is not support for this vendor")
 	}
@@ -439,12 +465,13 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
-	err := r.GetVendorFlavor()
-	if err != nil {
-		return err
-	}
-
 	// check if vendor supports account management
+	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+		err := r.GetVendorFlavor()
+		if err != nil {
+			return err
+		}
+	}
 	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
 		return errors.New("ERROR: Account management is not support for this vendor")
 	}
