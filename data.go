@@ -345,6 +345,7 @@ var VendorCapabilities = map[string]uint{
 	"inspur":     0,
 	"supermicro": HAS_ACCOUNTSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
 	"vanilla":    HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
+	"":           HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
 }
 
 type HttpResult struct {
