@@ -195,6 +195,41 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 
 	if sd.Actions.ComputerReset.ActionInfo != "" {
 		// TODO: Fetch information from ActionInfo URL
+		result, err := r.httpRequest(sd.Actions.ComputerReset.ActionInfo, "GET", nil, nil, false)
+		if err != nil {
+			return err
+		}
+		if result.StatusCode != 200 {
+			return errors.New(fmt.Sprintf("ERROR: HTTP GET Request to %s returned %d - %s (expected 200)", sd.Actions.ComputerReset.ActionInfo, result.StatusCode, result.Status))
+		}
+
+		var sai SystemActionInfo
+		raw := result.Content
+
+		err = json.Unmarshal(raw, &sai)
+		if err != nil {
+			return err
+		}
+
+		// XXX: Assuming ActionInfo field "Parameters" for reset only contains one entry and this it contains the name
+		//      of the field
+		if len(sai.Parameters) == 0 {
+			return errors.New("BUG: ActionInfo for system reset is either not defined or empty")
+		}
+		if sai.Parameters[0].Name == "" {
+			return errors.New("BUG: ActionInfo.Parameters[0] don't have required field Name (or it is empty)")
+		}
+		if len(sai.Parameters[0].AllowableValues) == 0 {
+			return errors.New(fmt.Sprintf("BUG: List of supported reset types in ActionInfo is not defined or empty"))
+		}
+		sd.allowedResetTypes = make(map[string]string)
+		for _, t := range sai.Parameters[0].AllowableValues {
+			_t := strings.ToLower(t)
+			sd.allowedResetTypes[_t] = t
+		}
+
+		sd.resetTypeProperty = sai.Parameters[0].Name
+
 	} else {
 		if len(sd.Actions.ComputerReset.ResetTypeValues) == 0 {
 			return errors.New(fmt.Sprintf("BUG: List of supported reset types is not defined or empty"))
@@ -207,6 +242,8 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 		}
 		// XXX: Is there a way to check the name of the reset type (is it always ResetType ?) ?
 		//      For instance HPE define an extra key "AvailableActions" containing "PropertyName" for "Reset" action
+		//      According to https://redfish.dmtf.org/schemas/DSP0266_1.7.0.html#allowable-values the name is the
+		//      part before "@Redfish.AllowableValues" but this sucks for JSON parsing in Go!
 		sd.resetTypeProperty = "ResetType"
 	}
 	return nil

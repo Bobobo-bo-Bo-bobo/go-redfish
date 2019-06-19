@@ -83,6 +83,20 @@ type SystemActions struct {
 	ComputerReset *SystemActionsComputerReset `json:"#ComputerSystem.Reset"`
 }
 
+type ActionInfoParameter struct {
+	Name            string   `json:"Name"`
+	Required        bool     `json:"Required"`
+	DataType        string   `json:"DataType"`
+	AllowableValues []string `json:"AllowableValues"`
+}
+
+type SystemActionInfo struct {
+	ODataContext string                `json:"@odata.context"`
+	ODataId      string                `json:"@odata.id"`
+	ODataType    string                `json:"@odata.type"`
+	Parameters   []ActionInfoParameter `json:"Parameters"`
+}
+
 type SystemData struct {
 	UUID               *string                 `json:"UUID"`
 	Status             Status                  `json:"Status"`
