@@ -15,7 +15,7 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 	var result = make([]string, 0)
 
 	// check if vendor supports account management
-	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
@@ -79,7 +79,7 @@ func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 	var result AccountData
 
 	// check if vendor supports account management
-	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
@@ -173,7 +173,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
-	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
@@ -299,7 +299,7 @@ func (r *Redfish) DeleteAccount(u string) error {
 	}
 
 	// check if vendor supports account management
-	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
@@ -352,7 +352,7 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 	}
 
 	// check if vendor supports account management
-	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
@@ -466,7 +466,7 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 	}
 
 	// check if vendor supports account management
-	if r.FLAVOR == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
