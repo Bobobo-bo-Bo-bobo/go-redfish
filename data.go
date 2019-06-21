@@ -411,7 +411,7 @@ type BaseRedfish interface {
 	ModifyAccount(string, AccountCreateData) error
 	DeleteAccount(string) error
 	ChangePassword(string, string) error
-	SetSytemPowerState(*SystemData, string) error
+	SetSystemPowerState(*SystemData, string) error
 
 	httpRequest(string, string, *map[string]string, io.Reader, bool) (HttpResult, error)
 	getCSRTarget_HP(*ManagerData) (string, error)

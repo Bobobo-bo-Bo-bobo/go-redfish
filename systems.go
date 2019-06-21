@@ -250,11 +250,13 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 }
 
 // set power state
-func (r *Redfish) SetSytemPowerState(sd *SystemData, state string) error {
+func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 	// do we already know the supported reset types?
 	if len(sd.allowedResetTypes) == 0 {
 		err := r.setAllowedResetTypes(sd)
-		return err
+        if err != nil {
+            return err
+        }
 	}
 
 	_state := strings.TrimSpace(strings.ToLower(state))
