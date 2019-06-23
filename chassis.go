@@ -19,6 +19,11 @@ func (r *Redfish) GetChassis() ([]string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               r.Chassis,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -61,6 +66,11 @@ func (r *Redfish) GetChassisData(chassisEndpoint string) (*ChassisData, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               chassisEndpoint,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -119,6 +129,11 @@ func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               powerEndpoint,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -149,6 +164,11 @@ func (r *Redfish) GetThermalData(thermalEndpoint string) (*ThermalData, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               thermalEndpoint,
 			"method":             "GET",
 			"additional_headers": nil,

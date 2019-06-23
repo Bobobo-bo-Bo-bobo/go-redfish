@@ -19,6 +19,11 @@ func (r *Redfish) GetManagers() ([]string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               r.Managers,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -60,6 +65,11 @@ func (r *Redfish) GetManagerData(managerEndpoint string) (*ManagerData, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               managerEndpoint,
 			"method":             "GET",
 			"additional_headers": nil,

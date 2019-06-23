@@ -52,9 +52,14 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 
 	if r.Debug {
 		log.WithFields(log.Fields{
-			"method": method,
-			"url":    url,
-			"reader": reader,
+			"hostname":      r.Hostname,
+			"port":          r.Port,
+			"timeout":       r.Timeout,
+			"flavor":        r.Flavor,
+			"flavor_string": r.FlavorString,
+			"method":        method,
+			"url":           url,
+			"reader":        reader,
 		}).Debug("Sending HTTP request")
 	}
 
@@ -66,8 +71,13 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 	if basic_auth {
 		if r.Debug {
 			log.WithFields(log.Fields{
-				"method": method,
-				"url":    url,
+				"hostname":      r.Hostname,
+				"port":          r.Port,
+				"timeout":       r.Timeout,
+				"flavor":        r.Flavor,
+				"flavor_string": r.FlavorString,
+				"method":        method,
+				"url":           url,
 			}).Debug("Setting HTTP basic authentication")
 		}
 		request.SetBasicAuth(r.Username, r.Password)
@@ -99,9 +109,14 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 
 	if r.Debug {
 		log.WithFields(log.Fields{
-			"method":       method,
-			"url":          url,
-			"http_headers": request.Header,
+			"hostname":      r.Hostname,
+			"port":          r.Port,
+			"timeout":       r.Timeout,
+			"flavor":        r.Flavor,
+			"flavor_string": r.FlavorString,
+			"method":        method,
+			"url":           url,
+			"http_headers":  request.Header,
 		}).Debug("HTTP request headers")
 	}
 
@@ -114,10 +129,15 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 
 	if r.Debug {
 		log.WithFields(log.Fields{
-			"method":       method,
-			"url":          url,
-			"status":       response.Status,
-			"http_headers": response.Header,
+			"hostname":      r.Hostname,
+			"port":          r.Port,
+			"timeout":       r.Timeout,
+			"flavor":        r.Flavor,
+			"flavor_string": r.FlavorString,
+			"method":        method,
+			"url":           url,
+			"status":        response.Status,
+			"http_headers":  response.Header,
 		}).Debug("HTTP reply received")
 	}
 
@@ -131,9 +151,14 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 
 	if r.Debug {
 		log.WithFields(log.Fields{
-			"method":  method,
-			"url":     url,
-			"content": string(result.Content),
+			"hostname":      r.Hostname,
+			"port":          r.Port,
+			"timeout":       r.Timeout,
+			"flavor":        r.Flavor,
+			"flavor_string": r.FlavorString,
+			"method":        method,
+			"url":           url,
+			"content":       string(result.Content),
 		}).Debug("Received content")
 	}
 

@@ -27,6 +27,11 @@ func (r *Redfish) Initialise() error {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               "/redfish/v1/",
 			"method":             "GET",
 			"additional_headers": nil,

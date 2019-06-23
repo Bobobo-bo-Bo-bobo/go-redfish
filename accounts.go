@@ -32,6 +32,11 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               r.AccountService,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -60,6 +65,11 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               *accsvc.AccountsEndpoint.Id,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -112,6 +122,11 @@ func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               accountEndpoint,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -213,6 +228,11 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	// get Accounts endpoint from AccountService
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               r.AccountService,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -264,6 +284,11 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"RoleId\": \"%s\" }", acd.UserName, acd.Password, acd.Role)
 		if r.Verbose {
 			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
 				"path":               accep,
 				"method":             "POST",
 				"additional_headers": nil,
@@ -272,6 +297,11 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		}
 		if r.Debug {
 			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
 				"path":               accep,
 				"method":             "POST",
 				"additional_headers": nil,
@@ -376,6 +406,11 @@ func (r *Redfish) DeleteAccount(u string) error {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               *adata.SelfEndpoint,
 			"method":             "DELETE",
 			"additional_headers": nil,
@@ -437,6 +472,11 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               *adata.SelfEndpoint,
 			"method":             "PATCH",
 			"additional_headers": nil,
@@ -445,6 +485,11 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 	}
 	if r.Debug {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               *adata.SelfEndpoint,
 			"method":             "PATCH",
 			"additional_headers": nil,
@@ -576,6 +621,11 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 
 		if r.Verbose {
 			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
 				"path":               *udata.SelfEndpoint,
 				"method":             "PATCH",
 				"additional_headers": nil,
@@ -584,6 +634,11 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 		}
 		if r.Debug {
 			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
 				"path":               *udata.SelfEndpoint,
 				"method":             "PATCH",
 				"additional_headers": nil,

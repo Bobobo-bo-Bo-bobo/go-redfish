@@ -22,6 +22,11 @@ func (r *Redfish) Login() error {
 	if r.Sessions == "" {
 		if r.Verbose {
 			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
 				"path":               r.SessionService,
 				"method":             "GET",
 				"additional_headers": nil,
@@ -65,6 +70,11 @@ func (r *Redfish) Login() error {
 	jsonPayload := fmt.Sprintf("{ \"UserName\":\"%s\",\"Password\":\"%s\" }", r.Username, r.Password)
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               r.Sessions,
 			"method":             "POST",
 			"additional_headers": nil,
@@ -73,6 +83,11 @@ func (r *Redfish) Login() error {
 	}
 	if r.Debug {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               r.Sessions,
 			"method":             "POST",
 			"additional_headers": nil,

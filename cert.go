@@ -32,6 +32,11 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               secsvc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -61,6 +66,11 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               httpscertloc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -114,6 +124,11 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               secsvc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -144,6 +159,11 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               httpscertloc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -237,6 +257,11 @@ func (r *Redfish) ImportCertificate(cert string) error {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               certtarget,
 			"method":             "POST",
 			"additional_headers": nil,
@@ -245,6 +270,11 @@ func (r *Redfish) ImportCertificate(cert string) error {
 	}
 	if r.Debug {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               certtarget,
 			"method":             "POST",
 			"additional_headers": nil,

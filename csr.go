@@ -36,6 +36,11 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               secsvc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -66,6 +71,11 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               httpscertloc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -127,6 +137,11 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               secsvc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -157,6 +172,11 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               httpscertloc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -218,6 +238,11 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               secsvc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -248,6 +273,11 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               httpscertloc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -306,6 +336,11 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               secsvc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -336,6 +371,11 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               httpscertloc,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -502,6 +542,11 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               gencsrtarget,
 			"method":             "POST",
 			"additional_headers": nil,
@@ -510,6 +555,11 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 	}
 	if r.Debug {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               gencsrtarget,
 			"method":             "POST",
 			"additional_headers": nil,

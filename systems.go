@@ -20,6 +20,11 @@ func (r *Redfish) GetSystems() ([]string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               r.Systems,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -62,6 +67,11 @@ func (r *Redfish) GetSystemData(systemEndpoint string) (*SystemData, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               systemEndpoint,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -214,6 +224,11 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 		// TODO: Fetch information from ActionInfo URL
 		if r.Verbose {
 			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
 				"path":               sd.Actions.ComputerReset.ActionInfo,
 				"method":             "GET",
 				"additional_headers": nil,
@@ -291,6 +306,11 @@ func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 		payload := fmt.Sprintf("{ \"%s\": \"%s\" }", sd.resetTypeProperty, resetType)
 		if r.Verbose {
 			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
 				"path":               sd.Actions.ComputerReset.Target,
 				"method":             "POST",
 				"additional_headers": nil,
@@ -299,6 +319,11 @@ func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 		}
 		if r.Debug {
 			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
 				"path":               sd.Actions.ComputerReset.Target,
 				"method":             "POST",
 				"additional_headers": nil,

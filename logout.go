@@ -25,6 +25,11 @@ func (r *Redfish) Logout() error {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               r.SessionLocation,
 			"method":             "DELETE",
 			"additional_headers": nil,

@@ -83,6 +83,11 @@ func (r *Redfish) ResetSP() error {
 	sp_reset_payload := "{ \"ResetType\": \"ForceRestart\" }"
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               sp_reset_target,
 			"method":             "POST",
 			"additional_headers": nil,
@@ -91,6 +96,11 @@ func (r *Redfish) ResetSP() error {
 	}
 	if r.Debug {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               sp_reset_target,
 			"method":             "POST",
 			"additional_headers": nil,

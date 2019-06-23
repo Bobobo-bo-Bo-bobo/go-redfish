@@ -20,6 +20,11 @@ func (r *Redfish) GetRoles() ([]string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               r.AccountService,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -49,6 +54,11 @@ func (r *Redfish) GetRoles() ([]string, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               *accsvc.RolesEndpoint.Id,
 			"method":             "GET",
 			"additional_headers": nil,
@@ -90,6 +100,11 @@ func (r *Redfish) GetRoleData(roleEndpoint string) (*RoleData, error) {
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
 			"path":               roleEndpoint,
 			"method":             "GET",
 			"additional_headers": nil,
