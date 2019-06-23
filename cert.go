@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -29,6 +30,14 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 		secsvc = *oemHp.Hp.Links.SecurityService.Id
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               secsvc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to security service")
+	}
 	response, err := r.httpRequest(secsvc, "GET", nil, nil, false)
 	if err != nil {
 		return certTarget, err
@@ -50,7 +59,14 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
-
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               httpscertloc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path for SSL certificate import")
+	}
 	response, err = r.httpRequest(httpscertloc, "GET", nil, nil, false)
 	if err != nil {
 		return certTarget, err
@@ -96,6 +112,14 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 		secsvc = *oemHuawei.Huawei.SecurityService.Id
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               secsvc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to security service")
+	}
 	response, err := r.httpRequest(secsvc, "GET", nil, nil, false)
 	if err != nil {
 		return certTarget, err
@@ -118,6 +142,14 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               httpscertloc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path for SSL certificate import")
+	}
 	response, err = r.httpRequest(httpscertloc, "GET", nil, nil, false)
 	if err != nil {
 		return certTarget, err
@@ -203,6 +235,23 @@ func (r *Redfish) ImportCertificate(cert string) error {
 	rawcert := strings.Replace(cert, "\n", "\\n", -1)
 	cert_payload := fmt.Sprintf("{ \"Certificate\": \"%s\" }", rawcert)
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               certtarget,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Importing SSL certificate")
+	}
+	if r.Debug {
+		log.WithFields(log.Fields{
+			"path":               certtarget,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+			"payload":            cert_payload,
+		}).Debug("Importing SSL certificate")
+	}
 	response, err := r.httpRequest(certtarget, "POST", nil, strings.NewReader(cert_payload), false)
 	if err != nil {
 		return err

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -80,6 +81,23 @@ func (r *Redfish) ResetSP() error {
 	}
 
 	sp_reset_payload := "{ \"ResetType\": \"ForceRestart\" }"
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               sp_reset_target,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting service processor restart")
+	}
+	if r.Debug {
+		log.WithFields(log.Fields{
+			"path":               sp_reset_target,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+			"payload":            sp_reset_payload,
+		}).Debug("Requesting service processor restart")
+	}
 	response, err := r.httpRequest(sp_reset_target, "POST", nil, strings.NewReader(sp_reset_payload), false)
 	if err != nil {
 		return err

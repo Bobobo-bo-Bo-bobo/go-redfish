@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -33,6 +34,14 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 		return csr, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               secsvc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to security service")
+	}
 	response, err := r.httpRequest(secsvc, "GET", nil, nil, false)
 	if err != nil {
 		return csr, err
@@ -55,6 +64,14 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               httpscertloc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting certficate signing request")
+	}
 	response, err = r.httpRequest(httpscertloc, "GET", nil, nil, false)
 	if err != nil {
 		return csr, err
@@ -108,6 +125,14 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 		return csr, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               secsvc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to security service")
+	}
 	response, err := r.httpRequest(secsvc, "GET", nil, nil, false)
 	if err != nil {
 		return csr, err
@@ -130,6 +155,14 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               httpscertloc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting certficate signing request")
+	}
 	response, err = r.httpRequest(httpscertloc, "GET", nil, nil, false)
 	if err != nil {
 		return csr, err
@@ -183,6 +216,14 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 		return csrTarget, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               secsvc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to security service")
+	}
 	response, err := r.httpRequest(secsvc, "GET", nil, nil, false)
 	if err != nil {
 		return csrTarget, err
@@ -205,6 +246,14 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               httpscertloc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to certificate signing request")
+	}
 	response, err = r.httpRequest(httpscertloc, "GET", nil, nil, false)
 
 	if err != nil {
@@ -255,6 +304,14 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 		return csrTarget, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               secsvc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to security service")
+	}
 	response, err := r.httpRequest(secsvc, "GET", nil, nil, false)
 	if err != nil {
 		return csrTarget, err
@@ -277,6 +334,14 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               httpscertloc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to certificate signing request")
+	}
 	response, err = r.httpRequest(httpscertloc, "GET", nil, nil, false)
 
 	if err != nil {
@@ -435,6 +500,23 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 		return errors.New("BUG: CSR generation target is not known")
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               gencsrtarget,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting CSR generation")
+	}
+	if r.Debug {
+		log.WithFields(log.Fields{
+			"path":               gencsrtarget,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+			"payload":            csrstr,
+		}).Debug("Requesting CSR generation")
+	}
 	response, err := r.httpRequest(gencsrtarget, "POST", nil, strings.NewReader(csrstr), false)
 	if err != nil {
 		return err

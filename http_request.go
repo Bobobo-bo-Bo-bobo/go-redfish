@@ -3,6 +3,7 @@ package redfish
 import (
 	"crypto/tls"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -18,7 +19,7 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
 		if r.Debug {
-			r.logger.Println("Enabling insecure SSL")
+			log.Debug("Disabling verification of SSL certificates")
 		}
 	} else {
 		transp = &http.Transport{
@@ -50,7 +51,11 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 	result.Url = url
 
 	if r.Debug {
-		r.logger.Printf("Sending HTTP %s to %s with reader interface at %p\n", method, url, reader)
+		log.WithFields(log.Fields{
+			"method": method,
+			"url":    url,
+			"reader": reader,
+		}).Debug("Sending HTTP request")
 	}
 
 	request, err := http.NewRequest(method, url, reader)
@@ -60,7 +65,10 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 
 	if basic_auth {
 		if r.Debug {
-			r.logger.Printf("Setting HTTP basic authentication for HTTP %s to %s", method, url)
+			log.WithFields(log.Fields{
+				"method": method,
+				"url":    url,
+			}).Debug("Setting HTTP basic authentication")
 		}
 		request.SetBasicAuth(r.Username, r.Password)
 	}
@@ -90,7 +98,11 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 	}
 
 	if r.Debug {
-		r.logger.Printf("HTTP headers for %s request to %s: %+v\n", method, url, request.Header)
+		log.WithFields(log.Fields{
+			"method":       method,
+			"url":          url,
+			"http_headers": request.Header,
+		}).Debug("HTTP request headers")
 	}
 
 	response, err := client.Do(request)
@@ -101,8 +113,12 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 	defer response.Body.Close()
 
 	if r.Debug {
-		r.logger.Printf("HTTP %s to %s returned with status %s\n", method, url, response.Status)
-		r.logger.Printf("HTTP headers returned from HTTP %s to %s: %+v\n", method, url, response.Header)
+		log.WithFields(log.Fields{
+			"method":       method,
+			"url":          url,
+			"status":       response.Status,
+			"http_headers": response.Header,
+		}).Debug("HTTP reply received")
 	}
 
 	result.Status = response.Status
@@ -114,7 +130,11 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 	}
 
 	if r.Debug {
-		r.logger.Printf("HTTP content returned from HTTP %s to %s: %s\n", method, url, string(result.Content))
+		log.WithFields(log.Fields{
+			"method":  method,
+			"url":     url,
+			"content": string(result.Content),
+		}).Debug("Received content")
 	}
 
 	return result, nil

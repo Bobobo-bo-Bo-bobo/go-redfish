@@ -4,19 +4,35 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
-	"os"
+	"time"
 )
 
 // Initialise Redfish basic data
 func (r *Redfish) Initialise() error {
 	var base baseEndpoint
 
-	if r.Debug {
-		r.logger = log.New(os.Stderr, "", log.Lshortfile|log.Ldate|log.Ltime|log.Lmicroseconds)
+	if r.Debug || r.Verbose {
+		// Logging setup
+		var log_fmt *log.TextFormatter = new(log.TextFormatter)
+		log_fmt.FullTimestamp = true
+		log_fmt.TimestampFormat = time.RFC3339
+		log.SetFormatter(log_fmt)
 	}
 
+	if r.Debug {
+		log.SetLevel(log.DebugLevel)
+	}
+
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               "/redfish/v1/",
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Rquesting basic information")
+	}
 	response, err := r.httpRequest("/redfish/v1/", "GET", nil, nil, false)
 	if err != nil {
 		return err

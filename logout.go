@@ -3,6 +3,7 @@ package redfish
 import (
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -22,6 +23,14 @@ func (r *Redfish) Logout() error {
 		return errors.New(fmt.Sprintf("BUG: X-Auth-Token set (value: %s) but no SessionLocation for this session found\n", *r.AuthToken))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               r.SessionLocation,
+			"method":             "DELETE",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Removing session authentication")
+	}
 	response, err := r.httpRequest(*r.SessionLocation, "DELETE", nil, nil, false)
 	if err != nil {
 		return err

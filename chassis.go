@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -16,6 +17,14 @@ func (r *Redfish) GetChassis() ([]string, error) {
 		return result, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               r.Chassis,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting installed chassis components")
+	}
 	response, err := r.httpRequest(r.Chassis, "GET", nil, nil, false)
 	if err != nil {
 		return result, err
@@ -50,6 +59,14 @@ func (r *Redfish) GetChassisData(chassisEndpoint string) (*ChassisData, error) {
 		return nil, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               chassisEndpoint,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting chassis information")
+	}
 	response, err := r.httpRequest(chassisEndpoint, "GET", nil, nil, false)
 	if err != nil {
 		return nil, err
@@ -100,6 +117,14 @@ func (r *Redfish) MapChassisById() (map[string]*ChassisData, error) {
 func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
 	var result PowerData
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               powerEndpoint,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting power information")
+	}
 	response, err := r.httpRequest(powerEndpoint, "GET", nil, nil, false)
 	if err != nil {
 		return nil, err
@@ -122,6 +147,14 @@ func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
 func (r *Redfish) GetThermalData(thermalEndpoint string) (*ThermalData, error) {
 	var result ThermalData
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               thermalEndpoint,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting thermal information")
+	}
 	response, err := r.httpRequest(thermalEndpoint, "GET", nil, nil, false)
 	if err != nil {
 		return nil, err

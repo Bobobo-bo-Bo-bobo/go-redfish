@@ -3,7 +3,6 @@ package redfish
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"time"
 )
@@ -437,6 +436,7 @@ type Redfish struct {
 	Timeout         time.Duration
 	InsecureSSL     bool
 	Debug           bool
+	Verbose         bool
 	RawBaseContent  string
 
 	// endpoints
@@ -450,7 +450,4 @@ type Redfish struct {
 	// Vendor "flavor"
 	Flavor       uint
 	FlavorString string
-
-	// Logger for verbose output
-	logger *log.Logger
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -16,6 +17,14 @@ func (r *Redfish) GetManagers() ([]string, error) {
 		return result, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               r.Managers,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting user accounts")
+	}
 	response, err := r.httpRequest(r.Managers, "GET", nil, nil, false)
 	if err != nil {
 		return result, err
@@ -49,6 +58,14 @@ func (r *Redfish) GetManagerData(managerEndpoint string) (*ManagerData, error) {
 		return nil, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               managerEndpoint,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting information for user")
+	}
 	response, err := r.httpRequest(managerEndpoint, "GET", nil, nil, false)
 	if err != nil {
 		return nil, err

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -19,6 +20,14 @@ func (r *Redfish) Login() error {
 	// Get session endpoint if not already defined by information from base endpoint .Links.Sessions
 	// because some implementations (e.g. INSPUR) report SessionService endpoint but don't implement it.
 	if r.Sessions == "" {
+		if r.Verbose {
+			log.WithFields(log.Fields{
+				"path":               r.SessionService,
+				"method":             "GET",
+				"additional_headers": nil,
+				"use_basic_auth":     true,
+			}).Info("Requesting path to session service")
+		}
 		response, err := r.httpRequest(r.SessionService, "GET", nil, nil, true)
 		if err != nil {
 			return err
@@ -54,6 +63,23 @@ func (r *Redfish) Login() error {
 	}
 
 	jsonPayload := fmt.Sprintf("{ \"UserName\":\"%s\",\"Password\":\"%s\" }", r.Username, r.Password)
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               r.Sessions,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Sending login data to session service")
+	}
+	if r.Debug {
+		log.WithFields(log.Fields{
+			"path":               r.Sessions,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+			"payload":            jsonPayload,
+		}).Debug("Sending login data to session service")
+	}
 	response, err := r.httpRequest(r.Sessions, "POST", nil, strings.NewReader(jsonPayload), false)
 	if err != nil {
 		return err

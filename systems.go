@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -17,6 +18,14 @@ func (r *Redfish) GetSystems() ([]string, error) {
 		return result, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               r.Systems,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting available systems")
+	}
 	response, err := r.httpRequest(r.Systems, "GET", nil, nil, false)
 	if err != nil {
 		return result, err
@@ -51,6 +60,14 @@ func (r *Redfish) GetSystemData(systemEndpoint string) (*SystemData, error) {
 		return nil, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               systemEndpoint,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting system information")
+	}
 	response, err := r.httpRequest(systemEndpoint, "GET", nil, nil, false)
 	if err != nil {
 		return nil, err
@@ -195,6 +212,14 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 
 	if sd.Actions.ComputerReset.ActionInfo != "" {
 		// TODO: Fetch information from ActionInfo URL
+		if r.Verbose {
+			log.WithFields(log.Fields{
+				"path":               sd.Actions.ComputerReset.ActionInfo,
+				"method":             "GET",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+			}).Info("Requesting valid actions for system reset")
+		}
 		result, err := r.httpRequest(sd.Actions.ComputerReset.ActionInfo, "GET", nil, nil, false)
 		if err != nil {
 			return err
@@ -254,9 +279,9 @@ func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 	// do we already know the supported reset types?
 	if len(sd.allowedResetTypes) == 0 {
 		err := r.setAllowedResetTypes(sd)
-        if err != nil {
-            return err
-        }
+		if err != nil {
+			return err
+		}
 	}
 
 	_state := strings.TrimSpace(strings.ToLower(state))
@@ -264,6 +289,23 @@ func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 	if found {
 		// build payload
 		payload := fmt.Sprintf("{ \"%s\": \"%s\" }", sd.resetTypeProperty, resetType)
+		if r.Verbose {
+			log.WithFields(log.Fields{
+				"path":               sd.Actions.ComputerReset.Target,
+				"method":             "POST",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+			}).Info("Requesting valid actions for system reset")
+		}
+		if r.Debug {
+			log.WithFields(log.Fields{
+				"path":               sd.Actions.ComputerReset.Target,
+				"method":             "POST",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+				"payload":            payload,
+			}).Debug("Requesting valid actions for system reset")
+		}
 		result, err := r.httpRequest(sd.Actions.ComputerReset.Target, "POST", nil, strings.NewReader(payload), false)
 		if err != nil {
 			return err

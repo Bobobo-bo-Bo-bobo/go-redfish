@@ -1,7 +1,8 @@
 .idea
 bin
 src/golang.org
-pkg
+pkg/
+src/
 *.swp
 tmp/
 samples/

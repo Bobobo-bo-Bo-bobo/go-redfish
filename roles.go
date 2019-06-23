@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -17,6 +18,14 @@ func (r *Redfish) GetRoles() ([]string, error) {
 		return result, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               r.AccountService,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path for account roles")
+	}
 	response, err := r.httpRequest(r.AccountService, "GET", nil, nil, false)
 	if err != nil {
 		return result, err
@@ -38,6 +47,14 @@ func (r *Redfish) GetRoles() ([]string, error) {
 		return result, nil
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               *accsvc.RolesEndpoint.Id,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting account roles")
+	}
 	response, err = r.httpRequest(*accsvc.RolesEndpoint.Id, "GET", nil, nil, false)
 	if err != nil {
 		return result, err
@@ -71,6 +88,14 @@ func (r *Redfish) GetRoleData(roleEndpoint string) (*RoleData, error) {
 		return nil, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               roleEndpoint,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting role information")
+	}
 	response, err := r.httpRequest(roleEndpoint, "GET", nil, nil, false)
 	if err != nil {
 		return nil, err

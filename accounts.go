@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -29,6 +30,14 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 		return result, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               r.AccountService,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to account service")
+	}
 	response, err := r.httpRequest(r.AccountService, "GET", nil, nil, false)
 	if err != nil {
 		return result, err
@@ -49,6 +58,14 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 		return result, errors.New("BUG: No Accounts endpoint found")
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               *accsvc.AccountsEndpoint.Id,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting accounts")
+	}
 	response, err = r.httpRequest(*accsvc.AccountsEndpoint.Id, "GET", nil, nil, false)
 	if err != nil {
 		return result, err
@@ -93,6 +110,14 @@ func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 		return nil, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               accountEndpoint,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting account information")
+	}
 	response, err := r.httpRequest(accountEndpoint, "GET", nil, nil, false)
 	if err != nil {
 		return nil, err
@@ -186,6 +211,14 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	}
 
 	// get Accounts endpoint from AccountService
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               r.AccountService,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to account service")
+	}
 	response, err := r.httpRequest(r.AccountService, "GET", nil, nil, false)
 	if err != nil {
 		return nil
@@ -229,6 +262,23 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		}
 
 		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"RoleId\": \"%s\" }", acd.UserName, acd.Password, acd.Role)
+		if r.Verbose {
+			log.WithFields(log.Fields{
+				"path":               accep,
+				"method":             "POST",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+			}).Info("Adding account")
+		}
+		if r.Debug {
+			log.WithFields(log.Fields{
+				"path":               accep,
+				"method":             "POST",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+				"payload":            payload,
+			}).Debug("Adding account")
+		}
 		response, err = r.httpRequest(accep, "POST", nil, strings.NewReader(payload), false)
 		if err != nil {
 			return err
@@ -324,6 +374,14 @@ func (r *Redfish) DeleteAccount(u string) error {
 		return errors.New(fmt.Sprintf("BUG: SelfEndpoint not set or empty in account data for %s", u))
 	}
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               *adata.SelfEndpoint,
+			"method":             "DELETE",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Deleting account")
+	}
 	response, err := r.httpRequest(*adata.SelfEndpoint, "DELETE", nil, nil, false)
 	if err != nil {
 		return err
@@ -377,6 +435,23 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 	}
 	payload = fmt.Sprintf("{ \"Password\": \"%s\" }", p)
 
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"path":               *adata.SelfEndpoint,
+			"method":             "PATCH",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Changing account password")
+	}
+	if r.Debug {
+		log.WithFields(log.Fields{
+			"path":               *adata.SelfEndpoint,
+			"method":             "PATCH",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+			"payload":            payload,
+		}).Debug("Changing account password")
+	}
 	response, err := r.httpRequest(*adata.SelfEndpoint, "PATCH", nil, strings.NewReader(payload), false)
 	if err != nil {
 		return err
@@ -499,6 +574,23 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 			return err
 		}
 
+		if r.Verbose {
+			log.WithFields(log.Fields{
+				"path":               *udata.SelfEndpoint,
+				"method":             "PATCH",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+			}).Info("Modifying account")
+		}
+		if r.Debug {
+			log.WithFields(log.Fields{
+				"path":               *udata.SelfEndpoint,
+				"method":             "PATCH",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+				"payload":            payload,
+			}).Debug("Modifying account")
+		}
 		response, err := r.httpRequest(*udata.SelfEndpoint, "PATCH", nil, strings.NewReader(payload), false)
 		if err != nil {
 			return err
