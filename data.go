@@ -68,8 +68,8 @@ type SystemProcessorSummary struct {
 }
 
 type SystemMemorySummary struct {
-	TotalSystemMemoryGiB int    `json:"TotalSystemMemoryGiB"`
-	Status               Status `json:"Status"`
+	TotalSystemMemoryGiB float64 `json:"TotalSystemMemoryGiB"`
+	Status               Status  `json:"Status"`
 }
 
 type SystemActionsComputerReset struct {
@@ -356,6 +356,7 @@ const (
 	REDFISH_INSPUR
 	REDFISH_LENOVO
 	REDFISH_SUPERMICRO
+	REDFISH_DELL
 )
 
 // service processor capabilities
@@ -372,6 +373,7 @@ var VendorCapabilities = map[string]uint{
 	"huawei":     HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
 	"inspur":     0,
 	"supermicro": HAS_ACCOUNTSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
+	"dell":       HAS_ACCOUNTSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
 	"vanilla":    HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
 	"":           HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
 }
