@@ -183,7 +183,7 @@ func (r *Redfish) MapAccountsByName() (map[string]*AccountData, error) {
 					"flavor":        r.Flavor,
 					"flavor_string": r.FlavorString,
 					"path":          *a.SelfEndpoint,
-				}).Info("Discarding account, UserName field is empty")
+				}).Info("Discarding account because UserName field is empty")
 			}
 			continue
 		}
