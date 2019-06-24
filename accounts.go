@@ -174,7 +174,7 @@ func (r *Redfish) MapAccountsByName() (map[string]*AccountData, error) {
 		}
 		// Note: some vendors like DELL/EMC use predefined number of accounts
 		//       and report an empty UserName for unused accounts "slots"
-		if a.UserName == "" {
+		if *a.UserName == "" {
 			if r.Verbose {
 				log.WithFields(log.Fields{
 					"hostname":      r.Hostname,
