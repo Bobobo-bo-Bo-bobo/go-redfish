@@ -30,7 +30,7 @@ func (r *Redfish) Logout() error {
 			"timeout":            r.Timeout,
 			"flavor":             r.Flavor,
 			"flavor_string":      r.FlavorString,
-			"path":               r.SessionLocation,
+			"path":               *r.SessionLocation,
 			"method":             "DELETE",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
