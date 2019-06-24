@@ -315,7 +315,7 @@ func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 				"method":             "POST",
 				"additional_headers": nil,
 				"use_basic_auth":     false,
-			}).Info("Requesting valid actions for system reset")
+			}).Info("Setting new system power state")
 		}
 		if r.Debug {
 			log.WithFields(log.Fields{
@@ -329,7 +329,7 @@ func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 				"additional_headers": nil,
 				"use_basic_auth":     false,
 				"payload":            payload,
-			}).Debug("Requesting valid actions for system reset")
+			}).Debug("Setting new system power state")
 		}
 		result, err := r.httpRequest(sd.Actions.ComputerReset.Target, "POST", nil, strings.NewReader(payload), false)
 		if err != nil {
