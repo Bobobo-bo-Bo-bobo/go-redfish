@@ -172,6 +172,21 @@ func (r *Redfish) MapAccountsByName() (map[string]*AccountData, error) {
 		if a.UserName == nil {
 			return result, errors.New("BUG: No UserName found or UserName is null")
 		}
+		// Note: some vendors like DELL/EMC use predefined number of accounts
+		//       and report an empty UserName for unused accounts "slots"
+		if a.UserName == "" {
+			if r.Verbose {
+				log.WithFields(log.Fields{
+					"hostname":      r.Hostname,
+					"port":          r.Port,
+					"timeout":       r.Timeout,
+					"flavor":        r.Flavor,
+					"flavor_string": r.FlavorString,
+					"path":          accountEndpoint,
+				}).Info("Discarding account, UserName field is empty")
+			}
+			continue
+		}
 		result[*a.UserName] = a
 	}
 
