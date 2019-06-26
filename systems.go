@@ -202,6 +202,9 @@ func (r *Redfish) GetVendorFlavor() error {
 		} else if _manufacturer == "dell inc." {
 			r.Flavor = REDFISH_DELL
 			r.FlavorString = "dell"
+		} else if _manufacturer == "ibm" {
+			r.Flavor = REDFISH_LENOVO
+			r.FlavorString = "lenovo"
 		} else {
 			r.Flavor = REDFISH_GENERAL
 			r.FlavorString = "vanilla"
