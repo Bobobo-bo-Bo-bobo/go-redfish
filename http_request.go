@@ -30,6 +30,12 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 	client := &http.Client{
 		Timeout:   r.Timeout,
 		Transport: transp,
+		// non-GET methods (like PATCH, POST, ...) may or may not work when encountering
+		// HTTP redirect. Don't follow 301/302. The new location can be checked by looking
+		// at the "Location" header.
+		CheckRedirect: func(http_request *http.Request, http_via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 	}
 
 	if r.Port > 0 {
