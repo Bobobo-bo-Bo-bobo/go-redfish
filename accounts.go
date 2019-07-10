@@ -218,6 +218,70 @@ func (r *Redfish) MapAccountsById() (map[string]*AccountData, error) {
 	return result, nil
 }
 
+// get endpoint of first free account slot
+func (r *Redfish) dellGetFreeAccountSlot() (string, error) {
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":      r.Hostname,
+			"port":          r.Port,
+			"timeout":       r.Timeout,
+			"flavor":        r.Flavor,
+			"flavor_string": r.FlavorString,
+			"path":          r.AccountService,
+		}).Info("Looking for unused account slot")
+	}
+
+	account_list, err := r.GetAccounts()
+	if err != nil {
+		return "", err
+	}
+
+	// Get account information to find the first unused account slot
+	for _, acc_endpt := range account_list {
+		_acd, err := r.GetAccountData(acc_endpt)
+		if err != nil {
+			return "", err
+		}
+
+		// should NEVER happen
+		if _acd.UserName == nil {
+			return "", errors.New("BUG: No UserName found or UserName is null")
+		}
+
+		if *_acd.UserName == "" {
+			if r.Verbose {
+				log.WithFields(log.Fields{
+					"hostname":      r.Hostname,
+					"port":          r.Port,
+					"timeout":       r.Timeout,
+					"flavor":        r.Flavor,
+					"flavor_string": r.FlavorString,
+					"path":          r.AccountService,
+					"unused_slot":   acc_endpt,
+				}).Info("Found unused account slot")
+			}
+			return acc_endpt, nil
+		}
+	}
+
+	return "", nil
+}
+
+func (r *Redfish) dellAddAccount(acd AccountCreateData) error {
+	_unused_slot, err := r.dellGetFreeAccountSlot()
+	if err != nil {
+		return err
+	}
+
+	if _unused_slot == "" {
+		return errors.New("No unused account slot found")
+	}
+
+	// Instead of adding an account we have to modify an existing
+	// unused account slot.
+	return r.ModifyAccountByEndpoint(_unused_slot, acd)
+}
+
 func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	var acsd AccountService
 	var accep string
@@ -238,6 +302,12 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	// check if vendor supports account management
 	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
 		return errors.New("ERROR: Account management is not support for this vendor")
+	}
+
+	// Note: DELL/EMC iDRAC uses a hardcoded, predefined number of account slots
+	//       and as a consequence only support GET and HEAD on the "usual" endpoints
+	if r.Flavor == REDFISH_DELL {
+		return r.dellAddAccount(acd)
 	}
 
 	// get Accounts endpoint from AccountService
@@ -662,6 +732,100 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 			}).Debug("Modifying account")
 		}
 		response, err := r.httpRequest(*udata.SelfEndpoint, "PATCH", nil, strings.NewReader(payload), false)
+		if err != nil {
+			return err
+		}
+
+		// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
+		if response.StatusCode == http.StatusBadRequest {
+			err = json.Unmarshal(response.Content, &rerr)
+			if err != nil {
+				return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
+			}
+			errmsg := ""
+			if len(rerr.Error.MessageExtendedInfo) > 0 {
+				for _, e := range rerr.Error.MessageExtendedInfo {
+					if e.Message != nil || *e.Message != "" {
+						if errmsg == "" {
+							errmsg += *e.Message
+						} else {
+							errmsg += "; " + *e.Message
+						}
+					}
+				}
+			} else {
+				if rerr.Error.Message != nil || *rerr.Error.Message != "" {
+					errmsg = *rerr.Error.Message
+				} else {
+					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+				}
+			}
+			return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
+		}
+
+		// any other error ? (HTTP 400 has been handled above)
+		if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
+			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+		}
+	}
+	return nil
+}
+
+func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData) error {
+	var rerr RedfishError
+
+	if r.AuthToken == nil || *r.AuthToken == "" {
+		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+	}
+
+	// check if vendor supports account management
+	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+		err := r.GetVendorFlavor()
+		if err != nil {
+			return err
+		}
+	}
+	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+		return errors.New("ERROR: Account management is not support for this vendor")
+	}
+
+	if r.Flavor == REDFISH_HP {
+		// XXX: Use Oem specific privilege map
+	} else {
+
+		payload, err := r.makeAccountCreateModifyPayload(acd)
+		if err != nil {
+			return err
+		}
+
+		if r.Verbose {
+			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
+				"path":               endpoint,
+				"method":             "PATCH",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+			}).Info("Modifying account")
+		}
+		if r.Debug {
+			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
+				"path":               endpoint,
+				"method":             "PATCH",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+				"payload":            payload,
+			}).Debug("Modifying account")
+		}
+		response, err := r.httpRequest(endpoint, "PATCH", nil, strings.NewReader(payload), false)
 		if err != nil {
 			return err
 		}
