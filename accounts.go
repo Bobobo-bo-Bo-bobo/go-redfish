@@ -275,6 +275,8 @@ func (r *Redfish) dellGetFreeAccountSlot() (string, error) {
 }
 
 func (r *Redfish) dellAddAccount(acd AccountCreateData) error {
+    var account_enabled bool = true
+
 	_unused_slot, err := r.dellGetFreeAccountSlot()
 	if err != nil {
 		return err
@@ -286,6 +288,7 @@ func (r *Redfish) dellAddAccount(acd AccountCreateData) error {
 
 	// Instead of adding an account we have to modify an existing
 	// unused account slot.
+    acd.Enabled = &account_enabled
 	return r.ModifyAccountByEndpoint(_unused_slot, acd)
 }
 
