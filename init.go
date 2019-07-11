@@ -110,18 +110,11 @@ func (r *Redfish) Initialise() error {
 			r.Port = new_port
 			if r.Verbose {
 				log.WithFields(log.Fields{
-					"hostname":           r.Hostname,
-					"port":               r.Port,
-					"timeout":            r.Timeout,
-					"flavor":             r.Flavor,
-					"flavor_string":      r.FlavorString,
-					"path":               "/redfish/v1/",
-					"method":             "GET",
-					"additional_headers": nil,
-					"use_basic_auth":     false,
-					"status_code":        response.StatusCode,
-					"status":             response.Status,
-					"location":           location,
+					"hostname":      r.Hostname,
+					"port":          r.Port,
+					"timeout":       r.Timeout,
+					"flavor":        r.Flavor,
+					"flavor_string": r.FlavorString,
 				}).Info("Port configuration has been updated")
 			}
 		}

@@ -469,6 +469,42 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 }
 
 func (r *Redfish) dellDeleteAccount(endpoint string) error {
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               endpoint,
+			"method":             "PATCH",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Releasing DELL/EMC account slot")
+	}
+	if r.Debug {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               endpoint,
+			"method":             "PATCH",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+			"payload":            DELLEmptyAccountSlot,
+		}).Info("Releasing DELL/EMC account slot")
+	}
+
+	response, err := r.httpRequest(endpoint, "PATCH", nil, strings.NewReader(DELLEmptyAccountSlot), false)
+	if r.Debug {
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return errors.New(fmt.Sprintf("ERROR: HTTP PATCH for %s returned \"%s\"", endpoint, response.Status))
+	}
+	return err
 }
 
 func (r *Redfish) DeleteAccount(u string) error {
@@ -516,10 +552,10 @@ func (r *Redfish) DeleteAccount(u string) error {
 		}).Info("Deleting account")
 	}
 
-    // Note: DELL/EMC only 
-    if r.Flavor == REDFISH_DELL {
-        return r.dellDeleteAccount(*adata.SelfEndpoint)
-    }
+	// Note: DELL/EMC only
+	if r.Flavor == REDFISH_DELL {
+		return r.dellDeleteAccount(*adata.SelfEndpoint)
+	}
 
 	response, err := r.httpRequest(*adata.SelfEndpoint, "DELETE", nil, nil, false)
 	if err != nil {
