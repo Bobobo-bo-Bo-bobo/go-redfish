@@ -149,9 +149,7 @@ func (r *Redfish) Initialise() error {
 				}).Warning("Ignoring redirect to new server as indicated by the Location header sent by the server")
 			}
 		}
-	}
-
-	if response.StatusCode != http.StatusOK {
+	} else if response.StatusCode != http.StatusOK {
 		return errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
