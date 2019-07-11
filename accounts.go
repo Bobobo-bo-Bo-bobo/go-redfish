@@ -239,11 +239,11 @@ func (r *Redfish) dellGetFreeAccountSlot() (string, error) {
 	// Get account information to find the first unused account slot
 	for slot_idx, acc_endpt := range account_list {
 
-        // Note: The first account slot is reserved and can't be modified
-        //       ("Modifying the user configuration at index 1 is not allowed.")
-        if slot_idx == 0 {
-            continue
-        }
+		// Note: The first account slot is reserved and can't be modified
+		//       ("Modifying the user configuration at index 1 is not allowed.")
+		if slot_idx == 0 {
+			continue
+		}
 
 		_acd, err := r.GetAccountData(acc_endpt)
 		if err != nil {
@@ -275,7 +275,7 @@ func (r *Redfish) dellGetFreeAccountSlot() (string, error) {
 }
 
 func (r *Redfish) dellAddAccount(acd AccountCreateData) error {
-    var account_enabled bool = true
+	var account_enabled bool = true
 
 	_unused_slot, err := r.dellGetFreeAccountSlot()
 	if err != nil {
@@ -288,7 +288,7 @@ func (r *Redfish) dellAddAccount(acd AccountCreateData) error {
 
 	// Instead of adding an account we have to modify an existing
 	// unused account slot.
-    acd.Enabled = &account_enabled
+	acd.Enabled = &account_enabled
 	return r.ModifyAccountByEndpoint(_unused_slot, acd)
 }
 

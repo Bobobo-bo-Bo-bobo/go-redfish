@@ -15,6 +15,7 @@ import (
 // Initialise Redfish basic data
 func (r *Redfish) Initialise() error {
 	var base baseEndpoint
+	var raw []byte
 
 	if r.Debug || r.Verbose {
 		// Logging setup
@@ -39,14 +40,14 @@ func (r *Redfish) Initialise() error {
 			"method":             "GET",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
-		}).Info("Rquesting basic information")
+		}).Info("Requesting basic information")
 	}
 	response, err := r.httpRequest("/redfish/v1/", "GET", nil, nil, false)
 	if err != nil {
 		return err
 	}
 
-	raw := response.Content
+	raw = response.Content
 	r.RawBaseContent = string(raw)
 
 	// Some managementboards (e.g. IBM/Lenovo) will redirect to a different webserver running on a different port.
@@ -100,7 +101,7 @@ func (r *Redfish) Initialise() error {
 		//      for Redfish) or path (/redfish/v1 is the mandatory path for Redfish API accesS),
 		//      so we choose to ignore everything else except the port.
 		_host, _port, _ := net.SplitHostPort(new_loc.Host)
-		if _port == "" {
+		if _port != "" {
 			new_port, err := net.LookupPort("tcp", _port)
 			if err != nil {
 				return err
@@ -121,7 +122,7 @@ func (r *Redfish) Initialise() error {
 					"status_code":        response.StatusCode,
 					"status":             response.Status,
 					"location":           location,
-				}).Info("Port configuration has been updated according to the Location header sent by the server")
+				}).Info("Port configuration has been updated")
 			}
 		}
 
@@ -149,9 +150,29 @@ func (r *Redfish) Initialise() error {
 				}).Warning("Ignoring redirect to new server as indicated by the Location header sent by the server")
 			}
 		}
-	}
 
-	if response.StatusCode != http.StatusOK {
+		// Re-request base information from new location
+		if r.Verbose {
+			log.WithFields(log.Fields{
+				"hostname":           r.Hostname,
+				"port":               r.Port,
+				"timeout":            r.Timeout,
+				"flavor":             r.Flavor,
+				"flavor_string":      r.FlavorString,
+				"path":               "/redfish/v1/",
+				"method":             "GET",
+				"additional_headers": nil,
+				"use_basic_auth":     false,
+			}).Info("Rerequesting basic information")
+		}
+		response, err := r.httpRequest("/redfish/v1/", "GET", nil, nil, false)
+		if err != nil {
+			return err
+		}
+
+		raw = response.Content
+		r.RawBaseContent = string(raw)
+	} else if response.StatusCode != http.StatusOK {
 		return errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
