@@ -468,6 +468,9 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	return nil
 }
 
+func (r *Redfish) dellDeleteAccount(endpoint string) error {
+}
+
 func (r *Redfish) DeleteAccount(u string) error {
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
@@ -512,6 +515,12 @@ func (r *Redfish) DeleteAccount(u string) error {
 			"use_basic_auth":     false,
 		}).Info("Deleting account")
 	}
+
+    // Note: DELL/EMC only 
+    if r.Flavor == REDFISH_DELL {
+        return r.dellDeleteAccount(*adata.SelfEndpoint)
+    }
+
 	response, err := r.httpRequest(*adata.SelfEndpoint, "DELETE", nil, nil, false)
 	if err != nil {
 		return err
