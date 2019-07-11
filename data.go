@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const UserAgent string = "go-redfish/1.1.0"
+const UserAgent string = "go-redfish/1.2.0"
 
 type RedfishError struct {
 	Error RedfishErrorMessage `json:"error"`
