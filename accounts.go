@@ -237,7 +237,14 @@ func (r *Redfish) dellGetFreeAccountSlot() (string, error) {
 	}
 
 	// Get account information to find the first unused account slot
-	for _, acc_endpt := range account_list {
+	for slot_idx, acc_endpt := range account_list {
+
+        // Note: The first account slot is reserved and can't be modified
+        //       ("Modifying the user configuration at index 1 is not allowed.")
+        if slot_idx == 0 {
+            continue
+        }
+
 		_acd, err := r.GetAccountData(acc_endpt)
 		if err != nil {
 			return "", err
