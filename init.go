@@ -15,6 +15,7 @@ import (
 // Initialise Redfish basic data
 func (r *Redfish) Initialise() error {
 	var base baseEndpoint
+	var raw []byte
 
 	if r.Debug || r.Verbose {
 		// Logging setup
@@ -46,7 +47,7 @@ func (r *Redfish) Initialise() error {
 		return err
 	}
 
-	raw := response.Content
+	raw = response.Content
 	r.RawBaseContent = string(raw)
 
 	// Some managementboards (e.g. IBM/Lenovo) will redirect to a different webserver running on a different port.
@@ -169,7 +170,7 @@ func (r *Redfish) Initialise() error {
 			return err
 		}
 
-		raw := response.Content
+		raw = response.Content
 		r.RawBaseContent = string(raw)
 	} else if response.StatusCode != http.StatusOK {
 		return errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
