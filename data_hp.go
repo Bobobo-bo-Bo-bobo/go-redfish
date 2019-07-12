@@ -84,10 +84,38 @@ type HttpsCertDataOemHp struct {
 
 // HP(E) uses it's own privilege map instead of roles
 type AccountPrivilegeMapOemHp struct {
-	Login                bool
-	RemoteConsole        bool
-	UserConfig           bool
-	VirtualMedia         bool
-	VirtualPowerAndReset bool
-	iLOConfig            bool
+	Login                bool `json:"LoginPriv"`
+	RemoteConsole        bool `json:"RemoteConsolePriv"`
+	UserConfig           bool `json:"UserConfigPriv"`
+	VirtualMedia         bool `json:"VirtualMediaPriv"`
+	VirtualPowerAndReset bool `json:"VirtualPowerAndResetPriv"`
+	ILOConfig            bool `json:"iLOConfigPriv"`
+}
+
+// Bitset for privileges
+const (
+	HPE_PRIVILEGE_LOGIN uint = 1 << iota
+	HPE_PRIVILEGE_REMOTECONSOLE
+	HPE_PRIVILEGE_USERCONFIG
+	HPE_PRIVILEGE_VIRTUALMEDIA
+	HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET
+	HPE_PRIVILEGE_ILOCONFIG
+)
+
+// map privilege names to flags
+var HPEPrivilegeMap = map[string]uint{
+	"login":                HPE_PRIVILEGE_LOGIN,
+	"remoteconsole":        HPE_PRIVILEGE_REMOTECONSOLE,
+	"userconfig":           HPE_PRIVILEGE_USERCONFIG,
+	"virtualmedia":         HPE_PRIVILEGE_VIRTUALMEDIA,
+	"virtualpowerandreset": HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET,
+	"iloconfig":            HPE_PRIVILEGE_ILOCONFIG,
+}
+
+// "Virtual" roles with predefined privilege map set
+var HPEVirtualRoles = map[string]uint{
+	"none":          0,
+	"readonly":      HPE_PRIVILEGE_LOGIN,
+	"operator":      HPE_PRIVILEGE_LOGIN | HPE_PRIVILEGE_REMOTECONSOLE | HPE_PRIVILEGE_VIRTUALMEDIA | HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET,
+	"administrator": HPE_PRIVILEGE_LOGIN | HPE_PRIVILEGE_REMOTECONSOLE | HPE_PRIVILEGE_USERCONFIG | HPE_PRIVILEGE_VIRTUALMEDIA | HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET | HPE_PRIVILEGE_ILOCONFIG,
 }

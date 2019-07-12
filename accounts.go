@@ -292,6 +292,35 @@ func (r *Redfish) dellAddAccount(acd AccountCreateData) error {
 	return r.ModifyAccountByEndpoint(_unused_slot, acd)
 }
 
+func (r *Redfish) hpBuildPrivilegeMap(flags uint) *AccountPrivilegeMapOemHp {
+	var result AccountPrivilegeMapOemHp
+
+	if flags&HPE_PRIVILEGE_LOGIN == HPE_PRIVILEGE_LOGIN {
+		result.Login = true
+	}
+
+	if flags&HPE_PRIVILEGE_REMOTECONSOLE == HPE_PRIVILEGE_REMOTECONSOLE {
+		result.RemoteConsole = true
+	}
+
+	if flags&HPE_PRIVILEGE_USERCONFIG == HPE_PRIVILEGE_USERCONFIG {
+		result.UserConfig = true
+	}
+
+	if flags&HPE_PRIVILEGE_VIRTUALMEDIA == HPE_PRIVILEGE_VIRTUALMEDIA {
+		result.VirtualMedia = true
+	}
+
+	if flags&HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET == HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET {
+		result.VirtualPowerAndReset = true
+	}
+
+	if flags&HPE_PRIVILEGE_ILOCONFIG == HPE_PRIVILEGE_ILOCONFIG {
+		result.ILOConfig = true
+	}
+	return &result
+}
+
 func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	var acsd AccountService
 	var accep string
@@ -359,7 +388,30 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	accep = *acsd.AccountsEndpoint.Id
 
 	if r.Flavor == REDFISH_HP {
-		// XXX: Use Oem specific privilege map
+		if acd.UserName == "" || acd.Password == "" {
+			return errors.New("ERROR: Required field(s) missing")
+		}
+
+		if acd.OemHpPrivilegeMap == nil && acd.Role == "" {
+			return errors.New("ERROR: Role or privileges are mandatory")
+		}
+
+		// If OemHpPrivilegeMap has been set "Role" information will be ignored
+		if acd.OemHpPrivilegeMap == nil {
+			// map "roles" to privileges
+			virtual_role := strings.TrimSpace(strings.ToLower(acd.Role))
+			_flags, found := HPEVirtualRoles[virtual_role]
+			if !found {
+				return errors.New(fmt.Sprintf("ERROR: Unknown role %s", acd.Role))
+			}
+			acd.OemHpPrivilegeMap = r.hpBuildPrivilegeMap(_flags)
+		}
+		raw_priv_payload, err := json.Marshal(*acd.OemHpPrivilegeMap)
+		if err != nil {
+			return err
+		}
+
+		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\":{ %s }}}}", acd.UserName, acd.Password, acd.UserName, string(raw_priv_payload))
 	} else {
 		if acd.UserName == "" || acd.Password == "" || acd.Role == "" {
 			return errors.New("ERROR: Required field(s) missing")
@@ -377,93 +429,94 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		}
 
 		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"RoleId\": \"%s\" }", acd.UserName, acd.Password, acd.Role)
-		if r.Verbose {
-			log.WithFields(log.Fields{
-				"hostname":           r.Hostname,
-				"port":               r.Port,
-				"timeout":            r.Timeout,
-				"flavor":             r.Flavor,
-				"flavor_string":      r.FlavorString,
-				"path":               accep,
-				"method":             "POST",
-				"additional_headers": nil,
-				"use_basic_auth":     false,
-			}).Info("Adding account")
-		}
-		if r.Debug {
-			log.WithFields(log.Fields{
-				"hostname":           r.Hostname,
-				"port":               r.Port,
-				"timeout":            r.Timeout,
-				"flavor":             r.Flavor,
-				"flavor_string":      r.FlavorString,
-				"path":               accep,
-				"method":             "POST",
-				"additional_headers": nil,
-				"use_basic_auth":     false,
-				"payload":            payload,
-			}).Debug("Adding account")
-		}
-		response, err = r.httpRequest(accep, "POST", nil, strings.NewReader(payload), false)
-		if err != nil {
-			return err
-		}
+	}
 
-		// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
-		if response.StatusCode == http.StatusBadRequest {
-			err = json.Unmarshal(response.Content, &rerr)
-			if err != nil {
-				return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
-			}
-			//
-			// For instance Supermicro responds for creation with passwords exceeding the maximal password length with:
-			// {
-			//   "error": {
-			// 	"code": "Base.v1_4_0.GeneralError",
-			// 	"Message": "A general error has occurred. See ExtendedInfo for more information.",
-			// 	"@Message.ExtendedInfo": [
-			// 	  {
-			// 		"MessageId": "Base.v1_4_0.PropertyValueFormatError",
-			// 		"Severity": "Warning",
-			// 		"Resolution": "Correct the value for the property in the request body and resubmit the request if the operation failed.",
-			// 		"Message": "The value this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long. for the property Password is of a different format than the property can accept.",
-			// 		"MessageArgs": [
-			// 		  "this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.",
-			// 		  "Password"
-			// 		],
-			// 		"RelatedProperties": [
-			// 		  "Password"
-			// 		]
-			// 	  }
-			// 	]
-			//   }
-			// }
-			//
-			errmsg := ""
-			if len(rerr.Error.MessageExtendedInfo) > 0 {
-				for _, e := range rerr.Error.MessageExtendedInfo {
-					if e.Message != nil || *e.Message != "" {
-						if errmsg == "" {
-							errmsg += *e.Message
-						} else {
-							errmsg += "; " + *e.Message
-						}
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               accep,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Adding account")
+	}
+	if r.Debug {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               accep,
+			"method":             "POST",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+			"payload":            payload,
+		}).Debug("Adding account")
+	}
+	response, err = r.httpRequest(accep, "POST", nil, strings.NewReader(payload), false)
+	if err != nil {
+		return err
+	}
+
+	// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
+	if response.StatusCode == http.StatusBadRequest {
+		err = json.Unmarshal(response.Content, &rerr)
+		if err != nil {
+			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
+		}
+		//
+		// For instance Supermicro responds for creation with passwords exceeding the maximal password length with:
+		// {
+		//   "error": {
+		// 	"code": "Base.v1_4_0.GeneralError",
+		// 	"Message": "A general error has occurred. See ExtendedInfo for more information.",
+		// 	"@Message.ExtendedInfo": [
+		// 	  {
+		// 		"MessageId": "Base.v1_4_0.PropertyValueFormatError",
+		// 		"Severity": "Warning",
+		// 		"Resolution": "Correct the value for the property in the request body and resubmit the request if the operation failed.",
+		// 		"Message": "The value this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long. for the property Password is of a different format than the property can accept.",
+		// 		"MessageArgs": [
+		// 		  "this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.this_password_is_too_long.",
+		// 		  "Password"
+		// 		],
+		// 		"RelatedProperties": [
+		// 		  "Password"
+		// 		]
+		// 	  }
+		// 	]
+		//   }
+		// }
+		//
+		errmsg := ""
+		if len(rerr.Error.MessageExtendedInfo) > 0 {
+			for _, e := range rerr.Error.MessageExtendedInfo {
+				if e.Message != nil || *e.Message != "" {
+					if errmsg == "" {
+						errmsg += *e.Message
+					} else {
+						errmsg += "; " + *e.Message
 					}
 				}
-			} else {
-				if rerr.Error.Message != nil || *rerr.Error.Message != "" {
-					errmsg = *rerr.Error.Message
-				} else {
-					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
-				}
 			}
-			return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
+		} else {
+			if rerr.Error.Message != nil || *rerr.Error.Message != "" {
+				errmsg = *rerr.Error.Message
+			} else {
+				errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+			}
 		}
+		return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
+	}
 
-		// any other error ? (HTTP 400 has been handled above)
-		if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
-		}
+	// any other error ? (HTTP 400 has been handled above)
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
+		return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
 	}
 	return nil
 }
@@ -705,7 +758,30 @@ func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string,
 
 	// handle HP(E) PrivilegeMap
 	if r.Flavor == REDFISH_HP {
-		//FIXME: handle HP(E) PrivilegeMap
+		if acd.UserName == "" || acd.Password == "" {
+			return "", errors.New("ERROR: Required field(s) missing")
+		}
+
+		if acd.OemHpPrivilegeMap == nil && acd.Role == "" {
+			return "", errors.New("ERROR: Role or privileges are mandatory")
+		}
+
+		// If OemHpPrivilegeMap has been set "Role" information will be ignored
+		if acd.OemHpPrivilegeMap == nil {
+			// map "roles" to privileges
+			virtual_role := strings.TrimSpace(strings.ToLower(acd.Role))
+			_flags, found := HPEVirtualRoles[virtual_role]
+			if !found {
+				return "", errors.New(fmt.Sprintf("ERROR: Unknown role %s", acd.Role))
+			}
+			acd.OemHpPrivilegeMap = r.hpBuildPrivilegeMap(_flags)
+		}
+		raw_priv_payload, err := json.Marshal(*acd.OemHpPrivilegeMap)
+		if err != nil {
+			return "", err
+		}
+
+		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\":{ %s }}}}", acd.UserName, acd.Password, acd.UserName, string(raw_priv_payload))
 	} else {
 		// force exclustion of privilege map for non-HP(E) systems
 		acd.OemHpPrivilegeMap = nil
@@ -750,78 +826,73 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 		return errors.New(fmt.Sprintf("BUG: SelfEndpoint is not set or empty for user %s", u))
 	}
 
-	if r.Flavor == REDFISH_HP {
-		// XXX: Use Oem specific privilege map
-	} else {
+	payload, err := r.makeAccountCreateModifyPayload(acd)
+	if err != nil {
+		return err
+	}
 
-		payload, err := r.makeAccountCreateModifyPayload(acd)
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               *udata.SelfEndpoint,
+			"method":             "PATCH",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Modifying account")
+	}
+	if r.Debug {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               *udata.SelfEndpoint,
+			"method":             "PATCH",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+			"payload":            payload,
+		}).Debug("Modifying account")
+	}
+	response, err := r.httpRequest(*udata.SelfEndpoint, "PATCH", nil, strings.NewReader(payload), false)
+	if err != nil {
+		return err
+	}
+
+	// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
+	if response.StatusCode == http.StatusBadRequest {
+		err = json.Unmarshal(response.Content, &rerr)
 		if err != nil {
-			return err
+			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
 		}
-
-		if r.Verbose {
-			log.WithFields(log.Fields{
-				"hostname":           r.Hostname,
-				"port":               r.Port,
-				"timeout":            r.Timeout,
-				"flavor":             r.Flavor,
-				"flavor_string":      r.FlavorString,
-				"path":               *udata.SelfEndpoint,
-				"method":             "PATCH",
-				"additional_headers": nil,
-				"use_basic_auth":     false,
-			}).Info("Modifying account")
-		}
-		if r.Debug {
-			log.WithFields(log.Fields{
-				"hostname":           r.Hostname,
-				"port":               r.Port,
-				"timeout":            r.Timeout,
-				"flavor":             r.Flavor,
-				"flavor_string":      r.FlavorString,
-				"path":               *udata.SelfEndpoint,
-				"method":             "PATCH",
-				"additional_headers": nil,
-				"use_basic_auth":     false,
-				"payload":            payload,
-			}).Debug("Modifying account")
-		}
-		response, err := r.httpRequest(*udata.SelfEndpoint, "PATCH", nil, strings.NewReader(payload), false)
-		if err != nil {
-			return err
-		}
-
-		// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
-		if response.StatusCode == http.StatusBadRequest {
-			err = json.Unmarshal(response.Content, &rerr)
-			if err != nil {
-				return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
-			}
-			errmsg := ""
-			if len(rerr.Error.MessageExtendedInfo) > 0 {
-				for _, e := range rerr.Error.MessageExtendedInfo {
-					if e.Message != nil || *e.Message != "" {
-						if errmsg == "" {
-							errmsg += *e.Message
-						} else {
-							errmsg += "; " + *e.Message
-						}
+		errmsg := ""
+		if len(rerr.Error.MessageExtendedInfo) > 0 {
+			for _, e := range rerr.Error.MessageExtendedInfo {
+				if e.Message != nil || *e.Message != "" {
+					if errmsg == "" {
+						errmsg += *e.Message
+					} else {
+						errmsg += "; " + *e.Message
 					}
 				}
-			} else {
-				if rerr.Error.Message != nil || *rerr.Error.Message != "" {
-					errmsg = *rerr.Error.Message
-				} else {
-					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
-				}
 			}
-			return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
+		} else {
+			if rerr.Error.Message != nil || *rerr.Error.Message != "" {
+				errmsg = *rerr.Error.Message
+			} else {
+				errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+			}
 		}
+		return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
+	}
 
-		// any other error ? (HTTP 400 has been handled above)
-		if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
-		}
+	// any other error ? (HTTP 400 has been handled above)
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
+		return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
 	}
 	return nil
 }
