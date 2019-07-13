@@ -94,6 +94,7 @@ type AccountPrivilegeMapOemHp struct {
 
 // Bitset for privileges
 const (
+	HPE_PRIVILEGE_NONE       = 0
 	HPE_PRIVILEGE_LOGIN uint = 1 << iota
 	HPE_PRIVILEGE_REMOTECONSOLE
 	HPE_PRIVILEGE_USERCONFIG

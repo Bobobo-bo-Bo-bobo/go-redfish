@@ -326,6 +326,8 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	var accep string
 	var payload string
 	var rerr RedfishError
+	var _flags uint
+	var found bool
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
@@ -392,20 +394,35 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 			return errors.New("ERROR: Required field(s) missing")
 		}
 
-		if acd.OemHpPrivilegeMap == nil && acd.Role == "" {
-			return errors.New("ERROR: Role or privileges are mandatory")
+		// OemHpPrivilegeMap is an INTERNAL map but it MUST be exported to be accessed by json.Marshal
+		if acd.OemHpPrivilegeMap != nil {
+			log.WithFields(log.Fields{
+				"hostname":          r.Hostname,
+				"port":              r.Port,
+				"timeout":           r.Timeout,
+				"flavor":            r.Flavor,
+				"flavor_string":     r.FlavorString,
+				"role":              acd.Role,
+				"oemhpprivilegemap": *acd.OemHpPrivilegeMap,
+				"hpeprivileges":     acd.HPEPrivileges,
+			}).Warning("Internal field OemHpPrivilegeMap is set, discarding it's content")
+			acd.OemHpPrivilegeMap = nil
 		}
 
-		// If OemHpPrivilegeMap has been set "Role" information will be ignored
-		if acd.OemHpPrivilegeMap == nil {
+		if acd.Role != "" {
 			// map "roles" to privileges
 			virtual_role := strings.TrimSpace(strings.ToLower(acd.Role))
-			_flags, found := HPEVirtualRoles[virtual_role]
+			_flags, found = HPEVirtualRoles[virtual_role]
 			if !found {
 				return errors.New(fmt.Sprintf("ERROR: Unknown role %s", acd.Role))
 			}
+
+			// If additional privileges are set we add them too
+			_flags |= acd.HPEPrivileges
+
 			acd.OemHpPrivilegeMap = r.hpBuildPrivilegeMap(_flags)
 		}
+
 		raw_priv_payload, err := json.Marshal(*acd.OemHpPrivilegeMap)
 		if err != nil {
 			return err
@@ -755,27 +772,40 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 
 func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string, error) {
 	var payload string
+	var _flags uint
+	var found bool
 
 	// handle HP(E) PrivilegeMap
 	if r.Flavor == REDFISH_HP {
-		if acd.UserName == "" || acd.Password == "" {
-			return "", errors.New("ERROR: Required field(s) missing")
+		// OemHpPrivilegeMap is an INTERNAL map but it MUST be exported to be accessed by json.Marshal
+		if acd.OemHpPrivilegeMap != nil {
+			log.WithFields(log.Fields{
+				"hostname":          r.Hostname,
+				"port":              r.Port,
+				"timeout":           r.Timeout,
+				"flavor":            r.Flavor,
+				"flavor_string":     r.FlavorString,
+				"role":              acd.Role,
+				"oemhpprivilegemap": *acd.OemHpPrivilegeMap,
+				"hpeprivileges":     acd.HPEPrivileges,
+			}).Warning("Internal field OemHpPrivilegeMap is set, discarding it's content")
+			acd.OemHpPrivilegeMap = nil
 		}
 
-		if acd.OemHpPrivilegeMap == nil && acd.Role == "" {
-			return "", errors.New("ERROR: Role or privileges are mandatory")
-		}
-
-		// If OemHpPrivilegeMap has been set "Role" information will be ignored
-		if acd.OemHpPrivilegeMap == nil {
+		if acd.Role != "" {
 			// map "roles" to privileges
 			virtual_role := strings.TrimSpace(strings.ToLower(acd.Role))
-			_flags, found := HPEVirtualRoles[virtual_role]
+			_flags, found = HPEVirtualRoles[virtual_role]
 			if !found {
 				return "", errors.New(fmt.Sprintf("ERROR: Unknown role %s", acd.Role))
 			}
+
+			// If additional privileges are set we add them too
+			_flags |= acd.HPEPrivileges
+
 			acd.OemHpPrivilegeMap = r.hpBuildPrivilegeMap(_flags)
 		}
+
 		raw_priv_payload, err := json.Marshal(*acd.OemHpPrivilegeMap)
 		if err != nil {
 			return "", err

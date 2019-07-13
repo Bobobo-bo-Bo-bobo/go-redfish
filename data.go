@@ -345,7 +345,10 @@ type AccountCreateData struct {
 	Locked  *bool `json:",omitempty"`
 
 	// for HP(E) iLO which supports Oem specific
+	// Note: OemHpPrivilegeMap is an _internal_ struct but must be exported for json.Marshal !
+	//       Don't use this structm use HPEPrivileges instead
 	OemHpPrivilegeMap *AccountPrivilegeMapOemHp `json:",omitempty"`
+	HPEPrivileges     uint
 }
 
 const (
