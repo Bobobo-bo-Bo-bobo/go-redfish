@@ -428,7 +428,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 			return err
 		}
 
-		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\":{ %s }}}}", acd.UserName, acd.Password, acd.UserName, string(raw_priv_payload))
+		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\": %s }}}", acd.UserName, acd.Password, acd.UserName, string(raw_priv_payload))
 	} else {
 		if acd.UserName == "" || acd.Password == "" || acd.Role == "" {
 			return errors.New("ERROR: Required field(s) missing")
@@ -514,20 +514,22 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		if len(rerr.Error.MessageExtendedInfo) > 0 {
 			for _, e := range rerr.Error.MessageExtendedInfo {
 				if e.Message != nil {
-                    if *e.Message != "" {
-                        if errmsg == "" {
-                            errmsg += *e.Message
-                        } else {
-                            errmsg += "; " + *e.Message
-                        }
-                    }
+					if *e.Message != "" {
+						if errmsg == "" {
+							errmsg += *e.Message
+						} else {
+							errmsg += "; " + *e.Message
+						}
+					}
 				}
 			}
 		} else {
-			if rerr.Error.Message != nil || *rerr.Error.Message != "" {
-				errmsg = *rerr.Error.Message
-			} else {
-				errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+			if rerr.Error.Message != nil {
+				if *rerr.Error.Message != "" {
+					errmsg = *rerr.Error.Message
+				} else {
+					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+				}
 			}
 		}
 		return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
@@ -748,20 +750,22 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 		if len(rerr.Error.MessageExtendedInfo) > 0 {
 			for _, e := range rerr.Error.MessageExtendedInfo {
 				if e.Message != nil {
-                    if *e.Message != "" {
-                        if errmsg == "" {
-                            errmsg += *e.Message
-                        } else {
-                            errmsg += "; " + *e.Message
-                        }
-                    }
+					if *e.Message != "" {
+						if errmsg == "" {
+							errmsg += *e.Message
+						} else {
+							errmsg += "; " + *e.Message
+						}
+					}
 				}
 			}
 		} else {
-			if rerr.Error.Message != nil || *rerr.Error.Message != "" {
-				errmsg = *rerr.Error.Message
-			} else {
-				errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+			if rerr.Error.Message != nil {
+				if *rerr.Error.Message != "" {
+					errmsg = *rerr.Error.Message
+				} else {
+					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+				}
 			}
 		}
 		return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
@@ -815,7 +819,7 @@ func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string,
 			return "", err
 		}
 
-		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\":{ %s }}}}", acd.UserName, acd.Password, acd.UserName, string(raw_priv_payload))
+		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\": %s }}}", acd.UserName, acd.Password, acd.UserName, string(raw_priv_payload))
 	} else {
 		// force exclustion of privilege map for non-HP(E) systems
 		acd.OemHpPrivilegeMap = nil
@@ -907,20 +911,22 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 		if len(rerr.Error.MessageExtendedInfo) > 0 {
 			for _, e := range rerr.Error.MessageExtendedInfo {
 				if e.Message != nil {
-                    if *e.Message != "" {
-                        if errmsg == "" {
-                            errmsg += *e.Message
-                        } else {
-                            errmsg += "; " + *e.Message
-                        }
-                    }
+					if *e.Message != "" {
+						if errmsg == "" {
+							errmsg += *e.Message
+						} else {
+							errmsg += "; " + *e.Message
+						}
+					}
 				}
 			}
 		} else {
-			if rerr.Error.Message != nil || *rerr.Error.Message != "" {
-				errmsg = *rerr.Error.Message
-			} else {
-				errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+			if rerr.Error.Message != nil {
+				if *rerr.Error.Message != "" {
+					errmsg = *rerr.Error.Message
+				} else {
+					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+				}
 			}
 		}
 		return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
@@ -1002,20 +1008,22 @@ func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData
 			if len(rerr.Error.MessageExtendedInfo) > 0 {
 				for _, e := range rerr.Error.MessageExtendedInfo {
 					if e.Message != nil {
-                        if *e.Message != "" {
-                            if errmsg == "" {
-                                errmsg += *e.Message
-                            } else {
-                                errmsg += "; " + *e.Message
-                            }
-                        }
+						if *e.Message != "" {
+							if errmsg == "" {
+								errmsg += *e.Message
+							} else {
+								errmsg += "; " + *e.Message
+							}
+						}
 					}
 				}
 			} else {
-				if rerr.Error.Message != nil || *rerr.Error.Message != "" {
-					errmsg = *rerr.Error.Message
-				} else {
-					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+				if rerr.Error.Message != nil {
+					if *rerr.Error.Message != "" {
+						errmsg = *rerr.Error.Message
+					} else {
+						errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
+					}
 				}
 			}
 			return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
