@@ -514,13 +514,13 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		if len(rerr.Error.MessageExtendedInfo) > 0 {
 			for _, e := range rerr.Error.MessageExtendedInfo {
 				if e.Message != nil {
-                    if *e.Message != "" {
-                        if errmsg == "" {
-                            errmsg += *e.Message
-                        } else {
-                            errmsg += "; " + *e.Message
-                        }
-                    }
+					if *e.Message != "" {
+						if errmsg == "" {
+							errmsg += *e.Message
+						} else {
+							errmsg += "; " + *e.Message
+						}
+					}
 				}
 			}
 		} else {
@@ -748,13 +748,13 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 		if len(rerr.Error.MessageExtendedInfo) > 0 {
 			for _, e := range rerr.Error.MessageExtendedInfo {
 				if e.Message != nil {
-                    if *e.Message != "" {
-                        if errmsg == "" {
-                            errmsg += *e.Message
-                        } else {
-                            errmsg += "; " + *e.Message
-                        }
-                    }
+					if *e.Message != "" {
+						if errmsg == "" {
+							errmsg += *e.Message
+						} else {
+							errmsg += "; " + *e.Message
+						}
+					}
 				}
 			}
 		} else {
@@ -907,13 +907,13 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 		if len(rerr.Error.MessageExtendedInfo) > 0 {
 			for _, e := range rerr.Error.MessageExtendedInfo {
 				if e.Message != nil {
-                    if *e.Message != "" {
-                        if errmsg == "" {
-                            errmsg += *e.Message
-                        } else {
-                            errmsg += "; " + *e.Message
-                        }
-                    }
+					if *e.Message != "" {
+						if errmsg == "" {
+							errmsg += *e.Message
+						} else {
+							errmsg += "; " + *e.Message
+						}
+					}
 				}
 			}
 		} else {
@@ -1002,13 +1002,13 @@ func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData
 			if len(rerr.Error.MessageExtendedInfo) > 0 {
 				for _, e := range rerr.Error.MessageExtendedInfo {
 					if e.Message != nil {
-                        if *e.Message != "" {
-                            if errmsg == "" {
-                                errmsg += *e.Message
-                            } else {
-                                errmsg += "; " + *e.Message
-                            }
-                        }
+						if *e.Message != "" {
+							if errmsg == "" {
+								errmsg += *e.Message
+							} else {
+								errmsg += "; " + *e.Message
+							}
+						}
 					}
 				}
 			} else {
