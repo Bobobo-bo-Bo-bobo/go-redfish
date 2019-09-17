@@ -23,6 +23,24 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 		return certTarget, err
 	}
 
+	// Newer systems, e.g. iLO5+ use Oem.Hpe instead of Oem.Hp as part of the HP/HPE split on november, 1st 2015
+	// XXX: Is there a more elegant solution to handle Oem.Hp and Oem.Hpe which essentially provide the same information
+	//      (at least for the certificate handling) ?
+
+	// NOTE: Hp and Hpe are mutually exclusive !
+	if oemHp.Hp == nil && oemHp.Hpe == nil {
+		return csr, errors.New("BUG: Neither .Oem.Hp nor .Oem.Hpe are found")
+	}
+	if oemHp.Hp != nil && oemHp.Hpe != nil {
+		return csr, errors.New("BUG: Both .Oem.Hp and .Oem.Hpe are found")
+	}
+
+	// Point .Hpe to .Hp and continue processing
+	if oemHp.Hpe != nil {
+		oemHp.Hp = oemHp.Hpe
+		oemHp.Hpe = nil
+	}
+
 	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
 	if oemHp.Hp.Links.SecurityService.Id == nil {
 		return certTarget, errors.New("BUG: .Hp.Links.SecurityService.Id not found or null")

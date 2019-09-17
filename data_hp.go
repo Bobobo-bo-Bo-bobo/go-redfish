@@ -55,7 +55,8 @@ type _managerDataOemHp struct {
 }
 
 type ManagerDataOemHp struct {
-	Hp _managerDataOemHp `json:"Hp"`
+	Hp  *_managerDataOemHp `json:"Hp"`
+	Hpe *_managerDataOemHp `json:"Hpe"`
 }
 
 type SecurityServiceDataOemHpLinks struct {
