@@ -29,10 +29,10 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 
 	// NOTE: Hp and Hpe are mutually exclusive !
 	if oemHp.Hp == nil && oemHp.Hpe == nil {
-		return csr, errors.New("BUG: Neither .Oem.Hp nor .Oem.Hpe are found")
+		return certTarget, errors.New("BUG: Neither .Oem.Hp nor .Oem.Hpe are found")
 	}
 	if oemHp.Hp != nil && oemHp.Hpe != nil {
-		return csr, errors.New("BUG: Both .Oem.Hp and .Oem.Hpe are found")
+		return certTarget, errors.New("BUG: Both .Oem.Hp and .Oem.Hpe are found")
 	}
 
 	// Point .Hpe to .Hp and continue processing
