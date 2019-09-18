@@ -359,6 +359,7 @@ const (
 	REDFISH_FLAVOR_NOT_INITIALIZED uint = iota
 	REDFISH_GENERAL
 	REDFISH_HP
+	REDFISH_HPE
 	REDFISH_HUAWEI
 	REDFISH_INSPUR
 	REDFISH_LENOVO
@@ -377,6 +378,7 @@ const (
 // map capabilities by vendor
 var VendorCapabilities = map[string]uint{
 	"hp":         HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_CHASSIS,
+	"hpe":        HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_CHASSIS,
 	"huawei":     HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
 	"inspur":     0,
 	"supermicro": HAS_ACCOUNTSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
@@ -424,13 +426,16 @@ type BaseRedfish interface {
 
 	httpRequest(string, string, *map[string]string, io.Reader, bool) (HttpResult, error)
 	getCSRTarget_HP(*ManagerData) (string, error)
+	getCSRTarget_HPE(*ManagerData) (string, error)
 	getCSRTarget_Huawei(*ManagerData) (string, error)
 	makeCSRPayload(CSRData) string
 	makeCSRPayload_HP(CSRData) string
 	makeCSRPayload_Vanilla(CSRData) string
 	fetchCSR_HP(*ManagerData) (string, error)
+	fetchCSR_HPE(*ManagerData) (string, error)
 	fetchCSR_Huawei(*ManagerData) (string, error)
 	getImportCertTarget_HP(*ManagerData) (string, error)
+	getImportCertTarget_HPE(*ManagerData) (string, error)
 	getImportCertTarget_Huawei(*ManagerData) (string, error)
 	makeAccountCreateModifyPayload(AccountCreateData) (string, error)
 	setAllowedResetTypes(*SystemData) error

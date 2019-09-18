@@ -389,7 +389,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 
 	accep = *acsd.AccountsEndpoint.Id
 
-	if r.Flavor == REDFISH_HP {
+	if r.Flavor == REDFISH_HP || r.Flavor == REDFISH_HPE {
 		if acd.UserName == "" || acd.Password == "" {
 			return errors.New("ERROR: Required field(s) missing")
 		}
@@ -784,7 +784,7 @@ func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string,
 	var found bool
 
 	// handle HP(E) PrivilegeMap
-	if r.Flavor == REDFISH_HP {
+	if r.Flavor == REDFISH_HP || r.Flavor == REDFISH_HPE {
 		// OemHpPrivilegeMap is an INTERNAL map but it MUST be exported to be accessed by json.Marshal
 		if acd.OemHpPrivilegeMap != nil {
 			log.WithFields(log.Fields{
@@ -957,7 +957,7 @@ func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData
 		return errors.New("ERROR: Account management is not support for this vendor")
 	}
 
-	if r.Flavor == REDFISH_HP {
+	if r.Flavor == REDFISH_HP || r.Flavor == REDFISH_HPE {
 		// XXX: Use Oem specific privilege map
 	} else {
 

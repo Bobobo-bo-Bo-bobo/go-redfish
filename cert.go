@@ -23,29 +23,103 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 		return certTarget, err
 	}
 
-	// Newer systems, e.g. iLO5+ use Oem.Hpe instead of Oem.Hp as part of the HP/HPE split on november, 1st 2015
-	// XXX: Is there a more elegant solution to handle Oem.Hp and Oem.Hpe which essentially provide the same information
-	//      (at least for the certificate handling) ?
-
-	// NOTE: Hp and Hpe are mutually exclusive !
-	if oemHp.Hp == nil && oemHp.Hpe == nil {
-		return certTarget, errors.New("BUG: Neither .Oem.Hp nor .Oem.Hpe are found")
-	}
-	if oemHp.Hp != nil && oemHp.Hpe != nil {
-		return certTarget, errors.New("BUG: Both .Oem.Hp and .Oem.Hpe are found")
-	}
-
-	// Point .Hpe to .Hp and continue processing
-	if oemHp.Hpe != nil {
-		oemHp.Hp = oemHp.Hpe
-		oemHp.Hpe = nil
-	}
-
 	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
 	if oemHp.Hp.Links.SecurityService.Id == nil {
 		return certTarget, errors.New("BUG: .Hp.Links.SecurityService.Id not found or null")
 	} else {
 		secsvc = *oemHp.Hp.Links.SecurityService.Id
+	}
+
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               secsvc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to security service")
+	}
+	response, err := r.httpRequest(secsvc, "GET", nil, nil, false)
+	if err != nil {
+		return certTarget, err
+	}
+
+	raw := response.Content
+
+	if response.StatusCode != http.StatusOK {
+		return certTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+	}
+
+	err = json.Unmarshal(raw, &oemSSvc)
+	if err != nil {
+		return certTarget, err
+	}
+
+	if oemSSvc.Links.HttpsCert.Id == nil {
+		return certTarget, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+	}
+
+	httpscertloc = *oemSSvc.Links.HttpsCert.Id
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               httpscertloc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path for SSL certificate import")
+	}
+	response, err = r.httpRequest(httpscertloc, "GET", nil, nil, false)
+	if err != nil {
+		return certTarget, err
+	}
+
+	raw = response.Content
+
+	if response.StatusCode != http.StatusOK {
+		return certTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+	}
+
+	err = json.Unmarshal(raw, &httpscert)
+	if err != nil {
+		return certTarget, err
+	}
+
+	if httpscert.Actions.ImportCertificate.Target == nil {
+		return certTarget, errors.New(fmt.Sprintf("BUG: .Actions.ImportCertificate.Target is not present or empty in JSON data from %s", response.Url))
+	}
+
+	certTarget = *httpscert.Actions.ImportCertificate.Target
+	return certTarget, nil
+}
+
+func (r *Redfish) getImportCertTarget_HPE(mgr *ManagerData) (string, error) {
+	var certTarget string
+	var oemHpe ManagerDataOemHpe
+	var secsvc string
+	var oemSSvc SecurityServiceDataOemHpe
+	var httpscertloc string
+	var httpscert HttpsCertDataOemHpe
+
+	// parse Oem section from JSON
+	err := json.Unmarshal(mgr.Oem, &oemHpe)
+	if err != nil {
+		return certTarget, err
+	}
+
+	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
+	if oemHpe.Hpe.Links.SecurityService.Id == nil {
+		return certTarget, errors.New("BUG: .Hpe.Links.SecurityService.Id not found or null")
+	} else {
+		secsvc = *oemHpe.Hpe.Links.SecurityService.Id
 	}
 
 	if r.Verbose {
@@ -240,6 +314,14 @@ func (r *Redfish) ImportCertificate(cert string) error {
 	// get endpoint SecurityService from Managers
 	if r.Flavor == REDFISH_HP {
 		certtarget, err = r.getImportCertTarget_HP(mgr0)
+		if err != nil {
+			return err
+		}
+
+		// HP/HPE service processors (iLO) will reboot automatically
+		// if the certificate has been imported successfully
+	} else if r.Flavor == REDFISH_HPE {
+		certtarget, err = r.getImportCertTarget_HPE(mgr0)
 		if err != nil {
 			return err
 		}

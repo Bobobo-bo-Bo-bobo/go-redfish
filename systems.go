@@ -190,6 +190,9 @@ func (r *Redfish) GetVendorFlavor() error {
 		if _manufacturer == "hp" || _manufacturer == "hpe" {
 			r.Flavor = REDFISH_HP
 			r.FlavorString = "hp"
+		} else if _manufacturer == "hpe" {
+			r.Flavor = REDFISH_HPE
+			r.FlavorString = "hpe"
 		} else if _manufacturer == "huawei" {
 			r.Flavor = REDFISH_HUAWEI
 			r.FlavorString = "huawei"

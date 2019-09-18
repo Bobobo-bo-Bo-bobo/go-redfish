@@ -23,29 +23,112 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 		return csr, err
 	}
 
-	// Newer systems, e.g. iLO5+ use Oem.Hpe instead of Oem.Hp as part of the HP/HPE split on november, 1st 2015
-	// XXX: Is there a more elegant solution to handle Oem.Hp and Oem.Hpe which essentially provide the same information
-	//      (at least for the certificate handling) ?
-
-	// NOTE: Hp and Hpe are mutually exclusive !
-	if oemHp.Hp == nil && oemHp.Hpe == nil {
-		return csr, errors.New("BUG: Neither .Oem.Hp nor .Oem.Hpe are found")
-	}
-	if oemHp.Hp != nil && oemHp.Hpe != nil {
-		return csr, errors.New("BUG: Both .Oem.Hp and .Oem.Hpe are found")
-	}
-
-	// Point .Hpe to .Hp and continue processing
-	if oemHp.Hpe != nil {
-		oemHp.Hp = oemHp.Hpe
-		oemHp.Hpe = nil
-	}
-
 	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
 	if oemHp.Hp.Links.SecurityService.Id == nil {
 		return csr, errors.New("BUG: .Hp.Links.SecurityService.Id not found or null")
 	} else {
 		secsvc = *oemHp.Hp.Links.SecurityService.Id
+	}
+
+	if r.AuthToken == nil || *r.AuthToken == "" {
+		return csr, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+	}
+
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               secsvc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to security service")
+	}
+	response, err := r.httpRequest(secsvc, "GET", nil, nil, false)
+	if err != nil {
+		return csr, err
+	}
+
+	raw := response.Content
+
+	if response.StatusCode != http.StatusOK {
+		return csr, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+	}
+
+	err = json.Unmarshal(raw, &oemSSvc)
+	if err != nil {
+		return csr, err
+	}
+
+	if oemSSvc.Links.HttpsCert.Id == nil {
+		return csr, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+	}
+
+	httpscertloc = *oemSSvc.Links.HttpsCert.Id
+
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               httpscertloc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting certficate signing request")
+	}
+	response, err = r.httpRequest(httpscertloc, "GET", nil, nil, false)
+	if err != nil {
+		return csr, err
+	}
+
+	raw = response.Content
+
+	if response.StatusCode != http.StatusOK {
+		return csr, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+	}
+
+	err = json.Unmarshal(raw, &httpscert)
+	if err != nil {
+		return csr, err
+	}
+
+	if httpscert.CSR == nil {
+		// Note: We can't really distinguish between a running CSR generation or not.
+		// If no CSR generation has started and no certificate was imported the API reports "CertificateSigningRequest": null,
+		// whereas CertificateSigningRequest is not present when CSR generation is running but the JSON parser can't distinguish between both
+		// situations
+		return csr, errors.New(fmt.Sprintf("ERROR: No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
+	}
+
+	csr = *httpscert.CSR
+	return csr, nil
+}
+
+func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
+	var csr string
+	var oemHpe ManagerDataOemHpe
+	var secsvc string
+	var oemSSvc SecurityServiceDataOemHpe
+	var httpscertloc string
+	var httpscert HttpsCertDataOemHpe
+
+	// parse Oem section from JSON
+	err := json.Unmarshal(mgr.Oem, &oemHpe)
+	if err != nil {
+		return csr, err
+	}
+
+	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
+	if oemHpe.Hpe.Links.SecurityService.Id == nil {
+		return csr, errors.New("BUG: .Hpe.Links.SecurityService.Id not found or null")
+	} else {
+		secsvc = *oemHpe.Hpe.Links.SecurityService.Id
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
@@ -243,29 +326,109 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 		return csrTarget, err
 	}
 
-	// Newer systems, e.g. iLO5+ use Oem.Hpe instead of Oem.Hp as part of the HP/HPE split on november, 1st 2015
-	// XXX: Is there a more elegant solution to handle Oem.Hp and Oem.Hpe which essentially provide the same information
-	//      (at least for the certificate handling) ?
-
-	// NOTE: Hp and Hpe are mutually exclusive !
-	if oemHp.Hp == nil && oemHp.Hpe == nil {
-		return csrTarget, errors.New("BUG: Neither .Oem.Hp nor .Oem.Hpe are found")
-	}
-	if oemHp.Hp != nil && oemHp.Hpe != nil {
-		return csrTarget, errors.New("BUG: Both .Oem.Hp and .Oem.Hpe are found")
-	}
-
-	// Point .Hpe to .Hp and continue processing
-	if oemHp.Hpe != nil {
-		oemHp.Hp = oemHp.Hpe
-		oemHp.Hpe = nil
-	}
-
 	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
 	if oemHp.Hp.Links.SecurityService.Id == nil {
 		return csrTarget, errors.New("BUG: .Hp.Links.SecurityService.Id not found or null")
 	} else {
 		secsvc = *oemHp.Hp.Links.SecurityService.Id
+	}
+
+	if r.AuthToken == nil || *r.AuthToken == "" {
+		return csrTarget, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+	}
+
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               secsvc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to security service")
+	}
+	response, err := r.httpRequest(secsvc, "GET", nil, nil, false)
+	if err != nil {
+		return csrTarget, err
+	}
+
+	raw := response.Content
+
+	if response.StatusCode != http.StatusOK {
+		return csrTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+	}
+
+	err = json.Unmarshal(raw, &oemSSvc)
+	if err != nil {
+		return csrTarget, err
+	}
+
+	if oemSSvc.Links.HttpsCert.Id == nil {
+		return csrTarget, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+	}
+
+	httpscertloc = *oemSSvc.Links.HttpsCert.Id
+
+	if r.Verbose {
+		log.WithFields(log.Fields{
+			"hostname":           r.Hostname,
+			"port":               r.Port,
+			"timeout":            r.Timeout,
+			"flavor":             r.Flavor,
+			"flavor_string":      r.FlavorString,
+			"path":               httpscertloc,
+			"method":             "GET",
+			"additional_headers": nil,
+			"use_basic_auth":     false,
+		}).Info("Requesting path to certificate signing request")
+	}
+	response, err = r.httpRequest(httpscertloc, "GET", nil, nil, false)
+
+	if err != nil {
+		return csrTarget, err
+	}
+
+	raw = response.Content
+
+	if response.StatusCode != http.StatusOK {
+		return csrTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+	}
+
+	err = json.Unmarshal(raw, &httpscert)
+	if err != nil {
+		return csrTarget, err
+	}
+
+	if httpscert.Actions.GenerateCSR.Target == nil {
+		return csrTarget, errors.New(fmt.Sprintf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url))
+	}
+
+	csrTarget = *httpscert.Actions.GenerateCSR.Target
+	return csrTarget, nil
+}
+
+func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
+	var csrTarget string
+	var oemHpe ManagerDataOemHpe
+	var secsvc string
+	var oemSSvc SecurityServiceDataOemHpe
+	var httpscertloc string
+	var httpscert HttpsCertDataOemHpe
+
+	// parse Oem section from JSON
+	err := json.Unmarshal(mgr.Oem, &oemHpe)
+	if err != nil {
+		return csrTarget, err
+	}
+
+	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
+	if oemHpe.Hpe.Links.SecurityService.Id == nil {
+		return csrTarget, errors.New("BUG: .Hpe.Links.SecurityService.Id not found or null")
+	} else {
+		secsvc = *oemHpe.Hpe.Links.SecurityService.Id
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
@@ -444,6 +607,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 }
 
 func (r *Redfish) makeCSRPayload_HP(csr CSRData) string {
+	// Note: HPE uses the same format as HP
 	var csrstr string = ""
 
 	if csr.C == "" {
@@ -516,7 +680,7 @@ func (r *Redfish) makeCSRPayload_Vanilla(csr CSRData) string {
 func (r *Redfish) makeCSRPayload(csr CSRData) string {
 	var csrstr string
 
-	if r.Flavor == REDFISH_HP {
+	if r.Flavor == REDFISH_HP || r.Flavor == REDFISH_HPE {
 		csrstr = r.makeCSRPayload_HP(csr)
 	} else {
 		csrstr = r.makeCSRPayload_Vanilla(csr)
@@ -556,6 +720,11 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 	// get endpoint SecurityService from Managers
 	if r.Flavor == REDFISH_HP {
 		gencsrtarget, err = r.getCSRTarget_HP(mgr0)
+		if err != nil {
+			return err
+		}
+	} else if r.Flavor == REDFISH_HPE {
+		gencsrtarget, err = r.getCSRTarget_HPE(mgr0)
 		if err != nil {
 			return err
 		}
@@ -640,6 +809,11 @@ func (r *Redfish) FetchCSR() (string, error) {
 	// get endpoint SecurityService from Managers
 	if r.Flavor == REDFISH_HP {
 		csrstr, err = r.fetchCSR_HP(mgr0)
+		if err != nil {
+			return csrstr, err
+		}
+	} else if r.Flavor == REDFISH_HPE {
+		csrstr, err = r.fetchCSR_HPE(mgr0)
 		if err != nil {
 			return csrstr, err
 		}
