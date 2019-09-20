@@ -111,10 +111,10 @@ func (r *Redfish) Login() error {
 			if len(redfish_error.Error.MessageExtendedInfo) > 0 {
 				// On authentication failure some vendors like HP/HPE don't set any Message, only MessageId. If there is no Message we return MessageId and hope for the best.
 				if redfish_error.Error.MessageExtendedInfo[0].Message != nil {
-					return errors.New(fmt.Sprintf("ERROR: Login failed: %s\n", redfish_error.Error.MessageExtendedInfo[0].Message))
+					return errors.New(fmt.Sprintf("ERROR: Login failed: %s\n", *redfish_error.Error.MessageExtendedInfo[0].Message))
 				} else {
 					if redfish_error.Error.MessageExtendedInfo[0].MessageId != nil {
-						return errors.New(fmt.Sprintf("ERROR: Login failed: %s\n", redfish_error.Error.MessageExtendedInfo[0].MessageId))
+						return errors.New(fmt.Sprintf("ERROR: Login failed: %s\n", *redfish_error.Error.MessageExtendedInfo[0].MessageId))
 					}
 					return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
 				}
