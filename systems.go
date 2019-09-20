@@ -187,6 +187,17 @@ func (r *Redfish) GetVendorFlavor() error {
 	_sys0, err := r.GetSystemData(_sys[0])
 	if _sys0.Manufacturer != nil {
 		_manufacturer := strings.TrimSpace(strings.ToLower(*_sys0.Manufacturer))
+		if r.Debug {
+			log.WithFields(log.Fields{
+				"hostname":      r.Hostname,
+				"port":          r.Port,
+				"timeout":       r.Timeout,
+				"flavor":        r.Flavor,
+				"flavor_string": r.FlavorString,
+				"manufacturer":  *_sys0.Manufacturer,
+				"_manufacturer": _manufacturer,
+			}).Debug("Identifying vendor flavor")
+		}
 		if _manufacturer == "hp" || _manufacturer == "hpe" {
 			r.Flavor = REDFISH_HP
 			r.FlavorString = "hp"
