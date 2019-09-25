@@ -451,6 +451,7 @@ type BaseRedfish interface {
 	setAllowedResetTypes(*SystemData) error
 	hpGetLicense(*ManagerData) (*ManagerLicenseData, error)
 	hpeGetLicense(*ManagerData) (*ManagerLicenseData, error)
+    hpHpePrepareLicensePayload([]byte) string
 }
 
 type Redfish struct {
