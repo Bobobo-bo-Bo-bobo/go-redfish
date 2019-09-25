@@ -27,7 +27,7 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return result, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return result, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -117,7 +117,7 @@ func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return nil, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return nil, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -330,7 +330,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	var found bool
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
@@ -583,7 +583,7 @@ func (r *Redfish) dellDeleteAccount(endpoint string) error {
 
 func (r *Redfish) DeleteAccount(u string) error {
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	// check if vendor supports account management
@@ -655,7 +655,7 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	// check if vendor supports account management
@@ -836,7 +836,7 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 	var rerr RedfishError
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	// check if vendor supports account management
@@ -943,7 +943,7 @@ func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData
 	var rerr RedfishError
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	// check if vendor supports account management

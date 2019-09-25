@@ -14,7 +14,7 @@ func (r *Redfish) GetChassis() ([]string, error) {
 	var result = make([]string, 0)
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return result, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return result, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -61,7 +61,7 @@ func (r *Redfish) GetChassisData(chassisEndpoint string) (*ChassisData, error) {
 	var result ChassisData
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return nil, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return nil, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {

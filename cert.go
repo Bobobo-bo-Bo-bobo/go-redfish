@@ -290,7 +290,7 @@ func (r *Redfish) ImportCertificate(cert string) error {
 	var certtarget string = ""
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	// set vendor flavor

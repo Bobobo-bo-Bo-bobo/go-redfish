@@ -8,7 +8,7 @@ import (
 )
 
 // Note: Be consistent with "Semantic Versioning 2.0.0" - see https://semver.org/
-const GoRedfishVersion string = "1.2.1-20190920"
+const GoRedfishVersion string = "1.2.1-20190925"
 const _GoRedfishUrl string = "https://git.ypbind.de/cgit/go-redfish/"
 
 var UserAgent string = "go-redfish/" + GoRedfishVersion + "(" + _GoRedfishUrl + ")"
@@ -288,6 +288,13 @@ type PowerData struct {
 	SelfEndpoint  *string
 }
 
+type ManagerLicenseData struct {
+	Name       string
+	Expiration string
+	Type       string
+	License    string
+}
+
 type ManagerActionsData struct {
 	ManagerReset LinkTargets `json:"#Manager.Reset"`
 }
@@ -424,6 +431,8 @@ type BaseRedfish interface {
 	ChangePassword(string, string) error
 	SetSystemPowerState(*SystemData, string) error
 	ProcessError(HttpResult) (*RedfishError, error)
+	GetLicense(*ManagerData) (*ManagerLicenseData, error)
+
 	httpRequest(string, string, *map[string]string, io.Reader, bool) (HttpResult, error)
 	getCSRTarget_HP(*ManagerData) (string, error)
 	getCSRTarget_HPE(*ManagerData) (string, error)
@@ -439,6 +448,8 @@ type BaseRedfish interface {
 	getImportCertTarget_Huawei(*ManagerData) (string, error)
 	makeAccountCreateModifyPayload(AccountCreateData) (string, error)
 	setAllowedResetTypes(*SystemData) error
+	hpGetLicense(*ManagerData) (*ManagerLicenseData, error)
+	hpeGetLicense(*ManagerData) (*ManagerLicenseData, error)
 }
 
 type Redfish struct {

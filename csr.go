@@ -31,7 +31,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csr, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return csr, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -132,7 +132,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csr, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return csr, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -233,7 +233,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csr, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return csr, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -334,7 +334,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csrTarget, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return csrTarget, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -432,7 +432,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csrTarget, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return csrTarget, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -530,7 +530,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csrTarget, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return csrTarget, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -694,7 +694,7 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 	var gencsrtarget string = ""
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	// set vendor flavor

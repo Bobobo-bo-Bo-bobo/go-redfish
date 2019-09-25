@@ -15,7 +15,7 @@ func (r *Redfish) GetSystems() ([]string, error) {
 	var result = make([]string, 0)
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return result, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return result, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -62,7 +62,7 @@ func (r *Redfish) GetSystemData(systemEndpoint string) (*SystemData, error) {
 	var result SystemData
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return nil, errors.New(fmt.Sprintf("ERROR: No authentication token found, is the session setup correctly?"))
+		return nil, errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {

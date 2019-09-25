@@ -5,6 +5,7 @@ type ManagerDataOemHpeLicense struct {
 	Key    *string `json:"LicenseKey"`
 	String *string `json:"LicenseString"`
 	Type   *string `json:"LicenseType"`
+	Expire *string `json:"LicenseExpire"`
 }
 
 type ManagerDataOemHpeFederationConfig struct {
