@@ -202,9 +202,7 @@ func (r *Redfish) distinguishHpHpeFlavors(sd *SystemData) (uint, string, error) 
 		return REDFISH_HP, "hp", nil
 	}
 
-	if len(_OemhpOrHpe.Hp) == 0 && len(_OemhpOrHpe.Hpe) == 0 {
-		return REDFISH_FLAVOR_NOT_INITIALIZED, "<bug>", errors.New("BUG: Manufacturer is hp or hpe but Oem.Hp and Oem.Hpe are both undefined")
-	}
+	return REDFISH_FLAVOR_NOT_INITIALIZED, "<bug>", errors.New("BUG: Manufacturer is hp or hpe but Oem.Hp and Oem.Hpe are both undefined")
 }
 
 // get vendor specific "flavor"
