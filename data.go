@@ -118,6 +118,7 @@ type SystemData struct {
 	BIOSVersion        *string                 `json:"BiosVersion"`
 	BIOS               *OData                  `json:"Bios"`
 	Actions            *SystemActions          `json:"Actions"`
+	Oem                json.RawMessage         `json:"Oem"`
 	SelfEndpoint       *string
 	// map normalized (converted to lowercase) to supported reset types
 	allowedResetTypes map[string]string

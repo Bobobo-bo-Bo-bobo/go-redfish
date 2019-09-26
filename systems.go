@@ -179,7 +179,7 @@ func (r *Redfish) MapSystemsBySerialNumber() (map[string]*SystemData, error) {
 // OEM HP or HPE can't be distinguished only by the Manufacurer field of the System endpoint
 // because newer BIOS/iLO4 versions set the Manufacturer to "HPE" but still use Oem.Hp instead
 // of Oem.Hpe for vendor specific data.
-func (r *Redfish) distinguishHpHpeFlavors(sd *SystemData) (int, string, error) {
+func (r *Redfish) distinguishHpHpeFlavors(sd *SystemData) (uint, string, error) {
 	// Because we are only interested in the key of the Oem dict, lets use a temporary
 	// simple struct to avoid parsing the JSON data a second time
 	type _ManagerDataOemHpOrHpe struct {
@@ -191,7 +191,7 @@ func (r *Redfish) distinguishHpHpeFlavors(sd *SystemData) (int, string, error) {
 	// parse JSON and look at the Oem fields
 	err := json.Unmarshal(sd.Oem, &_OemhpOrHpe)
 	if err != nil {
-		return REDFISH_FLAVOR_UNINITIALIZED, "<error>", err
+		return REDFISH_FLAVOR_NOT_INITIALIZED, "<error>", err
 	}
 
 	if len(_OemhpOrHpe.Hp) == 0 && len(_OemhpOrHpe.Hpe) > 0 {
@@ -203,7 +203,7 @@ func (r *Redfish) distinguishHpHpeFlavors(sd *SystemData) (int, string, error) {
 	}
 
 	if len(_OemhpOrHpe.Hp) == 0 && len(_OemhpOrHpe.Hpe) == 0 {
-		return REDFISH_FLAVOR_UNINITIALIZED, "<bug>", errors.New("BUG: Manufacturer is hp or hpe but Oem.Hp and Oem.Hpe are both undefined")
+		return REDFISH_FLAVOR_NOT_INITIALIZED, "<bug>", errors.New("BUG: Manufacturer is hp or hpe but Oem.Hp and Oem.Hpe are both undefined")
 	}
 }
 
