@@ -8,7 +8,7 @@ import (
 )
 
 // Note: Be consistent with "Semantic Versioning 2.0.0" - see https://semver.org/
-const GoRedfishVersion string = "1.2.1-2019.09.25"
+const GoRedfishVersion string = "1.2.1-2019.09.26"
 const _GoRedfishUrl string = "https://git.ypbind.de/cgit/go-redfish/"
 
 var UserAgent string = "go-redfish/" + GoRedfishVersion + "(" + _GoRedfishUrl + ")"
@@ -380,7 +380,7 @@ const (
 	HAS_SECURITYSERVICE
 	HAS_ACCOUNT_ROLES
 	HAS_CHASSIS
-    HAS_LICENSE
+	HAS_LICENSE
 )
 
 // map capabilities by vendor
@@ -451,7 +451,7 @@ type BaseRedfish interface {
 	setAllowedResetTypes(*SystemData) error
 	hpGetLicense(*ManagerData) (*ManagerLicenseData, error)
 	hpeGetLicense(*ManagerData) (*ManagerLicenseData, error)
-    hpHpePrepareLicensePayload([]byte) string
+	hpHpePrepareLicensePayload([]byte) string
 }
 
 type Redfish struct {

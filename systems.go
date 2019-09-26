@@ -180,31 +180,31 @@ func (r *Redfish) MapSystemsBySerialNumber() (map[string]*SystemData, error) {
 // because newer BIOS/iLO4 versions set the Manufacturer to "HPE" but still use Oem.Hp instead
 // of Oem.Hpe for vendor specific data.
 func (r *Redfish) distinguishHpHpeFlavors(sd *SystemData) (int, string, error) {
-    // Because we are only interested in the key of the Oem dict, lets use a temporary
-    // simple struct to avoid parsing the JSON data a second time
-    type _ManagerDataOemHpOrHpe struct {
-	Hp json.RawMessage `json:"Hp"`
-	Hpe json.RawMessage `json:"Hpe"`
-    }
-    var _OemhpOrHpe _ManagerDataOemHpOrHpe
+	// Because we are only interested in the key of the Oem dict, lets use a temporary
+	// simple struct to avoid parsing the JSON data a second time
+	type _ManagerDataOemHpOrHpe struct {
+		Hp  json.RawMessage `json:"Hp"`
+		Hpe json.RawMessage `json:"Hpe"`
+	}
+	var _OemhpOrHpe _ManagerDataOemHpOrHpe
 
-    // parse JSON and look at the Oem fields
-    err := json.Unmarshal(sd.Oem, &_OemhpOrHpe)
-    if err != nil {
-	return REDFISH_FLAVOR_UNINITIALIZED, "<error>", err
-    }
+	// parse JSON and look at the Oem fields
+	err := json.Unmarshal(sd.Oem, &_OemhpOrHpe)
+	if err != nil {
+		return REDFISH_FLAVOR_UNINITIALIZED, "<error>", err
+	}
 
-    if len(_OemhpOrHpe.Hp) == 0 && len(_OemhpOrHpe.Hpe) > 0 {
-	return REDFISH_HPE, "hpe", nil
-    }
+	if len(_OemhpOrHpe.Hp) == 0 && len(_OemhpOrHpe.Hpe) > 0 {
+		return REDFISH_HPE, "hpe", nil
+	}
 
-    if len(_OemhpOrHpe.Hp) > 0 && len(_OemhpOrHpe.Hpe) == 0 {
-	return REDFISH_HP, "hp", nil
-    }
+	if len(_OemhpOrHpe.Hp) > 0 && len(_OemhpOrHpe.Hpe) == 0 {
+		return REDFISH_HP, "hp", nil
+	}
 
-    if len(_OemhpOrHpe.Hp) == 0 &&  len(_OemhpOrHpe.Hpe) == 0 {
-	return REDFISH_FLAVOR_UNINITIALIZED, "<bug>", errors.New("BUG: Manufacturer is hp or hpe but Oem.Hp and Oem.Hpe are both undefined")
-    }
+	if len(_OemhpOrHpe.Hp) == 0 && len(_OemhpOrHpe.Hpe) == 0 {
+		return REDFISH_FLAVOR_UNINITIALIZED, "<bug>", errors.New("BUG: Manufacturer is hp or hpe but Oem.Hp and Oem.Hpe are both undefined")
+	}
 }
 
 // get vendor specific "flavor"
@@ -230,10 +230,10 @@ func (r *Redfish) GetVendorFlavor() error {
 			}).Debug("Identifying vendor flavor")
 		}
 		if _manufacturer == "hp" || _manufacturer == "_hpe" {
-		    r.Flavor, r.FlavorString, err := distinguishHpHpeFlavors(_sys0)
-		    if err != nil {
-			return err
-		    }
+			r.Flavor, r.FlavorString, err = r.distinguishHpHpeFlavors(_sys0)
+			if err != nil {
+				return err
+			}
 		} else if _manufacturer == "huawei" {
 			r.Flavor = REDFISH_HUAWEI
 			r.FlavorString = "huawei"
