@@ -105,22 +105,9 @@ func (r *Redfish) Login() error {
 		if err != nil {
 			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
 		}
-		if redfish_error.Error.Code != nil {
-			// According to the API specificiation the error object can hold multiple entries (see https://redfish.dmtf.org/schemas/DSP0266_1.0.html#error-responses).
-			// We will always pick the first and hope it provides suitable information.
-			if len(redfish_error.Error.MessageExtendedInfo) > 0 {
-				// On authentication failure some vendors like HP/HPE don't set any Message, only MessageId. If there is no Message we return MessageId and hope for the best.
-				if redfish_error.Error.MessageExtendedInfo[0].Message != nil {
-					return errors.New(fmt.Sprintf("ERROR: Login failed: %s\n", *redfish_error.Error.MessageExtendedInfo[0].Message))
-				} else {
-					if redfish_error.Error.MessageExtendedInfo[0].MessageId != nil {
-						return errors.New(fmt.Sprintf("ERROR: Login failed: %s\n", *redfish_error.Error.MessageExtendedInfo[0].MessageId))
-					}
-					return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
-				}
-			} else {
-				return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
-			}
+		msg := r.GetErrorMessage(redfish_error)
+		if msg != "" {
+			return errors.New(fmt.Sprintf("ERROR: Login failed: %s\n", msg))
 		} else {
 			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
 		}

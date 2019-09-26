@@ -17,7 +17,7 @@ func (r *Redfish) ProcessError(response HttpResult) (*RedfishError, error) {
 	return &rerr, nil
 }
 
-func (r *Redfish) GetErrorMessage(rerr RedfishError) string {
+func (r *Redfish) GetErrorMessage(rerr *RedfishError) string {
 	var result string
 	var _list []string = make([]string, 0)
 
