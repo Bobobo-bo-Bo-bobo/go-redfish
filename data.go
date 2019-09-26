@@ -434,6 +434,7 @@ type BaseRedfish interface {
 	SetSystemPowerState(*SystemData, string) error
 	ProcessError(HttpResult) (*RedfishError, error)
 	GetLicense(*ManagerData) (*ManagerLicenseData, error)
+	GetErrorMessage(RedfishError) string
 
 	httpRequest(string, string, *map[string]string, io.Reader, bool) (HttpResult, error)
 	getCSRTarget_HP(*ManagerData) (string, error)
