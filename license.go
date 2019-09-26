@@ -151,13 +151,13 @@ func (r *Redfish) hpSetLicense(mgr *ManagerData, l []byte) error {
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		redfish_error, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Url, response.Status))
+			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
 		}
 		msg := r.GetErrorMessage(redfish_error)
 		if msg != "" {
 			return errors.New(fmt.Sprintf("ERROR: License installation failed: %s\n", msg))
 		} else {
-			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Url, response.Status))
+			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
 		}
 	}
 	return nil
@@ -214,13 +214,13 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		redfish_error, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Url, response.Status))
+			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
 		}
 		msg := r.GetErrorMessage(redfish_error)
 		if msg != "" {
 			return errors.New(fmt.Sprintf("ERROR: License installation failed: %s\n", msg))
 		} else {
-			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Url, response.Status))
+			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
 		}
 	}
 

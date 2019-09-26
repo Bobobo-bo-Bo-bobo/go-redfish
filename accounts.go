@@ -51,7 +51,7 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, errors.New(fmt.Sprintf("ERROR: Request for all accounts failed: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &accsvc)
@@ -83,7 +83,7 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 
 	raw = response.Content
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, errors.New(fmt.Sprintf("ERROR: Request for all accounts failed: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &accs)
@@ -142,7 +142,7 @@ func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, errors.New(fmt.Sprintf("ERROR: Requst of account data failed: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -325,7 +325,6 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	var acsd AccountService
 	var accep string
 	var payload string
-	var rerr RedfishError
 	var _flags uint
 	var found bool
 
@@ -371,7 +370,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return errors.New(fmt.Sprintf("ERROR: Account creation failed: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(response.Content, &acsd)
@@ -482,10 +481,11 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 
 	// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
 	if response.StatusCode == http.StatusBadRequest {
-		err = json.Unmarshal(response.Content, &rerr)
+		rerr, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
+			return errors.New(fmt.Sprintf("ERROR: Account creation failed and returned \"%s\" and no error information", response.Status))
 		}
+
 		//
 		// For instance Supermicro responds for creation with passwords exceeding the maximal password length with:
 		// {
@@ -510,34 +510,17 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		//   }
 		// }
 		//
-		errmsg := ""
-		if len(rerr.Error.MessageExtendedInfo) > 0 {
-			for _, e := range rerr.Error.MessageExtendedInfo {
-				if e.Message != nil {
-					if *e.Message != "" {
-						if errmsg == "" {
-							errmsg += *e.Message
-						} else {
-							errmsg += "; " + *e.Message
-						}
-					}
-				}
-			}
+		errmsg := r.GetErrorMessage(rerr)
+		if errmsg != "" {
+			return errors.New(fmt.Sprintf("ERROR: Account creation failed: %s", errmsg))
 		} else {
-			if rerr.Error.Message != nil {
-				if *rerr.Error.Message != "" {
-					errmsg = *rerr.Error.Message
-				} else {
-					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
-				}
-			}
+			return errors.New(fmt.Sprintf("ERROR: Account creation failed and returned \"%s\" and no error information", response.Status))
 		}
-		return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
 	}
 
 	// any other error ? (HTTP 400 has been handled above)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-		return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+		return errors.New(fmt.Sprintf("ERROR: Account creation failed and returned \"%s\" and no error information", response.Status))
 	}
 	return nil
 }
@@ -636,7 +619,7 @@ func (r *Redfish) DeleteAccount(u string) error {
 		return err
 	}
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("ERROR: HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return errors.New(fmt.Sprintf("ERROR: Account creation failed: HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	return nil
@@ -644,7 +627,6 @@ func (r *Redfish) DeleteAccount(u string) error {
 
 func (r *Redfish) ChangePassword(u string, p string) error {
 	var payload string
-	var rerr RedfishError
 
 	if u == "" {
 		return errors.New("ERROR: Username is empty")
@@ -718,10 +700,11 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 
 	// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
 	if response.StatusCode == http.StatusBadRequest {
-		err = json.Unmarshal(response.Content, &rerr)
+		rerr, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
+			return errors.New(fmt.Sprintf("ERROR: Password change failed and returned \"%s\" and no error information", response.Status))
 		}
+
 		//
 		// For instance Supermicro responds for creation with passwords exceeding the maximal password length with:
 		// {
@@ -746,34 +729,17 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 		//   }
 		// }
 		//
-		errmsg := ""
-		if len(rerr.Error.MessageExtendedInfo) > 0 {
-			for _, e := range rerr.Error.MessageExtendedInfo {
-				if e.Message != nil {
-					if *e.Message != "" {
-						if errmsg == "" {
-							errmsg += *e.Message
-						} else {
-							errmsg += "; " + *e.Message
-						}
-					}
-				}
-			}
+		errmsg := r.GetErrorMessage(rerr)
+		if errmsg != "" {
+			return errors.New(fmt.Sprintf("ERROR: Password change failed: %s", errmsg))
 		} else {
-			if rerr.Error.Message != nil {
-				if *rerr.Error.Message != "" {
-					errmsg = *rerr.Error.Message
-				} else {
-					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
-				}
-			}
+			return errors.New(fmt.Sprintf("ERROR: Password change failed and returned \"%s\" and no error information", response.Status))
 		}
-		return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
 	}
 
 	// any other error ? (HTTP 400 has been handled above)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-		return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+		return errors.New(fmt.Sprintf("ERROR: Password change failed: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
 	}
 	return nil
 }
@@ -833,8 +799,6 @@ func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string,
 }
 
 func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
-	var rerr RedfishError
-
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
@@ -903,45 +867,27 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 
 	// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
 	if response.StatusCode == http.StatusBadRequest {
-		err = json.Unmarshal(response.Content, &rerr)
+		rerr, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
+			return errors.New(fmt.Sprintf("ERROR: Account modification failed and returned \"%s\" and no error information", response.Status))
 		}
-		errmsg := ""
-		if len(rerr.Error.MessageExtendedInfo) > 0 {
-			for _, e := range rerr.Error.MessageExtendedInfo {
-				if e.Message != nil {
-					if *e.Message != "" {
-						if errmsg == "" {
-							errmsg += *e.Message
-						} else {
-							errmsg += "; " + *e.Message
-						}
-					}
-				}
-			}
+
+		errmsg := r.GetErrorMessage(rerr)
+		if errmsg != "" {
+			return errors.New(fmt.Sprintf("ERROR: Account modification failed: %s", errmsg))
 		} else {
-			if rerr.Error.Message != nil {
-				if *rerr.Error.Message != "" {
-					errmsg = *rerr.Error.Message
-				} else {
-					errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
-				}
-			}
+			return errors.New(fmt.Sprintf("ERROR: Account modification failed and returned \"%s\" and no error information", response.Status))
 		}
-		return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
 	}
 
 	// any other error ? (HTTP 400 has been handled above)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-		return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+		return errors.New(fmt.Sprintf("ERROR: Account modification failed: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
 	}
 	return nil
 }
 
 func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData) error {
-	var rerr RedfishError
-
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
 	}
@@ -1000,38 +946,17 @@ func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData
 
 		// some vendors like Supermicro imposes limits on fields like password and return HTTP 400 - Bad Request
 		if response.StatusCode == http.StatusBadRequest {
-			err = json.Unmarshal(response.Content, &rerr)
+			rerr, err := r.ProcessError(response)
 			if err != nil {
-				return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" and no error information", response.Url, response.Status))
+				return errors.New(fmt.Sprintf("ERROR: Account modification failed and returned \"%s\" and no error information", response.Status))
 			}
-			errmsg := ""
-			if len(rerr.Error.MessageExtendedInfo) > 0 {
-				for _, e := range rerr.Error.MessageExtendedInfo {
-					if e.Message != nil {
-						if *e.Message != "" {
-							if errmsg == "" {
-								errmsg += *e.Message
-							} else {
-								errmsg += "; " + *e.Message
-							}
-						}
-					}
-				}
-			} else {
-				if rerr.Error.Message != nil {
-					if *rerr.Error.Message != "" {
-						errmsg = *rerr.Error.Message
-					} else {
-						errmsg = fmt.Sprintf("HTTP POST for %s returned \"%s\" and error information but error information neither contains @Message.ExtendedInfo nor Message", response.Url, response.Status)
-					}
-				}
-			}
-			return errors.New(fmt.Sprintf("ERROR: %s", errmsg))
-		}
 
-		// any other error ? (HTTP 400 has been handled above)
-		if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-			return errors.New(fmt.Sprintf("ERROR: HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+			errmsg := r.GetErrorMessage(rerr)
+			if errmsg != "" {
+				return errors.New(fmt.Sprintf("ERROR: Account modification failed: %s", errmsg))
+			} else {
+				return errors.New(fmt.Sprintf("ERROR: Account modification failed and returned \"%s\" and no error information", response.Status))
+			}
 		}
 	}
 	return nil
