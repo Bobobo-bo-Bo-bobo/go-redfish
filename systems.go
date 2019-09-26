@@ -227,7 +227,7 @@ func (r *Redfish) GetVendorFlavor() error {
 				"_manufacturer": _manufacturer,
 			}).Debug("Identifying vendor flavor")
 		}
-		if _manufacturer == "hp" || _manufacturer == "_hpe" {
+		if _manufacturer == "hp" || _manufacturer == "hpe" {
 			r.Flavor, r.FlavorString, err = r.distinguishHpHpeFlavors(_sys0)
 			if err != nil {
 				return err
