@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 	"strings"
 )
 
@@ -193,7 +194,7 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 		}).Debug("Uploading license")
 	}
 
-	_, err = r.httpRequest(*m.Hpe.Links.LicenseService.Id, "POST", nil, strings.NewReader(licensePayload), false)
+	response, err = r.httpRequest(*m.Hpe.Links.LicenseService.Id, "POST", nil, strings.NewReader(licensePayload), false)
 	if err != nil {
 		return err
 	}
