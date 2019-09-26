@@ -25,6 +25,7 @@ func (r *Redfish) hpGetLicense(mgr *ManagerData) (*ManagerLicenseData, error) {
 		return nil, nil
 	}
 
+	lic.Name = "HP iLO license"
 	if m.Hp.License.Expire != nil {
 		lic.Expiration = *m.Hp.License.Expire
 	}
