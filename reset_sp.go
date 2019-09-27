@@ -19,7 +19,7 @@ func (r *Redfish) getManagerResetTarget_Supermicro(mgr *ManagerData) (string, er
 	}
 
 	if actions_sm.Oem.ManagerReset.Target == nil || *actions_sm.Oem.ManagerReset.Target == "" {
-		return target, errors.New(fmt.Sprintf("ERROR: No ManagerReset.Target found in data or ManagerReset.Target is null"))
+		return target, errors.New(fmt.Sprintf("No ManagerReset.Target found in data or ManagerReset.Target is null"))
 	}
 
 	return *actions_sm.Oem.ManagerReset.Target, nil
@@ -35,7 +35,7 @@ func (r *Redfish) getManagerResetTarget_Vanilla(mgr *ManagerData) (string, error
 	}
 
 	if actions_sm.ManagerReset.Target == nil || *actions_sm.ManagerReset.Target == "" {
-		return target, errors.New(fmt.Sprintf("ERROR: No ManagerReset.Target found in data or ManagerReset.Target is null"))
+		return target, errors.New(fmt.Sprintf("No ManagerReset.Target found in data or ManagerReset.Target is null"))
 	}
 
 	return *actions_sm.ManagerReset.Target, nil
@@ -114,7 +114,7 @@ func (r *Redfish) ResetSP() error {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("ERROR: HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return errors.New(fmt.Sprintf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	return nil

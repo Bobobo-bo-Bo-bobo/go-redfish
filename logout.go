@@ -42,7 +42,7 @@ func (r *Redfish) Logout() error {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("ERROR: HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return errors.New(fmt.Sprintf("HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	r.AuthToken = nil

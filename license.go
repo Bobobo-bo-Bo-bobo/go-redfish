@@ -77,7 +77,7 @@ func (r *Redfish) hpeGetLicense(mgr *ManagerData) (*ManagerLicenseData, error) {
 
 func (r *Redfish) GetLicense(mgr *ManagerData) (*ManagerLicenseData, error) {
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return nil, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return nil, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
@@ -93,7 +93,7 @@ func (r *Redfish) GetLicense(mgr *ManagerData) (*ManagerLicenseData, error) {
 		return r.hpeGetLicense(mgr)
 	}
 
-	return nil, errors.New("ERROR: License operations are not supported for this vendor. If this vendor supports license operations please file a feature request.")
+	return nil, errors.New("License operations are not supported for this vendor. If this vendor supports license operations please file a feature request.")
 }
 
 func (r *Redfish) hpHpePrepareLicensePayload(l []byte) string {
@@ -151,13 +151,13 @@ func (r *Redfish) hpSetLicense(mgr *ManagerData, l []byte) error {
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		redfish_error, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
+			return errors.New(fmt.Sprintf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
 		}
 		msg := r.GetErrorMessage(redfish_error)
 		if msg != "" {
-			return errors.New(fmt.Sprintf("ERROR: License installation failed: %s\n", msg))
+			return errors.New(fmt.Sprintf("License installation failed: %s\n", msg))
 		} else {
-			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
+			return errors.New(fmt.Sprintf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
 		}
 	}
 	return nil
@@ -214,13 +214,13 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		redfish_error, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
+			return errors.New(fmt.Sprintf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
 		}
 		msg := r.GetErrorMessage(redfish_error)
 		if msg != "" {
-			return errors.New(fmt.Sprintf("ERROR: License installation failed: %s\n", msg))
+			return errors.New(fmt.Sprintf("License installation failed: %s\n", msg))
 		} else {
-			return errors.New(fmt.Sprintf("ERROR: License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
+			return errors.New(fmt.Sprintf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
 		}
 	}
 
@@ -228,7 +228,7 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 }
 func (r *Redfish) AddLicense(mgr *ManagerData, l []byte) error {
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
@@ -244,6 +244,6 @@ func (r *Redfish) AddLicense(mgr *ManagerData, l []byte) error {
 		return r.hpeSetLicense(mgr, l)
 	}
 
-	return errors.New("ERROR: License operations are not supported for this vendor. If this vendor supports license operations please file a feature request.")
+	return errors.New("License operations are not supported for this vendor. If this vendor supports license operations please file a feature request.")
 
 }

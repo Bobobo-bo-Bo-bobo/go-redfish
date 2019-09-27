@@ -15,7 +15,7 @@ func (r *Redfish) GetSystems() ([]string, error) {
 	var result = make([]string, 0)
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return result, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return result, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -39,7 +39,7 @@ func (r *Redfish) GetSystems() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &systems)
@@ -62,7 +62,7 @@ func (r *Redfish) GetSystemData(systemEndpoint string) (*SystemData, error) {
 	var result SystemData
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return nil, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return nil, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -86,7 +86,7 @@ func (r *Redfish) GetSystemData(systemEndpoint string) (*SystemData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -288,7 +288,7 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 			return err
 		}
 		if result.StatusCode != 200 {
-			return errors.New(fmt.Sprintf("ERROR: HTTP GET Request to %s returned %d - %s (expected 200)", sd.Actions.ComputerReset.ActionInfo, result.StatusCode, result.Status))
+			return errors.New(fmt.Sprintf("HTTP GET Request to %s returned %d - %s (expected 200)", sd.Actions.ComputerReset.ActionInfo, result.StatusCode, result.Status))
 		}
 
 		var sai SystemActionInfo
@@ -386,10 +386,10 @@ func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 		// DTMF Redfish schema definition defines the list of return codes following a POST operation
 		// (see https://redfish.dmtf.org/schemas/DSP0266_1.7.0.html#post-action-a-id-post-action-a-)
 		if result.StatusCode != 200 && result.StatusCode != 202 && result.StatusCode != 204 {
-			return errors.New(fmt.Sprintf("ERROR: HTTP POST to %s returns HTTP status %d - %s (expect 200, 202 or 204)", sd.Actions.ComputerReset.Target, result.StatusCode, result.Status))
+			return errors.New(fmt.Sprintf("HTTP POST to %s returns HTTP status %d - %s (expect 200, 202 or 204)", sd.Actions.ComputerReset.Target, result.StatusCode, result.Status))
 		}
 	} else {
-		return errors.New("ERROR: Requested PowerState is not supported for this system")
+		return errors.New("Requested PowerState is not supported for this system")
 	}
 	return nil
 }

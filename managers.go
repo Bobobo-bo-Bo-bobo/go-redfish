@@ -14,7 +14,7 @@ func (r *Redfish) GetManagers() ([]string, error) {
 	var result = make([]string, 0)
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return result, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return result, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -37,7 +37,7 @@ func (r *Redfish) GetManagers() ([]string, error) {
 
 	raw := response.Content
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &mgrs)
@@ -60,7 +60,7 @@ func (r *Redfish) GetManagerData(managerEndpoint string) (*ManagerData, error) {
 	var result ManagerData
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return nil, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return nil, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -84,7 +84,7 @@ func (r *Redfish) GetManagerData(managerEndpoint string) (*ManagerData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &result)

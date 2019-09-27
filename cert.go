@@ -51,7 +51,7 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -85,7 +85,7 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -143,7 +143,7 @@ func (r *Redfish) getImportCertTarget_HPE(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -177,7 +177,7 @@ func (r *Redfish) getImportCertTarget_HPE(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -235,7 +235,7 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -270,7 +270,7 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -290,7 +290,7 @@ func (r *Redfish) ImportCertificate(cert string) error {
 	var certtarget string = ""
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	// set vendor flavor
@@ -340,11 +340,11 @@ func (r *Redfish) ImportCertificate(cert string) error {
 			return err
 		}
 	} else if r.Flavor == REDFISH_INSPUR {
-		return errors.New("ERROR: Inspur management boards do not support certificate import")
+		return errors.New("Inspur management boards do not support certificate import")
 	} else if r.Flavor == REDFISH_SUPERMICRO {
-		return errors.New("ERROR: SuperMicro management boards do not support certificate import")
+		return errors.New("SuperMicro management boards do not support certificate import")
 	} else {
-		return errors.New("ERROR: Unable to get vendor for management board. If this vendor supports certificate import please file a feature request")
+		return errors.New("Unable to get vendor for management board. If this vendor supports certificate import please file a feature request")
 	}
 
 	if certtarget == "" {
@@ -389,7 +389,7 @@ func (r *Redfish) ImportCertificate(cert string) error {
 	// XXX: do we need to look at the content returned by HTTP POST ?
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("ERROR: HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return errors.New(fmt.Sprintf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	return nil

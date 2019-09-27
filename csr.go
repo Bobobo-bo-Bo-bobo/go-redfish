@@ -31,7 +31,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csr, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return csr, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -55,7 +55,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -90,7 +90,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -103,7 +103,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 		// If no CSR generation has started and no certificate was imported the API reports "CertificateSigningRequest": null,
 		// whereas CertificateSigningRequest is not present when CSR generation is running but the JSON parser can't distinguish between both
 		// situations
-		return csr, errors.New(fmt.Sprintf("ERROR: No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
+		return csr, errors.New(fmt.Sprintf("No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
 	}
 
 	csr = *httpscert.CSR
@@ -132,7 +132,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csr, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return csr, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -156,7 +156,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -191,7 +191,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -204,7 +204,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 		// If no CSR generation has started and no certificate was imported the API reports "CertificateSigningRequest": null,
 		// whereas CertificateSigningRequest is not present when CSR generation is running but the JSON parser can't distinguish between both
 		// situations
-		return csr, errors.New(fmt.Sprintf("ERROR: No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
+		return csr, errors.New(fmt.Sprintf("No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
 	}
 
 	csr = *httpscert.CSR
@@ -233,7 +233,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csr, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return csr, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -257,7 +257,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -292,7 +292,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -305,7 +305,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 		// If no CSR generation has started and no certificate was imported the API reports "CertificateSigningRequest": null,
 		// whereas CertificateSigningRequest is not present when CSR generation is running but the JSON parser can't distinguish between both
 		// situations
-		return csr, errors.New(fmt.Sprintf("ERROR: No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
+		return csr, errors.New(fmt.Sprintf("No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
 	}
 
 	csr = *httpscert.CSR
@@ -334,7 +334,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csrTarget, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return csrTarget, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -358,7 +358,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -394,7 +394,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -432,7 +432,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csrTarget, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return csrTarget, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -456,7 +456,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -492,7 +492,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -530,7 +530,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return csrTarget, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return csrTarget, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -554,7 +554,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -590,7 +590,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -694,7 +694,7 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 	var gencsrtarget string = ""
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	// set vendor flavor
@@ -734,11 +734,11 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 			return err
 		}
 	} else if r.Flavor == REDFISH_INSPUR {
-		return errors.New("ERROR: Inspur management boards do not support CSR generation")
+		return errors.New("Inspur management boards do not support CSR generation")
 	} else if r.Flavor == REDFISH_SUPERMICRO {
-		return errors.New("ERROR: SuperMicro management boards do not support CSR generation")
+		return errors.New("SuperMicro management boards do not support CSR generation")
 	} else {
-		return errors.New("ERROR: Unable to get vendor for management board. If this vendor supports CSR generation please file a feature request")
+		return errors.New("Unable to get vendor for management board. If this vendor supports CSR generation please file a feature request")
 	}
 
 	if gencsrtarget == "" {
@@ -779,7 +779,7 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 	// XXX: do we need to look at the content returned by HTTP POST ?
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("ERROR: HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return errors.New(fmt.Sprintf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	return nil
@@ -823,11 +823,11 @@ func (r *Redfish) FetchCSR() (string, error) {
 			return csrstr, err
 		}
 	} else if r.Flavor == REDFISH_INSPUR {
-		return csrstr, errors.New("ERROR: Inspur management boards do not support CSR generation")
+		return csrstr, errors.New("Inspur management boards do not support CSR generation")
 	} else if r.Flavor == REDFISH_SUPERMICRO {
-		return csrstr, errors.New("ERROR: SuperMicro management boards do not support CSR generation")
+		return csrstr, errors.New("SuperMicro management boards do not support CSR generation")
 	} else {
-		return csrstr, errors.New("ERROR: Unable to get vendor for management board. If this vendor supports CSR generation please file a feature request")
+		return csrstr, errors.New("Unable to get vendor for management board. If this vendor supports CSR generation please file a feature request")
 	}
 
 	// convert "raw" string (new lines escaped as \n) to real string (new lines are new lines)

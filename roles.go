@@ -15,7 +15,7 @@ func (r *Redfish) GetRoles() ([]string, error) {
 	var result = make([]string, 0)
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return result, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return result, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -39,7 +39,7 @@ func (r *Redfish) GetRoles() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &accsvc)
@@ -72,7 +72,7 @@ func (r *Redfish) GetRoles() ([]string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &roles)
@@ -95,7 +95,7 @@ func (r *Redfish) GetRoleData(roleEndpoint string) (*RoleData, error) {
 	var result RoleData
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
-		return nil, errors.New("ERROR: No authentication token found, is the session setup correctly?")
+		return nil, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	if r.Verbose {
@@ -119,7 +119,7 @@ func (r *Redfish) GetRoleData(roleEndpoint string) (*RoleData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("ERROR: HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -148,7 +148,7 @@ func (r *Redfish) MapRolesByName() (map[string]*RoleData, error) {
 
 		// should NEVER happen
 		if rl.Name == nil {
-			return result, errors.New("ERROR: No Name found or Name is null")
+			return result, errors.New("No Name found or Name is null")
 		}
 
 		result[*rl.Name] = rl
@@ -174,7 +174,7 @@ func (r *Redfish) MapRolesById() (map[string]*RoleData, error) {
 
 		// should NEVER happen
 		if rl.Id == nil {
-			return result, errors.New("ERROR: No Id found or Id is null")
+			return result, errors.New("No Id found or Id is null")
 		}
 
 		result[*rl.Id] = rl
