@@ -8,7 +8,7 @@ import (
 )
 
 // Note: Be consistent with "Semantic Versioning 2.0.0" - see https://semver.org/
-const GoRedfishVersion string = "1.2.1-2019.09.27"
+const GoRedfishVersion string = "1.2.1-2019.10.04"
 const _GoRedfishUrl string = "https://git.ypbind.de/cgit/go-redfish/"
 
 var UserAgent string = "go-redfish/" + GoRedfishVersion + "(" + _GoRedfishUrl + ")"
@@ -435,6 +435,7 @@ type BaseRedfish interface {
 	ProcessError(HttpResult) (*RedfishError, error)
 	GetLicense(*ManagerData) (*ManagerLicenseData, error)
 	GetErrorMessage(*RedfishError) string
+	IsInitialised() bool
 
 	httpRequest(string, string, *map[string]string, io.Reader, bool) (HttpResult, error)
 	getCSRTarget_HP(*ManagerData) (string, error)
@@ -480,4 +481,6 @@ type Redfish struct {
 	// Vendor "flavor"
 	Flavor       uint
 	FlavorString string
+
+	initialised bool
 }

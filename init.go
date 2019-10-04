@@ -207,5 +207,7 @@ func (r *Redfish) Initialise() error {
 	}
 	r.Systems = *base.Systems.Id
 
+	r.initialised = true
+
 	return nil
 }
