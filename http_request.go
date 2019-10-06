@@ -38,7 +38,7 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 		},
 	}
 
-	if r.Port > 0 {
+	if r.Port > 0 && r.Port != 443 {
 		// check if it is an endpoint or a full URL
 		if endpoint[0] == '/' {
 			url = fmt.Sprintf("https://%s:%d%s", r.Hostname, r.Port, endpoint)
