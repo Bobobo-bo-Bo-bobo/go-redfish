@@ -11,7 +11,7 @@ import (
 const GoRedfishVersion string = "1.2.1-2019.10.07"
 const _GoRedfishUrl string = "https://git.ypbind.de/cgit/go-redfish/"
 
-var UserAgent string = "go-redfish/" + GoRedfishVersion + "(" + _GoRedfishUrl + ")"
+var UserAgent string = "go-redfish/" + GoRedfishVersion + " (" + _GoRedfishUrl + ")"
 
 type RedfishError struct {
 	Error RedfishErrorMessage `json:"error"`
