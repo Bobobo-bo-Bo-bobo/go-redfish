@@ -127,6 +127,10 @@ func (r *Redfish) MapChassisById() (map[string]*ChassisData, error) {
 func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
 	var result PowerData
 
+	if r.AuthToken == nil || *r.AuthToken == "" {
+		return nil, errors.New("No authentication token found, is the session setup correctly?")
+	}
+
 	if r.Verbose {
 		log.WithFields(log.Fields{
 			"hostname":           r.Hostname,
@@ -161,6 +165,10 @@ func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
 // get Thermal data from
 func (r *Redfish) GetThermalData(thermalEndpoint string) (*ThermalData, error) {
 	var result ThermalData
+
+	if r.AuthToken == nil || *r.AuthToken == "" {
+		return nil, errors.New("No authentication token found, is the session setup correctly?")
+	}
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
