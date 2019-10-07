@@ -2,7 +2,6 @@ package redfish
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -14,7 +13,7 @@ func (r *Redfish) Login() error {
 	var sessions sessionServiceEndpoint
 
 	if r.Username == "" || r.Password == "" {
-		return errors.New(fmt.Sprintf("Both Username and Password must be set"))
+		return fmt.Errorf("Both Username and Password must be set")
 	}
 
 	// Get session endpoint if not already defined by information from base endpoint .Links.Sessions
@@ -39,7 +38,7 @@ func (r *Redfish) Login() error {
 		}
 
 		if response.StatusCode != http.StatusOK {
-			return errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+			return fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 		}
 
 		raw := response.Content
@@ -52,16 +51,16 @@ func (r *Redfish) Login() error {
 		// check if management boards reports "ServiceEnabled" and if it does, check if is true
 		if sessions.Enabled != nil {
 			if !*sessions.Enabled {
-				return errors.New(fmt.Sprintf("Session information from %s reports session service as disabled\n", response.Url))
+				return fmt.Errorf("Session information from %s reports session service as disabled\n", response.Url)
 			}
 		}
 
 		if sessions.Sessions == nil {
-			return errors.New(fmt.Sprintf("BUG: No Sessions endpoint reported from %s\n", response.Url))
+			return fmt.Errorf("BUG: No Sessions endpoint reported from %s\n", response.Url)
 		}
 
 		if sessions.Sessions.Id == nil {
-			return errors.New(fmt.Sprintf("BUG: Malformed Sessions endpoint reported from %s: no @odata.id field found\n", response.Url))
+			return fmt.Errorf("BUG: Malformed Sessions endpoint reported from %s: no @odata.id field found\n", response.Url)
 		}
 
 		r.Sessions = *sessions.Sessions.Id
@@ -103,25 +102,25 @@ func (r *Redfish) Login() error {
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		redfish_error, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+			return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status)
 		}
 		msg := r.GetErrorMessage(redfish_error)
 		if msg != "" {
-			return errors.New(fmt.Sprintf("Login failed: %s\n", msg))
+			return fmt.Errorf("Login failed: %s\n", msg)
 		} else {
-			return errors.New(fmt.Sprintf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+			return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status)
 		}
 	}
 
 	token := response.Header.Get("x-auth-token")
 	if token == "" {
-		return errors.New(fmt.Sprintf("BUG: HTTP POST to SessionService endpoint %s returns OK but no X-Auth-Token in reply", response.Url))
+		return fmt.Errorf("BUG: HTTP POST to SessionService endpoint %s returns OK but no X-Auth-Token in reply", response.Url)
 	}
 	r.AuthToken = &token
 
 	session := response.Header.Get("location")
 	if session == "" {
-		return errors.New(fmt.Sprintf("BUG: HTTP POST to SessionService endpoint %s returns OK but has no Location in reply", response.Url))
+		return fmt.Errorf("BUG: HTTP POST to SessionService endpoint %s returns OK but has no Location in reply", response.Url)
 	}
 
 	// check if is a full URL

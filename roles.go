@@ -39,7 +39,7 @@ func (r *Redfish) GetRoles() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &accsvc)
@@ -72,7 +72,7 @@ func (r *Redfish) GetRoles() ([]string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &roles)
@@ -81,7 +81,7 @@ func (r *Redfish) GetRoles() ([]string, error) {
 	}
 
 	if len(roles.Members) == 0 {
-		return result, errors.New(fmt.Sprintf("BUG: Missing or empty Members attribute in Roles"))
+		return result, fmt.Errorf("BUG: Missing or empty Members attribute in Roles")
 	}
 
 	for _, r := range roles.Members {
@@ -119,7 +119,7 @@ func (r *Redfish) GetRoleData(roleEndpoint string) (*RoleData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)

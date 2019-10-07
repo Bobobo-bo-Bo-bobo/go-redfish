@@ -1,7 +1,6 @@
 package redfish
 
 import (
-	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -20,7 +19,7 @@ func (r *Redfish) Logout() error {
 	}
 
 	if r.SessionLocation == nil || *r.SessionLocation == "" {
-		return errors.New(fmt.Sprintf("BUG: X-Auth-Token set (value: %s) but no SessionLocation for this session found\n", *r.AuthToken))
+		return fmt.Errorf("BUG: X-Auth-Token set (value: %s) but no SessionLocation for this session found\n", *r.AuthToken)
 	}
 
 	if r.Verbose {
@@ -42,7 +41,7 @@ func (r *Redfish) Logout() error {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return fmt.Errorf("HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	r.AuthToken = nil

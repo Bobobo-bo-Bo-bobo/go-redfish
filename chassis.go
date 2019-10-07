@@ -38,7 +38,7 @@ func (r *Redfish) GetChassis() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &chassis)
@@ -85,7 +85,7 @@ func (r *Redfish) GetChassisData(chassisEndpoint string) (*ChassisData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -114,7 +114,7 @@ func (r *Redfish) MapChassisById() (map[string]*ChassisData, error) {
 
 		// should NEVER happen
 		if s.Id == nil {
-			return result, errors.New(fmt.Sprintf("BUG: No Id found for Chassis at %s", chas))
+			return result, fmt.Errorf("BUG: No Id found for Chassis at %s", chas)
 		}
 
 		result[*s.Id] = s
@@ -150,7 +150,7 @@ func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(response.Content, &result)
@@ -189,7 +189,7 @@ func (r *Redfish) GetThermalData(thermalEndpoint string) (*ThermalData, error) {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(response.Content, &result)

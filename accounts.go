@@ -51,7 +51,7 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &accsvc)
@@ -83,7 +83,7 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 
 	raw = response.Content
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &accs)
@@ -92,7 +92,7 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 	}
 
 	if len(accs.Members) == 0 {
-		return result, errors.New(fmt.Sprintf("BUG: Missing or empty Members attribute in Accounts"))
+		return result, fmt.Errorf("BUG: Missing or empty Members attribute in Accounts")
 	}
 
 	for _, a := range accs.Members {
@@ -142,7 +142,7 @@ func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -370,7 +370,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(response.Content, &acsd)
@@ -379,11 +379,11 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	}
 
 	if acsd.AccountsEndpoint == nil {
-		return errors.New(fmt.Sprintf("No Accounts endpoint found in response from %s", response.Url))
+		return fmt.Errorf("No Accounts endpoint found in response from %s", response.Url)
 	}
 
 	if acsd.AccountsEndpoint.Id == nil || *acsd.AccountsEndpoint.Id == "" {
-		return errors.New(fmt.Sprintf("BUG: Defined Accounts endpoint from %s does not have @odata.id value", response.Url))
+		return fmt.Errorf("BUG: Defined Accounts endpoint from %s does not have @odata.id value", response.Url)
 	}
 
 	accep = *acsd.AccountsEndpoint.Id
@@ -413,7 +413,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 			virtual_role := strings.TrimSpace(strings.ToLower(acd.Role))
 			_flags, found = HPEVirtualRoles[virtual_role]
 			if !found {
-				return errors.New(fmt.Sprintf("Unknown role %s", acd.Role))
+				return fmt.Errorf("Unknown role %s", acd.Role)
 			}
 
 			// If additional privileges are set we add them too
@@ -441,7 +441,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 
 		_, found := rmap[acd.Role]
 		if !found {
-			return errors.New(fmt.Sprintf("Requested role %s not found", acd.Role))
+			return fmt.Errorf("Requested role %s not found", acd.Role)
 		}
 
 		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"RoleId\": \"%s\" }", acd.UserName, acd.Password, acd.Role)
@@ -483,7 +483,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	if response.StatusCode == http.StatusBadRequest {
 		rerr, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("Operation failed, returned \"%s\" and no error information", response.Status))
+			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
 
 		//
@@ -512,15 +512,15 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		//
 		errmsg := r.GetErrorMessage(rerr)
 		if errmsg != "" {
-			return errors.New(fmt.Sprintf("%s", errmsg))
+			return fmt.Errorf("%s", errmsg)
 		} else {
-			return errors.New(fmt.Sprintf("Operation failed, returned \"%s\" and no error information", response.Status))
+			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
 	}
 
 	// any other error ? (HTTP 400 has been handled above)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-		return errors.New(fmt.Sprintf("Operation failed, returned \"%s\" and no error information", response.Status))
+		return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 	}
 	return nil
 }
@@ -560,7 +560,7 @@ func (r *Redfish) dellDeleteAccount(endpoint string) error {
 
 	if response.StatusCode != http.StatusOK {
 		// TODO: Check error object
-		return errors.New(fmt.Sprintf("HTTP PATCH for %s returned \"%s\"", endpoint, response.Status))
+		return fmt.Errorf("HTTP PATCH for %s returned \"%s\"", endpoint, response.Status)
 	}
 	return err
 }
@@ -589,11 +589,11 @@ func (r *Redfish) DeleteAccount(u string) error {
 
 	adata, found := amap[u]
 	if !found {
-		return errors.New(fmt.Sprintf("Account %s not found", u))
+		return fmt.Errorf("Account %s not found", u)
 	}
 
 	if adata.SelfEndpoint == nil || *adata.SelfEndpoint == "" {
-		return errors.New(fmt.Sprintf("BUG: SelfEndpoint not set or empty in account data for %s", u))
+		return fmt.Errorf("BUG: SelfEndpoint not set or empty in account data for %s", u)
 	}
 
 	if r.Verbose {
@@ -620,7 +620,7 @@ func (r *Redfish) DeleteAccount(u string) error {
 		return err
 	}
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return fmt.Errorf("HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	return nil
@@ -634,7 +634,7 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 	}
 
 	if p == "" {
-		return errors.New(fmt.Sprintf("Password for %s is empty", u))
+		return fmt.Errorf("Password for %s is empty", u)
 	}
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
@@ -659,11 +659,11 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 
 	adata, found := amap[u]
 	if !found {
-		return errors.New(fmt.Sprintf("Account %s not found", u))
+		return fmt.Errorf("Account %s not found", u)
 	}
 
 	if adata.SelfEndpoint == nil || *adata.SelfEndpoint == "" {
-		return errors.New(fmt.Sprintf("BUG: SelfEndpoint not set or empty in account data for %s", u))
+		return fmt.Errorf("BUG: SelfEndpoint not set or empty in account data for %s", u)
 	}
 	payload = fmt.Sprintf("{ \"Password\": \"%s\" }", p)
 
@@ -703,7 +703,7 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 	if response.StatusCode == http.StatusBadRequest {
 		rerr, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("Operation failed, returned \"%s\" and no error information", response.Status))
+			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
 
 		//
@@ -732,15 +732,15 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 		//
 		errmsg := r.GetErrorMessage(rerr)
 		if errmsg != "" {
-			return errors.New(fmt.Sprintf("%s", errmsg))
+			return fmt.Errorf("%s", errmsg)
 		} else {
-			return errors.New(fmt.Sprintf("Operation failed, returned \"%s\" and no error information", response.Status))
+			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
 	}
 
 	// any other error ? (HTTP 400 has been handled above)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-		return errors.New(fmt.Sprintf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+		return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status)
 	}
 	return nil
 }
@@ -772,7 +772,7 @@ func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string,
 			virtual_role := strings.TrimSpace(strings.ToLower(acd.Role))
 			_flags, found = HPEVirtualRoles[virtual_role]
 			if !found {
-				return "", errors.New(fmt.Sprintf("Unknown role %s", acd.Role))
+				return "", fmt.Errorf("Unknown role %s", acd.Role)
 			}
 
 			// If additional privileges are set we add them too
@@ -823,10 +823,10 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 
 	udata, found := umap[u]
 	if !found {
-		return errors.New(fmt.Sprintf("User %s not found", u))
+		return fmt.Errorf("User %s not found", u)
 	}
 	if udata.SelfEndpoint == nil || *udata.SelfEndpoint == "" {
-		return errors.New(fmt.Sprintf("BUG: SelfEndpoint is not set or empty for user %s", u))
+		return fmt.Errorf("BUG: SelfEndpoint is not set or empty for user %s", u)
 	}
 
 	payload, err := r.makeAccountCreateModifyPayload(acd)
@@ -870,20 +870,20 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 	if response.StatusCode == http.StatusBadRequest {
 		rerr, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("Operation failed, returned \"%s\" and no error information", response.Status))
+			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
 
 		errmsg := r.GetErrorMessage(rerr)
 		if errmsg != "" {
-			return errors.New(fmt.Sprintf("%s", errmsg))
+			return fmt.Errorf("%s", errmsg)
 		} else {
-			return errors.New(fmt.Sprintf("Operation failed, returned \"%s\" and no error information", response.Status))
+			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
 	}
 
 	// any other error ? (HTTP 400 has been handled above)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-		return errors.New(fmt.Sprintf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status))
+		return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status)
 	}
 	return nil
 }
@@ -949,14 +949,14 @@ func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData
 		if response.StatusCode == http.StatusBadRequest {
 			rerr, err := r.ProcessError(response)
 			if err != nil {
-				return errors.New(fmt.Sprintf("Operation failed, returned \"%s\" and no error information", response.Status))
+				return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 			}
 
 			errmsg := r.GetErrorMessage(rerr)
 			if errmsg != "" {
-				return errors.New(fmt.Sprintf("%s", errmsg))
+				return fmt.Errorf("%s", errmsg)
 			} else {
-				return errors.New(fmt.Sprintf("Operation failed, returned \"%s\" and no error information", response.Status))
+				return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 			}
 		}
 	}

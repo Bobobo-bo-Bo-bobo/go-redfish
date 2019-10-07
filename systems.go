@@ -39,7 +39,7 @@ func (r *Redfish) GetSystems() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &systems)
@@ -86,7 +86,7 @@ func (r *Redfish) GetSystemData(systemEndpoint string) (*SystemData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -115,7 +115,7 @@ func (r *Redfish) MapSystemsById() (map[string]*SystemData, error) {
 
 		// should NEVER happen
 		if s.Id == nil {
-			return result, errors.New(fmt.Sprintf("BUG: No Id found for System at %s", sys))
+			return result, fmt.Errorf("BUG: No Id found for System at %s", sys)
 		}
 
 		result[*s.Id] = s
@@ -141,7 +141,7 @@ func (r *Redfish) MapSystemsByUuid() (map[string]*SystemData, error) {
 
 		// should NEVER happen
 		if s.UUID == nil {
-			return result, errors.New(fmt.Sprintf("BUG: No UUID found for System at %s", sys))
+			return result, fmt.Errorf("BUG: No UUID found for System at %s", sys)
 		}
 
 		result[*s.UUID] = s
@@ -167,7 +167,7 @@ func (r *Redfish) MapSystemsBySerialNumber() (map[string]*SystemData, error) {
 
 		// should NEVER happen
 		if s.SerialNumber == nil {
-			return result, errors.New(fmt.Sprintf("BUG: No SerialNumber found for System at %s", sys))
+			return result, fmt.Errorf("BUG: No SerialNumber found for System at %s", sys)
 		}
 
 		result[*s.SerialNumber] = s
@@ -259,13 +259,13 @@ func (r *Redfish) GetVendorFlavor() error {
 // set reset type map to map normalized state to supported variable value
 func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 	if sd.Actions == nil {
-		return errors.New(fmt.Sprintf("BUG: SystemData object don't define an Actions key"))
+		return fmt.Errorf("BUG: SystemData object don't define an Actions key")
 	}
 	if sd.Actions.ComputerReset == nil {
-		return errors.New(fmt.Sprintf("BUG: SystemData.Actions don't define a #ComputerSystem.Reset key"))
+		return fmt.Errorf("BUG: SystemData.Actions don't define a #ComputerSystem.Reset key")
 	}
 	if sd.Actions.ComputerReset.Target == "" {
-		return errors.New(fmt.Sprintf("BUG: SystemData.Actions.#ComputerSystem.Reset don't define a target key"))
+		return fmt.Errorf("BUG: SystemData.Actions.#ComputerSystem.Reset don't define a target key")
 	}
 
 	if sd.Actions.ComputerReset.ActionInfo != "" {
@@ -288,7 +288,7 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 			return err
 		}
 		if result.StatusCode != 200 {
-			return errors.New(fmt.Sprintf("HTTP GET Request to %s returned %d - %s (expected 200)", sd.Actions.ComputerReset.ActionInfo, result.StatusCode, result.Status))
+			return fmt.Errorf("HTTP GET Request to %s returned %d - %s (expected 200)", sd.Actions.ComputerReset.ActionInfo, result.StatusCode, result.Status)
 		}
 
 		var sai SystemActionInfo
@@ -308,7 +308,7 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 			return errors.New("BUG: ActionInfo.Parameters[0] don't have required field Name (or it is empty)")
 		}
 		if len(sai.Parameters[0].AllowableValues) == 0 {
-			return errors.New(fmt.Sprintf("BUG: List of supported reset types in ActionInfo is not defined or empty"))
+			return fmt.Errorf("BUG: List of supported reset types in ActionInfo is not defined or empty")
 		}
 		sd.allowedResetTypes = make(map[string]string)
 		for _, t := range sai.Parameters[0].AllowableValues {
@@ -320,7 +320,7 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 
 	} else {
 		if len(sd.Actions.ComputerReset.ResetTypeValues) == 0 {
-			return errors.New(fmt.Sprintf("BUG: List of supported reset types is not defined or empty"))
+			return fmt.Errorf("BUG: List of supported reset types is not defined or empty")
 		}
 
 		sd.allowedResetTypes = make(map[string]string)
@@ -386,7 +386,7 @@ func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 		// DTMF Redfish schema definition defines the list of return codes following a POST operation
 		// (see https://redfish.dmtf.org/schemas/DSP0266_1.7.0.html#post-action-a-id-post-action-a-)
 		if result.StatusCode != 200 && result.StatusCode != 202 && result.StatusCode != 204 {
-			return errors.New(fmt.Sprintf("HTTP POST to %s returns HTTP status %d - %s (expect 200, 202 or 204)", sd.Actions.ComputerReset.Target, result.StatusCode, result.Status))
+			return fmt.Errorf("HTTP POST to %s returns HTTP status %d - %s (expect 200, 202 or 204)", sd.Actions.ComputerReset.Target, result.StatusCode, result.Status)
 		}
 	} else {
 		return errors.New("Requested PowerState is not supported for this system")

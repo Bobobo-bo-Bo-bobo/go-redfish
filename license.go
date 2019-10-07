@@ -110,7 +110,7 @@ func (r *Redfish) hpSetLicense(mgr *ManagerData, l []byte) error {
 
 	// get LicenseService endpoint path from OEM data
 	if m.Hp.Links.LicenseService.Id == nil || *m.Hp.Links.LicenseService.Id == "" {
-		return errors.New(fmt.Sprintf("BUG: Expected LicenseService endpoint definition in .Oem.Hp.Links for vendor %s, but found none", r.FlavorString))
+		return fmt.Errorf("BUG: Expected LicenseService endpoint definition in .Oem.Hp.Links for vendor %s, but found none", r.FlavorString)
 	}
 
 	licensePayload := r.hpHpePrepareLicensePayload(l)
@@ -151,13 +151,13 @@ func (r *Redfish) hpSetLicense(mgr *ManagerData, l []byte) error {
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		redfish_error, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
+			return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
 		}
 		msg := r.GetErrorMessage(redfish_error)
 		if msg != "" {
-			return errors.New(fmt.Sprintf("License installation failed: %s\n", msg))
+			return fmt.Errorf("License installation failed: %s\n", msg)
 		} else {
-			return errors.New(fmt.Sprintf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
+			return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
 		}
 	}
 	return nil
@@ -173,7 +173,7 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 
 	// get LicenseService endpoint path from OEM data
 	if m.Hpe.Links.LicenseService.Id == nil || *m.Hpe.Links.LicenseService.Id == "" {
-		return errors.New(fmt.Sprintf("BUG: Expected LicenseService endpoint definition in .Oem.Hpe.Links for vendor %s, but found none", r.FlavorString))
+		return fmt.Errorf("BUG: Expected LicenseService endpoint definition in .Oem.Hpe.Links for vendor %s, but found none", r.FlavorString)
 	}
 
 	licensePayload := r.hpHpePrepareLicensePayload(l)
@@ -214,13 +214,13 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		redfish_error, err := r.ProcessError(response)
 		if err != nil {
-			return errors.New(fmt.Sprintf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
+			return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
 		}
 		msg := r.GetErrorMessage(redfish_error)
 		if msg != "" {
-			return errors.New(fmt.Sprintf("License installation failed: %s\n", msg))
+			return fmt.Errorf("License installation failed: %s\n", msg)
 		} else {
-			return errors.New(fmt.Sprintf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status))
+			return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
 		}
 	}
 
