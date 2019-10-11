@@ -55,7 +55,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -64,7 +64,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csr, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+		return csr, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
@@ -90,7 +90,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -103,7 +103,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 		// If no CSR generation has started and no certificate was imported the API reports "CertificateSigningRequest": null,
 		// whereas CertificateSigningRequest is not present when CSR generation is running but the JSON parser can't distinguish between both
 		// situations
-		return csr, errors.New(fmt.Sprintf("No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
+		return csr, fmt.Errorf("No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running")
 	}
 
 	csr = *httpscert.CSR
@@ -156,7 +156,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -165,7 +165,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csr, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+		return csr, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
@@ -191,7 +191,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -204,7 +204,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 		// If no CSR generation has started and no certificate was imported the API reports "CertificateSigningRequest": null,
 		// whereas CertificateSigningRequest is not present when CSR generation is running but the JSON parser can't distinguish between both
 		// situations
-		return csr, errors.New(fmt.Sprintf("No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
+		return csr, fmt.Errorf("No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running")
 	}
 
 	csr = *httpscert.CSR
@@ -257,7 +257,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -266,7 +266,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csr, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+		return csr, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
@@ -292,7 +292,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -305,7 +305,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 		// If no CSR generation has started and no certificate was imported the API reports "CertificateSigningRequest": null,
 		// whereas CertificateSigningRequest is not present when CSR generation is running but the JSON parser can't distinguish between both
 		// situations
-		return csr, errors.New(fmt.Sprintf("No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running"))
+		return csr, fmt.Errorf("No CertificateSigningRequest found. Either CSR generation hasn't been started or is still running")
 	}
 
 	csr = *httpscert.CSR
@@ -358,7 +358,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -367,7 +367,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csrTarget, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+		return csrTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
@@ -394,7 +394,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -403,7 +403,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if httpscert.Actions.GenerateCSR.Target == nil {
-		return csrTarget, errors.New(fmt.Sprintf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url))
+		return csrTarget, fmt.Errorf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url)
 	}
 
 	csrTarget = *httpscert.Actions.GenerateCSR.Target
@@ -456,7 +456,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -465,7 +465,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csrTarget, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+		return csrTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
@@ -492,7 +492,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -501,7 +501,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if httpscert.Actions.GenerateCSR.Target == nil {
-		return csrTarget, errors.New(fmt.Sprintf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url))
+		return csrTarget, fmt.Errorf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url)
 	}
 
 	csrTarget = *httpscert.Actions.GenerateCSR.Target
@@ -554,7 +554,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -563,7 +563,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csrTarget, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+		return csrTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
@@ -590,7 +590,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -599,7 +599,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if httpscert.Actions.GenerateCSR.Target == nil {
-		return csrTarget, errors.New(fmt.Sprintf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url))
+		return csrTarget, fmt.Errorf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url)
 	}
 
 	csrTarget = *httpscert.Actions.GenerateCSR.Target
@@ -779,7 +779,7 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 	// XXX: do we need to look at the content returned by HTTP POST ?
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return fmt.Errorf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	return nil

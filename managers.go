@@ -37,7 +37,7 @@ func (r *Redfish) GetManagers() ([]string, error) {
 
 	raw := response.Content
 	if response.StatusCode != http.StatusOK {
-		return result, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &mgrs)
@@ -46,7 +46,7 @@ func (r *Redfish) GetManagers() ([]string, error) {
 	}
 
 	if len(mgrs.Members) == 0 {
-		return result, errors.New(fmt.Sprintf("BUG: Missing or empty Members attribute in Managers"))
+		return result, fmt.Errorf("BUG: Missing or empty Members attribute in Managers")
 	}
 
 	for _, m := range mgrs.Members {
@@ -84,7 +84,7 @@ func (r *Redfish) GetManagerData(managerEndpoint string) (*ManagerData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -112,7 +112,7 @@ func (r *Redfish) MapManagersById() (map[string]*ManagerData, error) {
 
 		// should NEVER happen
 		if m.Id == nil {
-			return result, errors.New(fmt.Sprintf("BUG: No Id found or Id is null in JSON data from %s", mgr))
+			return result, fmt.Errorf("BUG: No Id found or Id is null in JSON data from %s", mgr)
 		}
 		result[*m.Id] = m
 	}
@@ -137,7 +137,7 @@ func (r *Redfish) MapManagersByUuid() (map[string]*ManagerData, error) {
 
 		// should NEVER happen
 		if m.UUID == nil {
-			return result, errors.New(fmt.Sprintf("BUG: No UUID found or UUID is null in JSON data from %s", mgr))
+			return result, fmt.Errorf("BUG: No UUID found or UUID is null in JSON data from %s", mgr)
 		}
 		result[*m.UUID] = m
 	}

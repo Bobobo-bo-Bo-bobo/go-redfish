@@ -51,7 +51,7 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -60,7 +60,7 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if oemSSvc.Links.HttpsCert.Id == nil {
-		return certTarget, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+		return certTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
@@ -85,7 +85,7 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -94,7 +94,7 @@ func (r *Redfish) getImportCertTarget_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if httpscert.Actions.ImportCertificate.Target == nil {
-		return certTarget, errors.New(fmt.Sprintf("BUG: .Actions.ImportCertificate.Target is not present or empty in JSON data from %s", response.Url))
+		return certTarget, fmt.Errorf("BUG: .Actions.ImportCertificate.Target is not present or empty in JSON data from %s", response.Url)
 	}
 
 	certTarget = *httpscert.Actions.ImportCertificate.Target
@@ -143,7 +143,7 @@ func (r *Redfish) getImportCertTarget_HPE(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -152,7 +152,7 @@ func (r *Redfish) getImportCertTarget_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if oemSSvc.Links.HttpsCert.Id == nil {
-		return certTarget, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+		return certTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
@@ -177,7 +177,7 @@ func (r *Redfish) getImportCertTarget_HPE(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -186,7 +186,7 @@ func (r *Redfish) getImportCertTarget_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if httpscert.Actions.ImportCertificate.Target == nil {
-		return certTarget, errors.New(fmt.Sprintf("BUG: .Actions.ImportCertificate.Target is not present or empty in JSON data from %s", response.Url))
+		return certTarget, fmt.Errorf("BUG: .Actions.ImportCertificate.Target is not present or empty in JSON data from %s", response.Url)
 	}
 
 	certTarget = *httpscert.Actions.ImportCertificate.Target
@@ -235,7 +235,7 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -244,7 +244,7 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if oemSSvc.Links.HttpsCert.Id == nil {
-		return certTarget, errors.New(fmt.Sprintf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url))
+		return certTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
 	}
 
 	httpscertloc = *oemSSvc.Links.HttpsCert.Id
@@ -270,7 +270,7 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return certTarget, errors.New(fmt.Sprintf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return certTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -279,7 +279,7 @@ func (r *Redfish) getImportCertTarget_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if httpscert.Actions.ImportCertificate.Target == nil {
-		return certTarget, errors.New(fmt.Sprintf("BUG: .Actions.ImportCertificate.Target is not present or empty in JSON data from %s", response.Url))
+		return certTarget, fmt.Errorf("BUG: .Actions.ImportCertificate.Target is not present or empty in JSON data from %s", response.Url)
 	}
 
 	certTarget = *httpscert.Actions.ImportCertificate.Target
@@ -389,7 +389,7 @@ func (r *Redfish) ImportCertificate(cert string) error {
 	// XXX: do we need to look at the content returned by HTTP POST ?
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status))
+		return fmt.Errorf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
 	}
 
 	return nil
