@@ -138,7 +138,10 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 		return result, err
 	}
 
-	defer response.Body.Close()
+	defer func() {
+        ioutil.ReadAll(response.Body)
+        response.Body.Close()
+    }()
 
 	if r.Debug {
 		log.WithFields(log.Fields{
