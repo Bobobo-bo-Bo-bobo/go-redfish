@@ -8,7 +8,7 @@ import (
 )
 
 // Note: Be consistent with "Semantic Versioning 2.0.0" - see https://semver.org/
-const GoRedfishVersion string = "1.2.1-2019.10.12"
+const GoRedfishVersion string = "1.2.1-2019.10.13"
 const _GoRedfishUrl string = "https://git.ypbind.de/cgit/go-redfish/"
 
 var UserAgent string = "go-redfish/" + GoRedfishVersion + " (" + _GoRedfishUrl + ")"

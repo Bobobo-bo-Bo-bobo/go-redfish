@@ -74,6 +74,13 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 		return result, err
 	}
 
+	defer func() {
+		if request.Body != nil {
+			ioutil.ReadAll(request.Body)
+			request.Body.Close()
+		}
+	}()
+
 	if basic_auth {
 		if r.Debug {
 			log.WithFields(log.Fields{
