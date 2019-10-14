@@ -1,6 +1,6 @@
 package redfish
 
-// HP/HPE: Oem data for Manager endpoint and SecurityService endpoint
+// ManagerDataOemHpLicense - HP/HPE: Oem data for Manager endpoint and SecurityService endpoint
 type ManagerDataOemHpLicense struct {
 	Key    *string `json:"LicenseKey"`
 	String *string `json:"LicenseString"`
@@ -8,6 +8,7 @@ type ManagerDataOemHpLicense struct {
 	Expire *string `json:"LicenseExpire"`
 }
 
+// ManagerDataOemHpFederationConfig - same as ManagerDataOemHpeFederationConfig
 type ManagerDataOemHpFederationConfig struct {
 	IPv6MulticastScope            *string `json:"IPv6MulticastScope"`
 	MulticastAnnouncementInterval *int64  `json:"MulticastAnnouncementInterval"`
@@ -16,6 +17,7 @@ type ManagerDataOemHpFederationConfig struct {
 	ILOFederationManagement       *string `json:"iLOFederationManagement"`
 }
 
+// ManagerDataOemHpFirmwareData - same as ManagerDataOemHpeFirmwareData
 type ManagerDataOemHpFirmwareData struct {
 	Date         *string `json:"Date"`
 	DebugBuild   *bool   `json:"DebugBuild"`
@@ -25,10 +27,12 @@ type ManagerDataOemHpFirmwareData struct {
 	Version      *string `json:"Version"`
 }
 
+// ManagerDataOemHpFirmware - same as ManagerDataOemHpeFirmware
 type ManagerDataOemHpFirmware struct {
 	Current ManagerDataOemHpFirmwareData `json:"Current"`
 }
 
+// ManagerDataOemHpLinks - same as ManagerDataOemHpeLinks
 // NOTE: The result for HP/HPE are different depending if the HTTP header
 // OData-Version is set or not. If OData-Version is _NOT_ set data are returned in
 // .Oem.Hp.links with endpoints in "href". If OData-Version is set
@@ -55,35 +59,40 @@ type _managerDataOemHp struct {
 	Links            ManagerDataOemHpLinks            `json:"Links"`
 }
 
+// ManagerDataOemHp - same as ManagerDataOemHpe
 type ManagerDataOemHp struct {
 	Hp *_managerDataOemHp `json:"Hp"`
 }
 
+// SecurityServiceDataOemHpLinks - same as SecurityServiceDataOemHpeLinks
 type SecurityServiceDataOemHpLinks struct {
 	ESKM      OData `json:"ESKM"`
-	HttpsCert OData `json:"HttpsCert"`
+	HTTPSCert OData `json:"HttpsCert"`
 	SSO       OData `json:"SSO"`
 }
 
+// SecurityServiceDataOemHp - same as SecurityServiceDataOemHpe
 type SecurityServiceDataOemHp struct {
-	Id    *string                       `json:"Id"`
+	ID    *string                       `json:"Id"`
 	Type  *string                       `json:"Type"`
 	Links SecurityServiceDataOemHpLinks `json:"Links"`
 }
 
-type HttpsCertActionsOemHp struct {
+// HTTPSCertActionsOemHp - same as HTTPSCertActionsOemHpe
+type HTTPSCertActionsOemHp struct {
 	GenerateCSR                LinkTargets  `json:"#HpHttpsCert.GenerateCSR"`
 	ImportCertificate          LinkTargets  `json:"#HpHttpsCert.ImportCertificate"`
 	X509CertificateInformation X509CertInfo `json:"X509CertificateInformation"`
 }
 
-type HttpsCertDataOemHp struct {
+// HTTPSCertDataOemHp - same as HTTPSCertDataOemHpe
+type HTTPSCertDataOemHp struct {
 	CSR     *string               `json:"CertificateSigningRequest"`
-	Id      *string               `json:"Id"`
-	Actions HttpsCertActionsOemHp `json:"Actions"`
+	ID      *string               `json:"Id"`
+	Actions HTTPSCertActionsOemHp `json:"Actions"`
 }
 
-// HP(E) uses it's own privilege map instead of roles
+// AccountPrivilegeMapOemHp - HP(E) uses it's own privilege map instead of roles
 type AccountPrivilegeMapOemHp struct {
 	Login                bool `json:"LoginPriv"`
 	RemoteConsole        bool `json:"RemoteConsolePriv"`
@@ -95,29 +104,29 @@ type AccountPrivilegeMapOemHp struct {
 
 // Bitset for privileges
 const (
-	HPE_PRIVILEGE_NONE       = 0
-	HPE_PRIVILEGE_LOGIN uint = 1 << iota
-	HPE_PRIVILEGE_REMOTECONSOLE
-	HPE_PRIVILEGE_USERCONFIG
-	HPE_PRIVILEGE_VIRTUALMEDIA
-	HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET
-	HPE_PRIVILEGE_ILOCONFIG
+	HpePrivilegeNone       = 0
+	HpePrivilegeLogin uint = 1 << iota
+	HpePrivilegeRemoteConsole
+	HpePrivilegeUserConfig
+	HpePrivilegeVirtualMedia
+	HpePrivilegeVirtualPowerAndReset
+	HpePrivilegeIloConfig
 )
 
-// map privilege names to flags
+// HPEPrivilegeMap - map privilege names to flags
 var HPEPrivilegeMap = map[string]uint{
-	"login":                HPE_PRIVILEGE_LOGIN,
-	"remoteconsole":        HPE_PRIVILEGE_REMOTECONSOLE,
-	"userconfig":           HPE_PRIVILEGE_USERCONFIG,
-	"virtualmedia":         HPE_PRIVILEGE_VIRTUALMEDIA,
-	"virtualpowerandreset": HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET,
-	"iloconfig":            HPE_PRIVILEGE_ILOCONFIG,
+	"login":                HpePrivilegeLogin,
+	"remoteconsole":        HpePrivilegeRemoteConsole,
+	"userconfig":           HpePrivilegeUserConfig,
+	"virtualmedia":         HpePrivilegeVirtualMedia,
+	"virtualpowerandreset": HpePrivilegeVirtualPowerAndReset,
+	"iloconfig":            HpePrivilegeIloConfig,
 }
 
-// "Virtual" roles with predefined privilege map set
+// HPEVirtualRoles - "Virtual" roles with predefined privilege map set
 var HPEVirtualRoles = map[string]uint{
 	"none":          0,
-	"readonly":      HPE_PRIVILEGE_LOGIN,
-	"operator":      HPE_PRIVILEGE_LOGIN | HPE_PRIVILEGE_REMOTECONSOLE | HPE_PRIVILEGE_VIRTUALMEDIA | HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET,
-	"administrator": HPE_PRIVILEGE_LOGIN | HPE_PRIVILEGE_REMOTECONSOLE | HPE_PRIVILEGE_USERCONFIG | HPE_PRIVILEGE_VIRTUALMEDIA | HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET | HPE_PRIVILEGE_ILOCONFIG,
+	"readonly":      HpePrivilegeLogin,
+	"operator":      HpePrivilegeLogin | HpePrivilegeRemoteConsole | HpePrivilegeVirtualMedia | HpePrivilegeVirtualPowerAndReset,
+	"administrator": HpePrivilegeLogin | HpePrivilegeRemoteConsole | HpePrivilegeUserConfig | HpePrivilegeVirtualMedia | HpePrivilegeVirtualPowerAndReset | HpePrivilegeIloConfig,
 }

@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-//get array of roles and their endpoints
+// GetRoles - get array of roles and their endpoints
 func (r *Redfish) GetRoles() ([]string, error) {
 	var accsvc AccountService
 	var roles OData
@@ -39,7 +39,7 @@ func (r *Redfish) GetRoles() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &accsvc)
@@ -59,20 +59,20 @@ func (r *Redfish) GetRoles() ([]string, error) {
 			"timeout":            r.Timeout,
 			"flavor":             r.Flavor,
 			"flavor_string":      r.FlavorString,
-			"path":               *accsvc.RolesEndpoint.Id,
+			"path":               *accsvc.RolesEndpoint.ID,
 			"method":             "GET",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
 		}).Info("Requesting account roles")
 	}
-	response, err = r.httpRequest(*accsvc.RolesEndpoint.Id, "GET", nil, nil, false)
+	response, err = r.httpRequest(*accsvc.RolesEndpoint.ID, "GET", nil, nil, false)
 	if err != nil {
 		return result, err
 	}
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &roles)
@@ -85,12 +85,12 @@ func (r *Redfish) GetRoles() ([]string, error) {
 	}
 
 	for _, r := range roles.Members {
-		result = append(result, *r.Id)
+		result = append(result, *r.ID)
 	}
 	return result, nil
 }
 
-// get role data for a particular role
+// GetRoleData - get role data for a particular role
 func (r *Redfish) GetRoleData(roleEndpoint string) (*RoleData, error) {
 	var result RoleData
 
@@ -119,7 +119,7 @@ func (r *Redfish) GetRoleData(roleEndpoint string) (*RoleData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -131,7 +131,7 @@ func (r *Redfish) GetRoleData(roleEndpoint string) (*RoleData, error) {
 	return &result, nil
 }
 
-// map roles by name
+// MapRolesByName - map roles by name
 func (r *Redfish) MapRolesByName() (map[string]*RoleData, error) {
 	var result = make(map[string]*RoleData)
 
@@ -157,8 +157,8 @@ func (r *Redfish) MapRolesByName() (map[string]*RoleData, error) {
 	return result, nil
 }
 
-// map roles by ID
-func (r *Redfish) MapRolesById() (map[string]*RoleData, error) {
+// MapRolesByID - map roles by ID
+func (r *Redfish) MapRolesByID() (map[string]*RoleData, error) {
 	var result = make(map[string]*RoleData)
 
 	rll, err := r.GetRoles()
@@ -173,11 +173,11 @@ func (r *Redfish) MapRolesById() (map[string]*RoleData, error) {
 		}
 
 		// should NEVER happen
-		if rl.Id == nil {
+		if rl.ID == nil {
 			return result, errors.New("No Id found or Id is null")
 		}
 
-		result[*rl.Id] = rl
+		result[*rl.ID] = rl
 	}
 
 	return result, nil

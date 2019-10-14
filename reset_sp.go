@@ -8,54 +8,55 @@ import (
 	"strings"
 )
 
-func (r *Redfish) getManagerResetTarget_Supermicro(mgr *ManagerData) (string, error) {
-	var actions_sm ManagerActionsDataOemSupermicro
+func (r *Redfish) getManagerResetTargetSupermicro(mgr *ManagerData) (string, error) {
+	var actionsSm ManagerActionsDataOemSupermicro
 	var target string
 
-	err := json.Unmarshal(mgr.Actions, &actions_sm)
+	err := json.Unmarshal(mgr.Actions, &actionsSm)
 	if err != nil {
 		return target, err
 	}
 
-	if actions_sm.Oem.ManagerReset.Target == nil || *actions_sm.Oem.ManagerReset.Target == "" {
+	if actionsSm.Oem.ManagerReset.Target == nil || *actionsSm.Oem.ManagerReset.Target == "" {
 		return target, fmt.Errorf("No ManagerReset.Target found in data or ManagerReset.Target is null")
 	}
 
-	return *actions_sm.Oem.ManagerReset.Target, nil
+	return *actionsSm.Oem.ManagerReset.Target, nil
 }
 
-func (r *Redfish) getManagerResetTarget_Vanilla(mgr *ManagerData) (string, error) {
-	var actions_sm ManagerActionsData
+func (r *Redfish) getManagerResetTargetVanilla(mgr *ManagerData) (string, error) {
+	var actionsSm ManagerActionsData
 	var target string
 
-	err := json.Unmarshal(mgr.Actions, &actions_sm)
+	err := json.Unmarshal(mgr.Actions, &actionsSm)
 	if err != nil {
 		return target, err
 	}
 
-	if actions_sm.ManagerReset.Target == nil || *actions_sm.ManagerReset.Target == "" {
+	if actionsSm.ManagerReset.Target == nil || *actionsSm.ManagerReset.Target == "" {
 		return target, fmt.Errorf("No ManagerReset.Target found in data or ManagerReset.Target is null")
 	}
 
-	return *actions_sm.ManagerReset.Target, nil
+	return *actionsSm.ManagerReset.Target, nil
 }
 
 func (r *Redfish) getManagerResetTarget(mgr *ManagerData) (string, error) {
 	var err error
-	var sp_reset_target string
+	var spResetTarget string
 
-	if r.Flavor == REDFISH_SUPERMICRO {
-		sp_reset_target, err = r.getManagerResetTarget_Supermicro(mgr)
+	if r.Flavor == RedfishSuperMicro {
+		spResetTarget, err = r.getManagerResetTargetSupermicro(mgr)
 	} else {
-		sp_reset_target, err = r.getManagerResetTarget_Vanilla(mgr)
+		spResetTarget, err = r.getManagerResetTargetVanilla(mgr)
 	}
 	if err != nil {
-		return sp_reset_target, err
+		return spResetTarget, err
 	}
 
-	return sp_reset_target, nil
+	return spResetTarget, nil
 }
 
+// ResetSP - reset service processor
 func (r *Redfish) ResetSP() error {
 	err := r.GetVendorFlavor()
 	if err != nil {
@@ -63,23 +64,23 @@ func (r *Redfish) ResetSP() error {
 	}
 
 	// get list of Manager endpoint
-	mgr_list, err := r.GetManagers()
+	mgrList, err := r.GetManagers()
 	if err != nil {
 		return err
 	}
 
 	// pick the first entry
-	mgr0, err := r.GetManagerData(mgr_list[0])
+	mgr0, err := r.GetManagerData(mgrList[0])
 	if err != nil {
 		return err
 	}
 
-	sp_reset_target, err := r.getManagerResetTarget(mgr0)
+	spResetTarget, err := r.getManagerResetTarget(mgr0)
 	if err != nil {
 		return err
 	}
 
-	sp_reset_payload := "{ \"ResetType\": \"ForceRestart\" }"
+	spResetPayload := "{ \"ResetType\": \"ForceRestart\" }"
 	if r.Verbose {
 		log.WithFields(log.Fields{
 			"hostname":           r.Hostname,
@@ -87,7 +88,7 @@ func (r *Redfish) ResetSP() error {
 			"timeout":            r.Timeout,
 			"flavor":             r.Flavor,
 			"flavor_string":      r.FlavorString,
-			"path":               sp_reset_target,
+			"path":               spResetTarget,
 			"method":             "POST",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
@@ -100,20 +101,20 @@ func (r *Redfish) ResetSP() error {
 			"timeout":            r.Timeout,
 			"flavor":             r.Flavor,
 			"flavor_string":      r.FlavorString,
-			"path":               sp_reset_target,
+			"path":               spResetTarget,
 			"method":             "POST",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
-			"payload":            sp_reset_payload,
+			"payload":            spResetPayload,
 		}).Debug("Requesting service processor restart")
 	}
-	response, err := r.httpRequest(sp_reset_target, "POST", nil, strings.NewReader(sp_reset_payload), false)
+	response, err := r.httpRequest(spResetTarget, "POST", nil, strings.NewReader(spResetPayload), false)
 	if err != nil {
 		return err
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return fmt.Errorf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	return nil

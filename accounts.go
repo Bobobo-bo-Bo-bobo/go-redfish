@@ -9,20 +9,20 @@ import (
 	"strings"
 )
 
-//get array of accounts and their endpoints
+// GetAccounts - get array of accounts and their endpoints
 func (r *Redfish) GetAccounts() ([]string, error) {
 	var accsvc AccountService
 	var accs OData
 	var result = make([]string, 0)
 
 	// check if vendor supports account management
-	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == RedfishFlavorNotInitialized {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return result, err
 		}
 	}
-	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+	if VendorCapabilities[r.FlavorString]&HasAccountService != HasAccountService {
 		return result, errors.New("Account management is not support for this vendor")
 	}
 
@@ -51,7 +51,7 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &accsvc)
@@ -70,20 +70,20 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 			"timeout":            r.Timeout,
 			"flavor":             r.Flavor,
 			"flavor_string":      r.FlavorString,
-			"path":               *accsvc.AccountsEndpoint.Id,
+			"path":               *accsvc.AccountsEndpoint.ID,
 			"method":             "GET",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
 		}).Info("Requesting accounts")
 	}
-	response, err = r.httpRequest(*accsvc.AccountsEndpoint.Id, "GET", nil, nil, false)
+	response, err = r.httpRequest(*accsvc.AccountsEndpoint.ID, "GET", nil, nil, false)
 	if err != nil {
 		return result, err
 	}
 
 	raw = response.Content
 	if response.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &accs)
@@ -96,23 +96,23 @@ func (r *Redfish) GetAccounts() ([]string, error) {
 	}
 
 	for _, a := range accs.Members {
-		result = append(result, *a.Id)
+		result = append(result, *a.ID)
 	}
 	return result, nil
 }
 
-// get account data for a particular account
+// GetAccountData - get account data for a particular account
 func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 	var result AccountData
 
 	// check if vendor supports account management
-	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == RedfishFlavorNotInitialized {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return nil, err
 		}
 	}
-	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+	if VendorCapabilities[r.FlavorString]&HasAccountService != HasAccountService {
 		return nil, errors.New("Account management is not support for this vendor")
 	}
 
@@ -142,7 +142,7 @@ func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -153,7 +153,7 @@ func (r *Redfish) GetAccountData(accountEndpoint string) (*AccountData, error) {
 	return &result, nil
 }
 
-// map username -> user data
+// MapAccountsByName - map username -> user data
 func (r *Redfish) MapAccountsByName() (map[string]*AccountData, error) {
 	var result = make(map[string]*AccountData)
 
@@ -193,8 +193,8 @@ func (r *Redfish) MapAccountsByName() (map[string]*AccountData, error) {
 	return result, nil
 }
 
-// map ID -> user data
-func (r *Redfish) MapAccountsById() (map[string]*AccountData, error) {
+// MapAccountsByID - map ID -> user data
+func (r *Redfish) MapAccountsByID() (map[string]*AccountData, error) {
 	var result = make(map[string]*AccountData)
 
 	al, err := r.GetAccounts()
@@ -209,10 +209,10 @@ func (r *Redfish) MapAccountsById() (map[string]*AccountData, error) {
 		}
 
 		// should NEVER happen
-		if a.Id == nil {
+		if a.ID == nil {
 			return result, errors.New("BUG: No Id found or Id is null")
 		}
-		result[*a.Id] = a
+		result[*a.ID] = a
 	}
 
 	return result, nil
@@ -231,21 +231,21 @@ func (r *Redfish) dellGetFreeAccountSlot() (string, error) {
 		}).Info("Looking for unused account slot")
 	}
 
-	account_list, err := r.GetAccounts()
+	accountList, err := r.GetAccounts()
 	if err != nil {
 		return "", err
 	}
 
 	// Get account information to find the first unused account slot
-	for slot_idx, acc_endpt := range account_list {
+	for slotIdx, accEndpt := range accountList {
 
 		// Note: The first account slot is reserved and can't be modified
 		//       ("Modifying the user configuration at index 1 is not allowed.")
-		if slot_idx == 0 {
+		if slotIdx == 0 {
 			continue
 		}
 
-		_acd, err := r.GetAccountData(acc_endpt)
+		_acd, err := r.GetAccountData(accEndpt)
 		if err != nil {
 			return "", err
 		}
@@ -264,10 +264,10 @@ func (r *Redfish) dellGetFreeAccountSlot() (string, error) {
 					"flavor":        r.Flavor,
 					"flavor_string": r.FlavorString,
 					"path":          r.AccountService,
-					"unused_slot":   acc_endpt,
+					"unused_slot":   accEndpt,
 				}).Info("Found unused account slot")
 			}
-			return acc_endpt, nil
+			return accEndpt, nil
 		}
 	}
 
@@ -275,52 +275,53 @@ func (r *Redfish) dellGetFreeAccountSlot() (string, error) {
 }
 
 func (r *Redfish) dellAddAccount(acd AccountCreateData) error {
-	var account_enabled bool = true
+	var accountEnabled bool
 
-	_unused_slot, err := r.dellGetFreeAccountSlot()
+	_unusedSlot, err := r.dellGetFreeAccountSlot()
 	if err != nil {
 		return err
 	}
 
-	if _unused_slot == "" {
+	if _unusedSlot == "" {
 		return errors.New("No unused account slot found")
 	}
 
 	// Instead of adding an account we have to modify an existing
 	// unused account slot.
-	acd.Enabled = &account_enabled
-	return r.ModifyAccountByEndpoint(_unused_slot, acd)
+	acd.Enabled = &accountEnabled
+	return r.ModifyAccountByEndpoint(_unusedSlot, acd)
 }
 
 func (r *Redfish) hpBuildPrivilegeMap(flags uint) *AccountPrivilegeMapOemHp {
 	var result AccountPrivilegeMapOemHp
 
-	if flags&HPE_PRIVILEGE_LOGIN == HPE_PRIVILEGE_LOGIN {
+	if flags&HpePrivilegeLogin == HpePrivilegeLogin {
 		result.Login = true
 	}
 
-	if flags&HPE_PRIVILEGE_REMOTECONSOLE == HPE_PRIVILEGE_REMOTECONSOLE {
+	if flags&HpePrivilegeRemoteConsole == HpePrivilegeRemoteConsole {
 		result.RemoteConsole = true
 	}
 
-	if flags&HPE_PRIVILEGE_USERCONFIG == HPE_PRIVILEGE_USERCONFIG {
+	if flags&HpePrivilegeUserConfig == HpePrivilegeUserConfig {
 		result.UserConfig = true
 	}
 
-	if flags&HPE_PRIVILEGE_VIRTUALMEDIA == HPE_PRIVILEGE_VIRTUALMEDIA {
+	if flags&HpePrivilegeVirtualMedia == HpePrivilegeVirtualMedia {
 		result.VirtualMedia = true
 	}
 
-	if flags&HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET == HPE_PRIVILEGE_VIRTUALPOWER_AND_RESET {
+	if flags&HpePrivilegeVirtualPowerAndReset == HpePrivilegeVirtualPowerAndReset {
 		result.VirtualPowerAndReset = true
 	}
 
-	if flags&HPE_PRIVILEGE_ILOCONFIG == HPE_PRIVILEGE_ILOCONFIG {
+	if flags&HpePrivilegeIloConfig == HpePrivilegeIloConfig {
 		result.ILOConfig = true
 	}
 	return &result
 }
 
+// AddAccount - Add account
 func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	var acsd AccountService
 	var accep string
@@ -332,7 +333,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		return errors.New("No authentication token found, is the session setup correctly?")
 	}
 
-	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == RedfishFlavorNotInitialized {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
@@ -340,13 +341,13 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	}
 
 	// check if vendor supports account management
-	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+	if VendorCapabilities[r.FlavorString]&HasAccountService != HasAccountService {
 		return errors.New("Account management is not support for this vendor")
 	}
 
 	// Note: DELL/EMC iDRAC uses a hardcoded, predefined number of account slots
 	//       and as a consequence only support GET and HEAD on the "usual" endpoints
-	if r.Flavor == REDFISH_DELL {
+	if r.Flavor == RedfishDell {
 		return r.dellAddAccount(acd)
 	}
 
@@ -370,7 +371,7 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(response.Content, &acsd)
@@ -379,16 +380,16 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 	}
 
 	if acsd.AccountsEndpoint == nil {
-		return fmt.Errorf("No Accounts endpoint found in response from %s", response.Url)
+		return fmt.Errorf("No Accounts endpoint found in response from %s", response.URL)
 	}
 
-	if acsd.AccountsEndpoint.Id == nil || *acsd.AccountsEndpoint.Id == "" {
-		return fmt.Errorf("BUG: Defined Accounts endpoint from %s does not have @odata.id value", response.Url)
+	if acsd.AccountsEndpoint.ID == nil || *acsd.AccountsEndpoint.ID == "" {
+		return fmt.Errorf("BUG: Defined Accounts endpoint from %s does not have @odata.id value", response.URL)
 	}
 
-	accep = *acsd.AccountsEndpoint.Id
+	accep = *acsd.AccountsEndpoint.ID
 
-	if r.Flavor == REDFISH_HP || r.Flavor == REDFISH_HPE {
+	if r.Flavor == RedfishHP || r.Flavor == RedfishHPE {
 		if acd.UserName == "" || acd.Password == "" {
 			return errors.New("Required field(s) missing")
 		}
@@ -410,8 +411,8 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 
 		if acd.Role != "" {
 			// map "roles" to privileges
-			virtual_role := strings.TrimSpace(strings.ToLower(acd.Role))
-			_flags, found = HPEVirtualRoles[virtual_role]
+			virtualRole := strings.TrimSpace(strings.ToLower(acd.Role))
+			_flags, found = HPEVirtualRoles[virtualRole]
 			if !found {
 				return fmt.Errorf("Unknown role %s", acd.Role)
 			}
@@ -422,19 +423,19 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 			acd.OemHpPrivilegeMap = r.hpBuildPrivilegeMap(_flags)
 		}
 
-		raw_priv_payload, err := json.Marshal(*acd.OemHpPrivilegeMap)
+		rawPrivPayload, err := json.Marshal(*acd.OemHpPrivilegeMap)
 		if err != nil {
 			return err
 		}
 
-		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\": %s }}}", acd.UserName, acd.Password, acd.UserName, string(raw_priv_payload))
+		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\": %s }}}", acd.UserName, acd.Password, acd.UserName, string(rawPrivPayload))
 	} else {
 		if acd.UserName == "" || acd.Password == "" || acd.Role == "" {
 			return errors.New("Required field(s) missing")
 		}
 
 		// check of requested role exists, role Names are _NOT_ unique (e.g. Supermicro report all names as "User Role") but Id is
-		rmap, err := r.MapRolesById()
+		rmap, err := r.MapRolesByID()
 		if err != nil {
 			return err
 		}
@@ -513,9 +514,8 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 		errmsg := r.GetErrorMessage(rerr)
 		if errmsg != "" {
 			return fmt.Errorf("%s", errmsg)
-		} else {
-			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
+		return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 	}
 
 	// any other error ? (HTTP 400 has been handled above)
@@ -565,19 +565,20 @@ func (r *Redfish) dellDeleteAccount(endpoint string) error {
 	return err
 }
 
+// DeleteAccount - delete an account
 func (r *Redfish) DeleteAccount(u string) error {
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	// check if vendor supports account management
-	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == RedfishFlavorNotInitialized {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
 		}
 	}
-	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+	if VendorCapabilities[r.FlavorString]&HasAccountService != HasAccountService {
 		return errors.New("Account management is not support for this vendor")
 	}
 
@@ -611,7 +612,7 @@ func (r *Redfish) DeleteAccount(u string) error {
 	}
 
 	// Note: DELL/EMC only
-	if r.Flavor == REDFISH_DELL {
+	if r.Flavor == RedfishDell {
 		return r.dellDeleteAccount(*adata.SelfEndpoint)
 	}
 
@@ -620,12 +621,13 @@ func (r *Redfish) DeleteAccount(u string) error {
 		return err
 	}
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return fmt.Errorf("HTTP DELETE for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	return nil
 }
 
+// ChangePassword - change account password
 func (r *Redfish) ChangePassword(u string, p string) error {
 	var payload string
 
@@ -642,13 +644,13 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 	}
 
 	// check if vendor supports account management
-	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == RedfishFlavorNotInitialized {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
 		}
 	}
-	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+	if VendorCapabilities[r.FlavorString]&HasAccountService != HasAccountService {
 		return errors.New("Account management is not support for this vendor")
 	}
 
@@ -733,14 +735,13 @@ func (r *Redfish) ChangePassword(u string, p string) error {
 		errmsg := r.GetErrorMessage(rerr)
 		if errmsg != "" {
 			return fmt.Errorf("%s", errmsg)
-		} else {
-			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
+		return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 	}
 
 	// any other error ? (HTTP 400 has been handled above)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-		return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status)
+		return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.URL, response.Status)
 	}
 	return nil
 }
@@ -751,7 +752,7 @@ func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string,
 	var found bool
 
 	// handle HP(E) PrivilegeMap
-	if r.Flavor == REDFISH_HP || r.Flavor == REDFISH_HPE {
+	if r.Flavor == RedfishHP || r.Flavor == RedfishHPE {
 		// OemHpPrivilegeMap is an INTERNAL map but it MUST be exported to be accessed by json.Marshal
 		if acd.OemHpPrivilegeMap != nil {
 			log.WithFields(log.Fields{
@@ -769,8 +770,8 @@ func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string,
 
 		if acd.Role != "" {
 			// map "roles" to privileges
-			virtual_role := strings.TrimSpace(strings.ToLower(acd.Role))
-			_flags, found = HPEVirtualRoles[virtual_role]
+			virtualRole := strings.TrimSpace(strings.ToLower(acd.Role))
+			_flags, found = HPEVirtualRoles[virtualRole]
 			if !found {
 				return "", fmt.Errorf("Unknown role %s", acd.Role)
 			}
@@ -781,12 +782,12 @@ func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string,
 			acd.OemHpPrivilegeMap = r.hpBuildPrivilegeMap(_flags)
 		}
 
-		raw_priv_payload, err := json.Marshal(*acd.OemHpPrivilegeMap)
+		rawPrivPayload, err := json.Marshal(*acd.OemHpPrivilegeMap)
 		if err != nil {
 			return "", err
 		}
 
-		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\": %s }}}", acd.UserName, acd.Password, acd.UserName, string(raw_priv_payload))
+		payload = fmt.Sprintf("{ \"UserName\": \"%s\", \"Password\": \"%s\", \"Oem\":{ \"Hp\":{ \"LoginName\": \"%s\", \"Privileges\": %s }}}", acd.UserName, acd.Password, acd.UserName, string(rawPrivPayload))
 	} else {
 		// force exclustion of privilege map for non-HP(E) systems
 		acd.OemHpPrivilegeMap = nil
@@ -799,19 +800,20 @@ func (r *Redfish) makeAccountCreateModifyPayload(acd AccountCreateData) (string,
 	return payload, nil
 }
 
+// ModifyAccount - modify an account
 func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	// check if vendor supports account management
-	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == RedfishFlavorNotInitialized {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
 		}
 	}
-	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+	if VendorCapabilities[r.FlavorString]&HasAccountService != HasAccountService {
 		return errors.New("Account management is not support for this vendor")
 	}
 
@@ -876,35 +878,35 @@ func (r *Redfish) ModifyAccount(u string, acd AccountCreateData) error {
 		errmsg := r.GetErrorMessage(rerr)
 		if errmsg != "" {
 			return fmt.Errorf("%s", errmsg)
-		} else {
-			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
+		return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 	}
 
 	// any other error ? (HTTP 400 has been handled above)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusBadRequest {
-		return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status)
+		return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.URL, response.Status)
 	}
 	return nil
 }
 
+// ModifyAccountByEndpoint - modify account by it's endpoint
 func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData) error {
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return errors.New("No authentication token found, is the session setup correctly?")
 	}
 
 	// check if vendor supports account management
-	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == RedfishFlavorNotInitialized {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
 		}
 	}
-	if VendorCapabilities[r.FlavorString]&HAS_ACCOUNTSERVICE != HAS_ACCOUNTSERVICE {
+	if VendorCapabilities[r.FlavorString]&HasAccountService != HasAccountService {
 		return errors.New("Account management is not support for this vendor")
 	}
 
-	if r.Flavor == REDFISH_HP || r.Flavor == REDFISH_HPE {
+	if r.Flavor == RedfishHP || r.Flavor == RedfishHPE {
 		// XXX: Use Oem specific privilege map
 	} else {
 
@@ -955,9 +957,8 @@ func (r *Redfish) ModifyAccountByEndpoint(endpoint string, acd AccountCreateData
 			errmsg := r.GetErrorMessage(rerr)
 			if errmsg != "" {
 				return fmt.Errorf("%s", errmsg)
-			} else {
-				return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 			}
+			return fmt.Errorf("Operation failed, returned \"%s\" and no error information", response.Status)
 		}
 	}
 	return nil

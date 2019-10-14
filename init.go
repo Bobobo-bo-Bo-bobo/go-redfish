@@ -18,10 +18,10 @@ func (r *Redfish) Initialise() error {
 
 	if r.Debug || r.Verbose {
 		// Logging setup
-		var log_fmt *log.TextFormatter = new(log.TextFormatter)
-		log_fmt.FullTimestamp = true
-		log_fmt.TimestampFormat = time.RFC3339
-		log.SetFormatter(log_fmt)
+		var logFmt = new(log.TextFormatter)
+		logFmt.FullTimestamp = true
+		logFmt.TimestampFormat = time.RFC3339
+		log.SetFormatter(logFmt)
 	}
 
 	if r.Debug {
@@ -91,7 +91,7 @@ func (r *Redfish) Initialise() error {
 			}).Fatal("HTTP request returned 3xx status but didn't set new Location header")
 		}
 
-		new_loc, err := url.Parse(location)
+		newLoc, err := url.Parse(location)
 		if err != nil {
 			return err
 		}
@@ -99,14 +99,14 @@ func (r *Redfish) Initialise() error {
 		// XXX: We don't expect to be redirected to a new _server_, protocol (HTTPS is mandatory
 		//      for Redfish) or path (/redfish/v1 is the mandatory path for Redfish API accesS),
 		//      so we choose to ignore everything else except the port.
-		_host, _port, _ := net.SplitHostPort(new_loc.Host)
+		_host, _port, _ := net.SplitHostPort(newLoc.Host)
 		if _port != "" {
-			new_port, err := net.LookupPort("tcp", _port)
+			newPort, err := net.LookupPort("tcp", _port)
 			if err != nil {
 				return err
 			}
 
-			r.Port = new_port
+			r.Port = newPort
 			if r.Verbose {
 				log.WithFields(log.Fields{
 					"hostname":      r.Hostname,
@@ -120,12 +120,12 @@ func (r *Redfish) Initialise() error {
 
 		// At least warn if the redirect points to another host when verbosity is requested
 		if r.Verbose {
-			new_host := strings.ToLower(_host)
+			newHost := strings.ToLower(_host)
 			if _host == "" {
-				new_host = strings.ToLower(new_loc.Host)
+				newHost = strings.ToLower(newLoc.Host)
 			}
 
-			if new_host != strings.ToLower(r.Hostname) {
+			if newHost != strings.ToLower(r.Hostname) {
 				log.WithFields(log.Fields{
 					"hostname":           r.Hostname,
 					"port":               r.Port,
@@ -165,7 +165,7 @@ func (r *Redfish) Initialise() error {
 		raw = response.Content
 		r.RawBaseContent = string(raw)
 	} else if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &base)
@@ -175,36 +175,36 @@ func (r *Redfish) Initialise() error {
 
 	// extract required endpoints
 	// some systems don't have the (mandatory!) AccountService endpoint (e.g. LENOVO)
-	if base.AccountService.Id != nil {
-		r.AccountService = *base.AccountService.Id
+	if base.AccountService.ID != nil {
+		r.AccountService = *base.AccountService.ID
 	}
 
-	if base.Chassis.Id == nil {
-		return fmt.Errorf("BUG: No Chassis endpoint found in base configuration from %s", response.Url)
+	if base.Chassis.ID == nil {
+		return fmt.Errorf("BUG: No Chassis endpoint found in base configuration from %s", response.URL)
 	}
-	r.Chassis = *base.Chassis.Id
+	r.Chassis = *base.Chassis.ID
 
-	if base.Managers.Id == nil {
-		return fmt.Errorf("BUG: No Managers endpoint found in base configuration from %s", response.Url)
+	if base.Managers.ID == nil {
+		return fmt.Errorf("BUG: No Managers endpoint found in base configuration from %s", response.URL)
 	}
-	r.Managers = *base.Managers.Id
+	r.Managers = *base.Managers.ID
 
-	if base.SessionService.Id == nil {
-		return fmt.Errorf("BUG: No SessionService endpoint found in base configuration from %s", response.Url)
+	if base.SessionService.ID == nil {
+		return fmt.Errorf("BUG: No SessionService endpoint found in base configuration from %s", response.URL)
 	}
-	r.SessionService = *base.SessionService.Id
+	r.SessionService = *base.SessionService.ID
 
 	// Get session endpoint from .Links.Sessions because some implementations (e.g. INSPUR) report SessionService endpoint but don't implement it.
 	if base.Links.Sessions != nil {
-		if base.Links.Sessions.Id != nil && *base.Links.Sessions.Id != "" {
-			r.Sessions = *base.Links.Sessions.Id
+		if base.Links.Sessions.ID != nil && *base.Links.Sessions.ID != "" {
+			r.Sessions = *base.Links.Sessions.ID
 		}
 	}
 
-	if base.Systems.Id == nil {
-		return fmt.Errorf("BUG: No Systems endpoint found in base configuration from %s", response.Url)
+	if base.Systems.ID == nil {
+		return fmt.Errorf("BUG: No Systems endpoint found in base configuration from %s", response.URL)
 	}
-	r.Systems = *base.Systems.Id
+	r.Systems = *base.Systems.ID
 
 	r.initialised = true
 

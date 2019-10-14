@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//get array of systems and their endpoints
+// GetSystems - get array of systems and their endpoints
 func (r *Redfish) GetSystems() ([]string, error) {
 	var systems OData
 	var result = make([]string, 0)
@@ -39,7 +39,7 @@ func (r *Redfish) GetSystems() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &systems)
@@ -52,12 +52,12 @@ func (r *Redfish) GetSystems() ([]string, error) {
 	}
 
 	for _, endpoint := range systems.Members {
-		result = append(result, *endpoint.Id)
+		result = append(result, *endpoint.ID)
 	}
 	return result, nil
 }
 
-// get system data for a particular system
+// GetSystemData - get system data for a particular system
 func (r *Redfish) GetSystemData(systemEndpoint string) (*SystemData, error) {
 	var result SystemData
 
@@ -86,7 +86,7 @@ func (r *Redfish) GetSystemData(systemEndpoint string) (*SystemData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -98,8 +98,8 @@ func (r *Redfish) GetSystemData(systemEndpoint string) (*SystemData, error) {
 	return &result, nil
 }
 
-// Map systems by ID
-func (r *Redfish) MapSystemsById() (map[string]*SystemData, error) {
+// MapSystemsByID - map systems by ID
+func (r *Redfish) MapSystemsByID() (map[string]*SystemData, error) {
 	var result = make(map[string]*SystemData)
 
 	sysl, err := r.GetSystems()
@@ -114,18 +114,18 @@ func (r *Redfish) MapSystemsById() (map[string]*SystemData, error) {
 		}
 
 		// should NEVER happen
-		if s.Id == nil {
+		if s.ID == nil {
 			return result, fmt.Errorf("BUG: No Id found for System at %s", sys)
 		}
 
-		result[*s.Id] = s
+		result[*s.ID] = s
 	}
 
 	return result, nil
 }
 
-// Map systems by UUID
-func (r *Redfish) MapSystemsByUuid() (map[string]*SystemData, error) {
+// MapSystemsByUUID - map systems by UUID
+func (r *Redfish) MapSystemsByUUID() (map[string]*SystemData, error) {
 	var result = make(map[string]*SystemData)
 
 	sysl, err := r.GetSystems()
@@ -150,7 +150,7 @@ func (r *Redfish) MapSystemsByUuid() (map[string]*SystemData, error) {
 	return result, nil
 }
 
-// Map systems by serial number
+// MapSystemsBySerialNumber - map systems by serial number
 func (r *Redfish) MapSystemsBySerialNumber() (map[string]*SystemData, error) {
 	var result = make(map[string]*SystemData)
 
@@ -191,21 +191,21 @@ func (r *Redfish) distinguishHpHpeFlavors(sd *SystemData) (uint, string, error) 
 	// parse JSON and look at the Oem fields
 	err := json.Unmarshal(sd.Oem, &_OemhpOrHpe)
 	if err != nil {
-		return REDFISH_FLAVOR_NOT_INITIALIZED, "<error>", err
+		return RedfishFlavorNotInitialized, "<error>", err
 	}
 
 	if len(_OemhpOrHpe.Hp) == 0 && len(_OemhpOrHpe.Hpe) > 0 {
-		return REDFISH_HPE, "hpe", nil
+		return RedfishHPE, "hpe", nil
 	}
 
 	if len(_OemhpOrHpe.Hp) > 0 && len(_OemhpOrHpe.Hpe) == 0 {
-		return REDFISH_HP, "hp", nil
+		return RedfishHP, "hp", nil
 	}
 
-	return REDFISH_FLAVOR_NOT_INITIALIZED, "<bug>", errors.New("BUG: Manufacturer is hp or hpe but Oem.Hp and Oem.Hpe are both undefined")
+	return RedfishFlavorNotInitialized, "<bug>", errors.New("BUG: Manufacturer is hp or hpe but Oem.Hp and Oem.Hpe are both undefined")
 }
 
-// get vendor specific "flavor"
+// GetVendorFlavor - get vendor specific "flavor"
 func (r *Redfish) GetVendorFlavor() error {
 	// get vendor "flavor" for vendor specific implementation details
 	_sys, err := r.GetSystems()
@@ -233,22 +233,22 @@ func (r *Redfish) GetVendorFlavor() error {
 				return err
 			}
 		} else if _manufacturer == "huawei" {
-			r.Flavor = REDFISH_HUAWEI
+			r.Flavor = RedfishHuawei
 			r.FlavorString = "huawei"
 		} else if _manufacturer == "inspur" {
-			r.Flavor = REDFISH_INSPUR
+			r.Flavor = RedfishInspur
 			r.FlavorString = "inspur"
 		} else if _manufacturer == "supermicro" {
-			r.Flavor = REDFISH_SUPERMICRO
+			r.Flavor = RedfishSuperMicro
 			r.FlavorString = "supermicro"
 		} else if _manufacturer == "dell inc." {
-			r.Flavor = REDFISH_DELL
+			r.Flavor = RedfishDell
 			r.FlavorString = "dell"
 		} else if _manufacturer == "ibm" {
-			r.Flavor = REDFISH_LENOVO
+			r.Flavor = RedfishLenovo
 			r.FlavorString = "lenovo"
 		} else {
-			r.Flavor = REDFISH_GENERAL
+			r.Flavor = RedfishGeneral
 			r.FlavorString = "vanilla"
 		}
 	}
@@ -337,7 +337,7 @@ func (r *Redfish) setAllowedResetTypes(sd *SystemData) error {
 	return nil
 }
 
-// set power state
+// SetSystemPowerState - set power state of the server system
 func (r *Redfish) SetSystemPowerState(sd *SystemData, state string) error {
 	// do we already know the supported reset types?
 	if len(sd.allowedResetTypes) == 0 {

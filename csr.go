@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
+func (r *Redfish) fetchCSRHP(mgr *ManagerData) (string, error) {
 	var csr string
 	var oemHp ManagerDataOemHp
 	var secsvc string
 	var oemSSvc SecurityServiceDataOemHp
 	var httpscertloc string
-	var httpscert HttpsCertDataOemHp
+	var httpscert HTTPSCertDataOemHp
 
 	// parse Oem section from JSON
 	err := json.Unmarshal(mgr.Oem, &oemHp)
@@ -24,11 +24,10 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	}
 
 	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
-	if oemHp.Hp.Links.SecurityService.Id == nil {
+	if oemHp.Hp.Links.SecurityService.ID == nil {
 		return csr, errors.New("BUG: .Hp.Links.SecurityService.Id not found or null")
-	} else {
-		secsvc = *oemHp.Hp.Links.SecurityService.Id
 	}
+	secsvc = *oemHp.Hp.Links.SecurityService.ID
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return csr, errors.New("No authentication token found, is the session setup correctly?")
@@ -55,7 +54,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -63,11 +62,11 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 		return csr, err
 	}
 
-	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csr, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
+	if oemSSvc.Links.HTTPSCert.ID == nil {
+		return csr, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.URL)
 	}
 
-	httpscertloc = *oemSSvc.Links.HttpsCert.Id
+	httpscertloc = *oemSSvc.Links.HTTPSCert.ID
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
@@ -90,7 +89,7 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -110,13 +109,13 @@ func (r *Redfish) fetchCSR_HP(mgr *ManagerData) (string, error) {
 	return csr, nil
 }
 
-func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
+func (r *Redfish) fetchCSRHPE(mgr *ManagerData) (string, error) {
 	var csr string
 	var oemHpe ManagerDataOemHpe
 	var secsvc string
 	var oemSSvc SecurityServiceDataOemHpe
 	var httpscertloc string
-	var httpscert HttpsCertDataOemHpe
+	var httpscert HTTPSCertDataOemHpe
 
 	// parse Oem section from JSON
 	err := json.Unmarshal(mgr.Oem, &oemHpe)
@@ -125,11 +124,10 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
-	if oemHpe.Hpe.Links.SecurityService.Id == nil {
+	if oemHpe.Hpe.Links.SecurityService.ID == nil {
 		return csr, errors.New("BUG: .Hpe.Links.SecurityService.Id not found or null")
-	} else {
-		secsvc = *oemHpe.Hpe.Links.SecurityService.Id
 	}
+	secsvc = *oemHpe.Hpe.Links.SecurityService.ID
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return csr, errors.New("No authentication token found, is the session setup correctly?")
@@ -156,7 +154,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -164,11 +162,11 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 		return csr, err
 	}
 
-	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csr, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
+	if oemSSvc.Links.HTTPSCert.ID == nil {
+		return csr, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.URL)
 	}
 
-	httpscertloc = *oemSSvc.Links.HttpsCert.Id
+	httpscertloc = *oemSSvc.Links.HTTPSCert.ID
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
@@ -191,7 +189,7 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -211,13 +209,13 @@ func (r *Redfish) fetchCSR_HPE(mgr *ManagerData) (string, error) {
 	return csr, nil
 }
 
-func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
+func (r *Redfish) fetchCSRHuawei(mgr *ManagerData) (string, error) {
 	var csr string
 	var oemHuawei ManagerDataOemHuawei
 	var secsvc string
 	var oemSSvc SecurityServiceDataOemHuawei
 	var httpscertloc string
-	var httpscert HttpsCertDataOemHuawei
+	var httpscert HTTPSCertDataOemHuawei
 
 	// parse Oem section from JSON
 	err := json.Unmarshal(mgr.Oem, &oemHuawei)
@@ -226,11 +224,10 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	// get SecurityService endpoint from .Oem.Huawei.SecurityService
-	if oemHuawei.Huawei.SecurityService.Id == nil {
+	if oemHuawei.Huawei.SecurityService.ID == nil {
 		return csr, errors.New("BUG: .Huawei.SecurityService.Id not found or null")
-	} else {
-		secsvc = *oemHuawei.Huawei.SecurityService.Id
 	}
+	secsvc = *oemHuawei.Huawei.SecurityService.ID
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return csr, errors.New("No authentication token found, is the session setup correctly?")
@@ -257,7 +254,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -265,11 +262,11 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 		return csr, err
 	}
 
-	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csr, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
+	if oemSSvc.Links.HTTPSCert.ID == nil {
+		return csr, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.URL)
 	}
 
-	httpscertloc = *oemSSvc.Links.HttpsCert.Id
+	httpscertloc = *oemSSvc.Links.HTTPSCert.ID
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
@@ -292,7 +289,7 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csr, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -312,13 +309,13 @@ func (r *Redfish) fetchCSR_Huawei(mgr *ManagerData) (string, error) {
 	return csr, nil
 }
 
-func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
+func (r *Redfish) getCSRTargetHP(mgr *ManagerData) (string, error) {
 	var csrTarget string
 	var oemHp ManagerDataOemHp
 	var secsvc string
 	var oemSSvc SecurityServiceDataOemHp
 	var httpscertloc string
-	var httpscert HttpsCertDataOemHp
+	var httpscert HTTPSCertDataOemHp
 
 	// parse Oem section from JSON
 	err := json.Unmarshal(mgr.Oem, &oemHp)
@@ -327,11 +324,10 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	}
 
 	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
-	if oemHp.Hp.Links.SecurityService.Id == nil {
+	if oemHp.Hp.Links.SecurityService.ID == nil {
 		return csrTarget, errors.New("BUG: .Hp.Links.SecurityService.Id not found or null")
-	} else {
-		secsvc = *oemHp.Hp.Links.SecurityService.Id
 	}
+	secsvc = *oemHp.Hp.Links.SecurityService.ID
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return csrTarget, errors.New("No authentication token found, is the session setup correctly?")
@@ -358,7 +354,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -366,11 +362,11 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 		return csrTarget, err
 	}
 
-	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csrTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
+	if oemSSvc.Links.HTTPSCert.ID == nil {
+		return csrTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.URL)
 	}
 
-	httpscertloc = *oemSSvc.Links.HttpsCert.Id
+	httpscertloc = *oemSSvc.Links.HTTPSCert.ID
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
@@ -394,7 +390,7 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -403,20 +399,20 @@ func (r *Redfish) getCSRTarget_HP(mgr *ManagerData) (string, error) {
 	}
 
 	if httpscert.Actions.GenerateCSR.Target == nil {
-		return csrTarget, fmt.Errorf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url)
+		return csrTarget, fmt.Errorf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.URL)
 	}
 
 	csrTarget = *httpscert.Actions.GenerateCSR.Target
 	return csrTarget, nil
 }
 
-func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
+func (r *Redfish) getCSRTargetHPE(mgr *ManagerData) (string, error) {
 	var csrTarget string
 	var oemHpe ManagerDataOemHpe
 	var secsvc string
 	var oemSSvc SecurityServiceDataOemHpe
 	var httpscertloc string
-	var httpscert HttpsCertDataOemHpe
+	var httpscert HTTPSCertDataOemHpe
 
 	// parse Oem section from JSON
 	err := json.Unmarshal(mgr.Oem, &oemHpe)
@@ -425,11 +421,10 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	// get SecurityService endpoint from .Oem.Hp.links.SecurityService
-	if oemHpe.Hpe.Links.SecurityService.Id == nil {
+	if oemHpe.Hpe.Links.SecurityService.ID == nil {
 		return csrTarget, errors.New("BUG: .Hpe.Links.SecurityService.Id not found or null")
-	} else {
-		secsvc = *oemHpe.Hpe.Links.SecurityService.Id
 	}
+	secsvc = *oemHpe.Hpe.Links.SecurityService.ID
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return csrTarget, errors.New("No authentication token found, is the session setup correctly?")
@@ -456,7 +451,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -464,11 +459,11 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 		return csrTarget, err
 	}
 
-	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csrTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
+	if oemSSvc.Links.HTTPSCert.ID == nil {
+		return csrTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.URL)
 	}
 
-	httpscertloc = *oemSSvc.Links.HttpsCert.Id
+	httpscertloc = *oemSSvc.Links.HTTPSCert.ID
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
@@ -492,7 +487,7 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -501,20 +496,20 @@ func (r *Redfish) getCSRTarget_HPE(mgr *ManagerData) (string, error) {
 	}
 
 	if httpscert.Actions.GenerateCSR.Target == nil {
-		return csrTarget, fmt.Errorf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url)
+		return csrTarget, fmt.Errorf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.URL)
 	}
 
 	csrTarget = *httpscert.Actions.GenerateCSR.Target
 	return csrTarget, nil
 }
 
-func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
+func (r *Redfish) getCSRTargetHuawei(mgr *ManagerData) (string, error) {
 	var csrTarget string
 	var oemHuawei ManagerDataOemHuawei
 	var secsvc string
 	var oemSSvc SecurityServiceDataOemHuawei
 	var httpscertloc string
-	var httpscert HttpsCertDataOemHuawei
+	var httpscert HTTPSCertDataOemHuawei
 
 	// parse Oem section from JSON
 	err := json.Unmarshal(mgr.Oem, &oemHuawei)
@@ -523,11 +518,10 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	// get SecurityService endpoint from .Oem.Huawei.SecurityService
-	if oemHuawei.Huawei.SecurityService.Id == nil {
+	if oemHuawei.Huawei.SecurityService.ID == nil {
 		return csrTarget, errors.New("BUG: .Huawei.SecurityService.Id not found or null")
-	} else {
-		secsvc = *oemHuawei.Huawei.SecurityService.Id
 	}
+	secsvc = *oemHuawei.Huawei.SecurityService.ID
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return csrTarget, errors.New("No authentication token found, is the session setup correctly?")
@@ -554,7 +548,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &oemSSvc)
@@ -562,11 +556,11 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 		return csrTarget, err
 	}
 
-	if oemSSvc.Links.HttpsCert.Id == nil {
-		return csrTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.Url)
+	if oemSSvc.Links.HTTPSCert.ID == nil {
+		return csrTarget, fmt.Errorf("BUG: .links.HttpsCert.Id not present or is null in data from %s", response.URL)
 	}
 
-	httpscertloc = *oemSSvc.Links.HttpsCert.Id
+	httpscertloc = *oemSSvc.Links.HTTPSCert.ID
 
 	if r.Verbose {
 		log.WithFields(log.Fields{
@@ -590,7 +584,7 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	raw = response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return csrTarget, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &httpscert)
@@ -599,16 +593,16 @@ func (r *Redfish) getCSRTarget_Huawei(mgr *ManagerData) (string, error) {
 	}
 
 	if httpscert.Actions.GenerateCSR.Target == nil {
-		return csrTarget, fmt.Errorf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.Url)
+		return csrTarget, fmt.Errorf("BUG: .Actions.GenerateCSR.Target is not present or empty in JSON data from %s", response.URL)
 	}
 
 	csrTarget = *httpscert.Actions.GenerateCSR.Target
 	return csrTarget, nil
 }
 
-func (r *Redfish) makeCSRPayload_HP(csr CSRData) string {
+func (r *Redfish) makeCSRPayloadHP(csr CSRData) string {
 	// Note: HPE uses the same format as HP
-	var csrstr string = ""
+	var csrstr string
 
 	if csr.C == "" {
 		csr.C = "XX"
@@ -642,8 +636,8 @@ func (r *Redfish) makeCSRPayload_HP(csr CSRData) string {
 	return csrstr
 }
 
-func (r *Redfish) makeCSRPayload_Vanilla(csr CSRData) string {
-	var csrstr string = ""
+func (r *Redfish) makeCSRPayloadVanilla(csr CSRData) string {
+	var csrstr string
 
 	if csr.C != "" {
 		csrstr += fmt.Sprintf("\"Country\": \"%s\", ", csr.C)
@@ -680,18 +674,19 @@ func (r *Redfish) makeCSRPayload_Vanilla(csr CSRData) string {
 func (r *Redfish) makeCSRPayload(csr CSRData) string {
 	var csrstr string
 
-	if r.Flavor == REDFISH_HP || r.Flavor == REDFISH_HPE {
-		csrstr = r.makeCSRPayload_HP(csr)
+	if r.Flavor == RedfishHP || r.Flavor == RedfishHPE {
+		csrstr = r.makeCSRPayloadHP(csr)
 	} else {
-		csrstr = r.makeCSRPayload_Vanilla(csr)
+		csrstr = r.makeCSRPayloadVanilla(csr)
 	}
 
 	return csrstr
 }
 
+// GenCSR - generate CSR
 func (r *Redfish) GenCSR(csr CSRData) error {
-	var csrstr string = ""
-	var gencsrtarget string = ""
+	var csrstr string
+	var gencsrtarget string
 
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return errors.New("No authentication token found, is the session setup correctly?")
@@ -706,36 +701,36 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 	csrstr = r.makeCSRPayload(csr)
 
 	// get list of Manager endpoint
-	mgr_list, err := r.GetManagers()
+	mgrList, err := r.GetManagers()
 	if err != nil {
 		return err
 	}
 
 	// pick the first entry
-	mgr0, err := r.GetManagerData(mgr_list[0])
+	mgr0, err := r.GetManagerData(mgrList[0])
 	if err != nil {
 		return err
 	}
 
 	// get endpoint SecurityService from Managers
-	if r.Flavor == REDFISH_HP {
-		gencsrtarget, err = r.getCSRTarget_HP(mgr0)
+	if r.Flavor == RedfishHP {
+		gencsrtarget, err = r.getCSRTargetHP(mgr0)
 		if err != nil {
 			return err
 		}
-	} else if r.Flavor == REDFISH_HPE {
-		gencsrtarget, err = r.getCSRTarget_HPE(mgr0)
+	} else if r.Flavor == RedfishHPE {
+		gencsrtarget, err = r.getCSRTargetHPE(mgr0)
 		if err != nil {
 			return err
 		}
-	} else if r.Flavor == REDFISH_HUAWEI {
-		gencsrtarget, err = r.getCSRTarget_Huawei(mgr0)
+	} else if r.Flavor == RedfishHuawei {
+		gencsrtarget, err = r.getCSRTargetHuawei(mgr0)
 		if err != nil {
 			return err
 		}
-	} else if r.Flavor == REDFISH_INSPUR {
+	} else if r.Flavor == RedfishInspur {
 		return errors.New("Inspur management boards do not support CSR generation")
-	} else if r.Flavor == REDFISH_SUPERMICRO {
+	} else if r.Flavor == RedfishSuperMicro {
 		return errors.New("SuperMicro management boards do not support CSR generation")
 	} else {
 		return errors.New("Unable to get vendor for management board. If this vendor supports CSR generation please file a feature request")
@@ -779,14 +774,15 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 	// XXX: do we need to look at the content returned by HTTP POST ?
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return fmt.Errorf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	return nil
 }
 
+// FetchCSR - fetch CSR
 func (r *Redfish) FetchCSR() (string, error) {
-	var csrstr string = ""
+	var csrstr string
 
 	// set vendor flavor
 	err := r.GetVendorFlavor()
@@ -795,36 +791,36 @@ func (r *Redfish) FetchCSR() (string, error) {
 	}
 
 	// get list of Manager endpoint
-	mgr_list, err := r.GetManagers()
+	mgrList, err := r.GetManagers()
 	if err != nil {
 		return csrstr, err
 	}
 
 	// pick the first entry
-	mgr0, err := r.GetManagerData(mgr_list[0])
+	mgr0, err := r.GetManagerData(mgrList[0])
 	if err != nil {
 		return csrstr, err
 	}
 
 	// get endpoint SecurityService from Managers
-	if r.Flavor == REDFISH_HP {
-		csrstr, err = r.fetchCSR_HP(mgr0)
+	if r.Flavor == RedfishHP {
+		csrstr, err = r.fetchCSRHP(mgr0)
 		if err != nil {
 			return csrstr, err
 		}
-	} else if r.Flavor == REDFISH_HPE {
-		csrstr, err = r.fetchCSR_HPE(mgr0)
+	} else if r.Flavor == RedfishHPE {
+		csrstr, err = r.fetchCSRHPE(mgr0)
 		if err != nil {
 			return csrstr, err
 		}
-	} else if r.Flavor == REDFISH_HUAWEI {
-		csrstr, err = r.fetchCSR_Huawei(mgr0)
+	} else if r.Flavor == RedfishHuawei {
+		csrstr, err = r.fetchCSRHuawei(mgr0)
 		if err != nil {
 			return csrstr, err
 		}
-	} else if r.Flavor == REDFISH_INSPUR {
+	} else if r.Flavor == RedfishInspur {
 		return csrstr, errors.New("Inspur management boards do not support CSR generation")
-	} else if r.Flavor == REDFISH_SUPERMICRO {
+	} else if r.Flavor == RedfishSuperMicro {
 		return csrstr, errors.New("SuperMicro management boards do not support CSR generation")
 	} else {
 		return csrstr, errors.New("Unable to get vendor for management board. If this vendor supports CSR generation please file a feature request")

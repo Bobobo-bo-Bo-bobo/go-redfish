@@ -75,25 +75,26 @@ func (r *Redfish) hpeGetLicense(mgr *ManagerData) (*ManagerLicenseData, error) {
 	return &lic, nil
 }
 
+// GetLicense - get licenses of management board
 func (r *Redfish) GetLicense(mgr *ManagerData) (*ManagerLicenseData, error) {
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return nil, errors.New("No authentication token found, is the session setup correctly?")
 	}
 
-	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == RedfishFlavorNotInitialized {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if r.Flavor == REDFISH_HP {
+	if r.Flavor == RedfishHP {
 		return r.hpGetLicense(mgr)
-	} else if r.Flavor == REDFISH_HPE {
+	} else if r.Flavor == RedfishHPE {
 		return r.hpeGetLicense(mgr)
 	}
 
-	return nil, errors.New("License operations are not supported for this vendor. If this vendor supports license operations please file a feature request.")
+	return nil, errors.New("License operations are not supported for this vendor. If this vendor supports license operations please file a feature request")
 }
 
 func (r *Redfish) hpHpePrepareLicensePayload(l []byte) string {
@@ -109,7 +110,7 @@ func (r *Redfish) hpSetLicense(mgr *ManagerData, l []byte) error {
 	}
 
 	// get LicenseService endpoint path from OEM data
-	if m.Hp.Links.LicenseService.Id == nil || *m.Hp.Links.LicenseService.Id == "" {
+	if m.Hp.Links.LicenseService.ID == nil || *m.Hp.Links.LicenseService.ID == "" {
 		return fmt.Errorf("BUG: Expected LicenseService endpoint definition in .Oem.Hp.Links for vendor %s, but found none", r.FlavorString)
 	}
 
@@ -122,7 +123,7 @@ func (r *Redfish) hpSetLicense(mgr *ManagerData, l []byte) error {
 			"timeout":            r.Timeout,
 			"flavor":             r.Flavor,
 			"flavor_string":      r.FlavorString,
-			"path":               *m.Hp.Links.LicenseService.Id,
+			"path":               *m.Hp.Links.LicenseService.ID,
 			"method":             "POST",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
@@ -135,7 +136,7 @@ func (r *Redfish) hpSetLicense(mgr *ManagerData, l []byte) error {
 			"timeout":            r.Timeout,
 			"flavor":             r.Flavor,
 			"flavor_string":      r.FlavorString,
-			"path":               *m.Hp.Links.LicenseService.Id,
+			"path":               *m.Hp.Links.LicenseService.ID,
 			"method":             "POST",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
@@ -143,22 +144,21 @@ func (r *Redfish) hpSetLicense(mgr *ManagerData, l []byte) error {
 		}).Debug("Uploading license")
 	}
 
-	response, err := r.httpRequest(*m.Hp.Links.LicenseService.Id, "POST", nil, strings.NewReader(licensePayload), false)
+	response, err := r.httpRequest(*m.Hp.Links.LicenseService.ID, "POST", nil, strings.NewReader(licensePayload), false)
 	if err != nil {
 		return err
 	}
 
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
-		redfish_error, err := r.ProcessError(response)
+		redfishError, err := r.ProcessError(response)
 		if err != nil {
 			return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
 		}
-		msg := r.GetErrorMessage(redfish_error)
+		msg := r.GetErrorMessage(redfishError)
 		if msg != "" {
-			return fmt.Errorf("License installation failed: %s\n", msg)
-		} else {
-			return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
+			return fmt.Errorf("License installation failed: %s", msg)
 		}
+		return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
 	}
 	return nil
 }
@@ -172,7 +172,7 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 	}
 
 	// get LicenseService endpoint path from OEM data
-	if m.Hpe.Links.LicenseService.Id == nil || *m.Hpe.Links.LicenseService.Id == "" {
+	if m.Hpe.Links.LicenseService.ID == nil || *m.Hpe.Links.LicenseService.ID == "" {
 		return fmt.Errorf("BUG: Expected LicenseService endpoint definition in .Oem.Hpe.Links for vendor %s, but found none", r.FlavorString)
 	}
 
@@ -185,7 +185,7 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 			"timeout":            r.Timeout,
 			"flavor":             r.Flavor,
 			"flavor_string":      r.FlavorString,
-			"path":               *m.Hpe.Links.LicenseService.Id,
+			"path":               *m.Hpe.Links.LicenseService.ID,
 			"method":             "POST",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
@@ -198,7 +198,7 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 			"timeout":            r.Timeout,
 			"flavor":             r.Flavor,
 			"flavor_string":      r.FlavorString,
-			"path":               *m.Hpe.Links.LicenseService.Id,
+			"path":               *m.Hpe.Links.LicenseService.ID,
 			"method":             "POST",
 			"additional_headers": nil,
 			"use_basic_auth":     false,
@@ -206,44 +206,45 @@ func (r *Redfish) hpeSetLicense(mgr *ManagerData, l []byte) error {
 		}).Debug("Uploading license")
 	}
 
-	response, err := r.httpRequest(*m.Hpe.Links.LicenseService.Id, "POST", nil, strings.NewReader(licensePayload), false)
+	response, err := r.httpRequest(*m.Hpe.Links.LicenseService.ID, "POST", nil, strings.NewReader(licensePayload), false)
 	if err != nil {
 		return err
 	}
 
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
-		redfish_error, err := r.ProcessError(response)
+		redfishError, err := r.ProcessError(response)
 		if err != nil {
 			return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
 		}
-		msg := r.GetErrorMessage(redfish_error)
+		msg := r.GetErrorMessage(redfishError)
 		if msg != "" {
-			return fmt.Errorf("License installation failed: %s\n", msg)
-		} else {
-			return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
+			return fmt.Errorf("License installation failed: %s", msg)
 		}
+		return fmt.Errorf("License installation returned \"%s\" instead of \"200 OK\" or \"201 Created\" and didn't return an error object", response.Status)
 	}
 
 	return nil
 }
+
+// AddLicense - add license to management board
 func (r *Redfish) AddLicense(mgr *ManagerData, l []byte) error {
 	if r.AuthToken == nil || *r.AuthToken == "" {
 		return errors.New("No authentication token found, is the session setup correctly?")
 	}
 
-	if r.Flavor == REDFISH_FLAVOR_NOT_INITIALIZED {
+	if r.Flavor == RedfishFlavorNotInitialized {
 		err := r.GetVendorFlavor()
 		if err != nil {
 			return err
 		}
 	}
 
-	if r.Flavor == REDFISH_HP {
+	if r.Flavor == RedfishHP {
 		return r.hpSetLicense(mgr, l)
-	} else if r.Flavor == REDFISH_HPE {
+	} else if r.Flavor == RedfishHPE {
 		return r.hpeSetLicense(mgr, l)
 	}
 
-	return errors.New("License operations are not supported for this vendor. If this vendor supports license operations please file a feature request.")
+	return errors.New("License operations are not supported for this vendor. If this vendor supports license operations please file a feature request")
 
 }

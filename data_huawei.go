@@ -1,32 +1,37 @@
 package redfish
 
-// Huawei: Oem data for Manager endpoint and SecurityService endpoint
-type HttpsCertActionsOemHuawei struct {
+// HTTPSCertActionsOemHuawei - Huawei: Oem data for Manager endpoint and SecurityService endpoint
+type HTTPSCertActionsOemHuawei struct {
 	GenerateCSR                LinkTargets  `json:"#HpHttpsCert.GenerateCSR"`
 	ImportCertificate          LinkTargets  `json:"#HttpsCert.ImportServerCertificate"`
 	X509CertificateInformation X509CertInfo `json:"X509CertificateInformation"`
 }
 
-type HttpsCertDataOemHuawei struct {
+// HTTPSCertDataOemHuawei - OEM specific extension
+type HTTPSCertDataOemHuawei struct {
 	CSR     *string                   `json:"CertificateSigningRequest"`
-	Id      *string                   `json:"Id"`
-	Actions HttpsCertActionsOemHuawei `json:"Actions"`
+	ID      *string                   `json:"Id"`
+	Actions HTTPSCertActionsOemHuawei `json:"Actions"`
 }
 
+// ManagerDataOemHuaweiLoginRule - Huawei specific login rules
 type ManagerDataOemHuaweiLoginRule struct {
-	MemberId    *string `json:"MemberId"`
+	MemberID    *string `json:"MemberId"`
 	RuleEnabled bool    `json:"RuleEnabled"`
 	StartTime   *string `json:"StartTime"`
 	EndTime     *string `json:"EndTime"`
 	IP          *string `json:"IP"`
 	Mac         *string `json:"Mac"`
 }
+
+// SecurityServiceDataOemHuaweiLinks - OEM specific extension
 type SecurityServiceDataOemHuaweiLinks struct {
-	HttpsCert OData `json:"HttpsCert"`
+	HTTPSCert OData `json:"HttpsCert"`
 }
 
+// SecurityServiceDataOemHuawei - OEM specific extension
 type SecurityServiceDataOemHuawei struct {
-	Id    *string                           `json:"Id"`
+	ID    *string                           `json:"Id"`
 	Name  *string                           `json:"Name"`
 	Links SecurityServiceDataOemHuaweiLinks `json:"Links"`
 }
@@ -39,12 +44,13 @@ type _managerDataOemHuawei struct {
 
 	SecurityService OData `json:"SecurityService"`
 	SnmpService     OData `json:"SnmpService"`
-	SmtpService     OData `json:"SmtpService"`
+	SMTPService     OData `json:"SmtpService"`
 	SyslogService   OData `json:"SyslogService"`
 	KvmService      OData `json:"KvmService"`
 	NtpService      OData `json:"NtpService"`
 }
 
+// ManagerDataOemHuawei - OEM specific extension
 type ManagerDataOemHuawei struct {
 	Huawei _managerDataOemHuawei `json:"Huawei"`
 }

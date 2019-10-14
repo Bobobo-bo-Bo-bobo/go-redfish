@@ -9,8 +9,8 @@ import (
 	"net/http"
 )
 
-func (r *Redfish) httpRequest(endpoint string, method string, header *map[string]string, reader io.Reader, basic_auth bool) (HttpResult, error) {
-	var result HttpResult
+func (r *Redfish) httpRequest(endpoint string, method string, header *map[string]string, reader io.Reader, basicAuth bool) (HTTPResult, error) {
+	var result HTTPResult
 	var transp *http.Transport
 	var url string
 
@@ -54,7 +54,7 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 		}
 	}
 
-	result.Url = url
+	result.URL = url
 
 	if r.Debug {
 		log.WithFields(log.Fields{
@@ -81,7 +81,7 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 		}
 	}()
 
-	if basic_auth {
+	if basicAuth {
 		if r.Debug {
 			log.WithFields(log.Fields{
 				"hostname":      r.Hostname,
@@ -102,7 +102,7 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 	request.Header.Add("Content-Type", "application/json")
 
 	// set User-Agent
-	request.Header.Set("User-Agent", UserAgent)
+	request.Header.Set("User-Agent", userAgent)
 
 	// add authentication token if present
 	if r.AuthToken != nil && *r.AuthToken != "" {
@@ -139,9 +139,9 @@ func (r *Redfish) httpRequest(endpoint string, method string, header *map[string
 	}
 
 	defer func() {
-        ioutil.ReadAll(response.Body)
-        response.Body.Close()
-    }()
+		ioutil.ReadAll(response.Body)
+		response.Body.Close()
+	}()
 
 	if r.Debug {
 		log.WithFields(log.Fields{

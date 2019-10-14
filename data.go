@@ -7,24 +7,28 @@ import (
 	"time"
 )
 
+// GoRedfishVersion - Library version
 // Note: Be consistent with "Semantic Versioning 2.0.0" - see https://semver.org/
-const GoRedfishVersion string = "1.2.1-2019.10.13"
-const _GoRedfishUrl string = "https://git.ypbind.de/cgit/go-redfish/"
+const GoRedfishVersion string = "1.2.1-2019.10.14"
+const _GoRedfishURL string = "https://git.ypbind.de/cgit/go-redfish/"
 
-var UserAgent string = "go-redfish/" + GoRedfishVersion + " (" + _GoRedfishUrl + ")"
+var userAgent = "go-redfish/" + GoRedfishVersion + " (" + _GoRedfishURL + ")"
 
-type RedfishError struct {
-	Error RedfishErrorMessage `json:"error"`
+// Error - Redfish error as defined by the standard
+type Error struct {
+	Error ErrorMessage `json:"error"`
 }
 
-type RedfishErrorMessage struct {
-	Code                *string                           `json:"code"`
-	Message             *string                           `json:"Message"`
-	MessageExtendedInfo []RedfishErrorMessageExtendedInfo `json:"@Message.ExtendedInfo"`
+// ErrorMessage - structure of each individual error messages
+type ErrorMessage struct {
+	Code                *string                    `json:"code"`
+	Message             *string                    `json:"Message"`
+	MessageExtendedInfo []ErrorMessageExtendedInfo `json:"@Message.ExtendedInfo"`
 }
 
-type RedfishErrorMessageExtendedInfo struct {
-	MessageId         *string  `json:"MessageId"`
+// ErrorMessageExtendedInfo - each individual error entry
+type ErrorMessageExtendedInfo struct {
+	MessageID         *string  `json:"MessageId"`
 	Severity          *string  `json:"Severity"`
 	Resolution        *string  `json:"Resolution"`
 	Message           *string  `json:"Message"`
@@ -32,8 +36,9 @@ type RedfishErrorMessageExtendedInfo struct {
 	RelatedProperties []string `json:"RelatedProperties"`
 }
 
+// OData - Open Data procol struct
 type OData struct {
-	Id           *string `json:"@odata.id"`
+	ID           *string `json:"@odata.id"`
 	Type         *string `json:"@odata.type"`
 	Context      *string `json:"@odata.context"`
 	Members      []OData `json:"Members"`
@@ -59,33 +64,39 @@ type sessionServiceEndpoint struct {
 	Sessions       *OData `json:"Sessions"`
 }
 
+// Status - Health status
 type Status struct {
 	State        *string `json:"State"`
 	Health       *string `json:"Health"`
 	HealthRollUp *string `json:"HealthRollUp"`
 }
 
+// SystemProcessorSummary - summary of system - CPU
 type SystemProcessorSummary struct {
 	Count  int     `json:"Count"`
 	Status Status  `json:"Status"`
 	Model  *string `json:"Model"`
 }
 
+// SystemMemorySummary - summary of system - memory
 type SystemMemorySummary struct {
 	TotalSystemMemoryGiB float64 `json:"TotalSystemMemoryGiB"`
 	Status               Status  `json:"Status"`
 }
 
+// SystemActionsComputerReset - allowed action for computer reset
 type SystemActionsComputerReset struct {
 	Target          string   `json:"target"`
 	ResetTypeValues []string `json:"ResetType@Redfish.AllowableValues"`
 	ActionInfo      string   `json:"@Redfish.ActionInfo"`
 }
 
+// SystemActions - supported actions for computer reset
 type SystemActions struct {
 	ComputerReset *SystemActionsComputerReset `json:"#ComputerSystem.Reset"`
 }
 
+// ActionInfoParameter - informations about allowed actions
 type ActionInfoParameter struct {
 	Name            string   `json:"Name"`
 	Required        bool     `json:"Required"`
@@ -93,13 +104,15 @@ type ActionInfoParameter struct {
 	AllowableValues []string `json:"AllowableValues"`
 }
 
+// SystemActionInfo - information about allowed actions
 type SystemActionInfo struct {
 	ODataContext string                `json:"@odata.context"`
-	ODataId      string                `json:"@odata.id"`
+	ODataID      string                `json:"@odata.id"`
 	ODataType    string                `json:"@odata.type"`
 	Parameters   []ActionInfoParameter `json:"Parameters"`
 }
 
+// SystemData - System information
 type SystemData struct {
 	UUID               *string                 `json:"UUID"`
 	Status             Status                  `json:"Status"`
@@ -113,7 +126,7 @@ type SystemData struct {
 	Memory             *OData                  `json:"Memory"`
 	Manufacturer       *string                 `json:"Manufacturer"`
 	LogServices        *OData                  `json:"LogServices"`
-	Id                 *string                 `json:"Id"`
+	ID                 *string                 `json:"Id"`
 	EthernetInterfaces *OData                  `json:"EthernetInterfaces"`
 	BIOSVersion        *string                 `json:"BiosVersion"`
 	BIOS               *OData                  `json:"Bios"`
@@ -126,25 +139,28 @@ type SystemData struct {
 	resetTypeProperty string
 }
 
+// AccountService - Account handling
 type AccountService struct {
 	AccountsEndpoint *OData `json:"Accounts"`
 	RolesEndpoint    *OData `json:"Roles"`
 }
 
+// AccountData - individual accounts
 type AccountData struct {
-	Id       *string `json:"Id"`
+	ID       *string `json:"Id"`
 	Name     *string `json:"Name"`
 	UserName *string `json:"UserName"`
 	Password *string `json:"Password"`
-	RoleId   *string `json:"RoleId"`
+	RoleID   *string `json:"RoleId"`
 	Enabled  *bool   `json:"Enabled"`
 	Locked   *bool   `json:"Locked"`
 
 	SelfEndpoint *string
 }
 
+// RoleData - individual roles
 type RoleData struct {
-	Id                 *string  `json:"Id"`
+	ID                 *string  `json:"Id"`
 	Name               *string  `json:"Name"`
 	IsPredefined       *bool    `json:"IsPredefined"`
 	Description        *string  `json:"Description"`
@@ -153,8 +169,9 @@ type RoleData struct {
 	SelfEndpoint *string
 }
 
+// ChassisData - Chassis information
 type ChassisData struct {
-	Id           *string         `json:"Id"`
+	ID           *string         `json:"Id"`
 	Name         *string         `json:"Name"`
 	ChassisType  *string         `json:"ChassisType"`
 	Manufacturer *string         `json:"Manufacturer"`
@@ -171,9 +188,10 @@ type ChassisData struct {
 	SelfEndpoint *string
 }
 
+// TemperatureData - temperature readings
 type TemperatureData struct {
-	ODataId                   *string `json:"@odata.id"`
-	MemberId                  *string `json:"MemberId"`
+	ODataID                   *string `json:"@odata.id"`
+	MemberID                  *string `json:"MemberId"`
 	SensorNumber              *int    `json:"SensorNumber"`
 	Name                      *string `json:"Name"`
 	ReadingCelsius            *int    `json:"ReadingCelsius"`
@@ -188,9 +206,10 @@ type TemperatureData struct {
 	Status                    Status  `json:"Status"`
 }
 
+// FanData - fan readings
 type FanData struct {
-	ODataId                   *string         `json:"@odata.id"`
-	MemberId                  *string         `json:"MemberId"`
+	ODataID                   *string         `json:"@odata.id"`
+	MemberID                  *string         `json:"MemberId"`
 	SensorNumber              *int            `json:"SensorNumber"`
 	FanName                   *string         `json:"FanName"`
 	Name                      *string         `json:"Name"`
@@ -210,15 +229,17 @@ type FanData struct {
 	Oem                       json.RawMessage `json:"Oem"`
 }
 
+// ThermalData - thermal data
 type ThermalData struct {
-	ODataId      *string           `json:"@odata.id"`
-	Id           *string           `json:"Id"`
+	ODataID      *string           `json:"@odata.id"`
+	ID           *string           `json:"Id"`
 	Status       Status            `json:"Status"`
 	Temperatures []TemperatureData `json:"Temperatures"`
 	Fans         []FanData         `json:"Fans"`
 	SelfEndpoint *string
 }
 
+// PowerMetricsData - current power data/metrics
 type PowerMetricsData struct {
 	MinConsumedWatts     *int `json:"MinConsumedWatts"`
 	MaxConsumedWatts     *int `json:"MaxConsumedWatts"`
@@ -226,14 +247,16 @@ type PowerMetricsData struct {
 	IntervalInMin        *int `json:"IntervalInMin"`
 }
 
+// PowerLimitData - defined power limits
 type PowerLimitData struct {
 	LimitInWatts   *int    `json:"LimitInWatts"`
 	LimitException *string `json:"LimitException"`
 }
 
+// PowerControlData - power control information
 type PowerControlData struct {
-	Id                 *string `json:"@odata.id"`
-	MemberId           *string `json:"MemberId"`
+	ID                 *string `json:"@odata.id"`
+	MemberID           *string `json:"MemberId"`
 	Name               *string `json:"Name"`
 	PowerConsumedWatts *int
 	PowerMetrics       PowerMetricsData `json:"PowerMetrics"`
@@ -242,9 +265,10 @@ type PowerControlData struct {
 	Oem                json.RawMessage  `json:"Oem"`
 }
 
+// VoltageData - voltage information
 type VoltageData struct {
-	ODataId                   *string  `json:"@odata.id"`
-	MemberId                  *string  `json:"MemberId"`
+	ODataID                   *string  `json:"@odata.id"`
+	MemberID                  *string  `json:"MemberId"`
 	Name                      *string  `json:"Name"`
 	SensorNumber              *int     `json:"SensorNumber"`
 	Status                    Status   `json:"Status"`
@@ -260,9 +284,10 @@ type VoltageData struct {
 	PhysicalContext           *string  `json:"PhysicalContext"`
 }
 
+// PSUData - power supply information
 type PSUData struct {
-	ODataId              *string         `json:"@odata.id"`
-	MemberId             *string         `json:"MemberId"`
+	ODataID              *string         `json:"@odata.id"`
+	MemberID             *string         `json:"MemberId"`
 	Name                 *string         `json:"Name"`
 	Status               Status          `json:"Status"`
 	PowerSupplyType      *string         `json:"PowerSupplyType"`
@@ -279,16 +304,18 @@ type PSUData struct {
 	Redundancy           []OData         `json:"Redundancy"`
 }
 
+// PowerData - power data
 type PowerData struct {
-	OdataId       *string            `json:"@odata.id"`
+	OdataID       *string            `json:"@odata.id"`
 	Context       *string            `json:"@odata.context"`
-	Id            *string            `json:"Id"`
+	ID            *string            `json:"Id"`
 	PowerControl  []PowerControlData `json:"PowerControl"`
 	Voltages      []VoltageData      `json:"Voltages"`
 	PowerSupplies []PSUData          `json:"PowerSupplies"`
 	SelfEndpoint  *string
 }
 
+// ManagerLicenseData - license data for management board
 type ManagerLicenseData struct {
 	Name       string
 	Expiration string
@@ -296,12 +323,14 @@ type ManagerLicenseData struct {
 	License    string
 }
 
+// ManagerActionsData - list of allowed actions of the management processor
 type ManagerActionsData struct {
 	ManagerReset LinkTargets `json:"#Manager.Reset"`
 }
 
+// ManagerData - information about the management processor
 type ManagerData struct {
-	Id              *string         `json:"Id"`
+	ID              *string         `json:"Id"`
 	Name            *string         `json:"Name"`
 	ManagerType     *string         `json:"ManagerType"`
 	UUID            *string         `json:"UUID"`
@@ -323,6 +352,7 @@ type ManagerData struct {
 	SelfEndpoint *string
 }
 
+// X509CertInfo - X509 certificate information
 type X509CertInfo struct {
 	Issuer         *string `json:"Issuer"`
 	SerialNumber   *string `json:"SerialNumber"`
@@ -331,12 +361,13 @@ type X509CertInfo struct {
 	ValidNotBefore *string `json:"ValidNotBefore"`
 }
 
+// LinkTargets - available link targets
 type LinkTargets struct {
 	Target     *string `json:"target"`
 	ActionInfo *string `json:"@Redfish.ActionInfo"`
 }
 
-// data for CSR subject
+// CSRData - data for CSR subject
 type CSRData struct {
 	C  string // Country
 	S  string // State or province
@@ -346,7 +377,7 @@ type CSRData struct {
 	CN string // Common name
 }
 
-// data for account creation
+// AccountCreateData - data for account creation
 type AccountCreateData struct {
 	UserName string `json:",omitempty"`
 	Password string `json:",omitempty"`
@@ -363,65 +394,68 @@ type AccountCreateData struct {
 	HPEPrivileges     uint
 }
 
+// Redfish vendor flavors
 const (
-	REDFISH_FLAVOR_NOT_INITIALIZED uint = iota
-	REDFISH_GENERAL
-	REDFISH_HP
-	REDFISH_HPE
-	REDFISH_HUAWEI
-	REDFISH_INSPUR
-	REDFISH_LENOVO
-	REDFISH_SUPERMICRO
-	REDFISH_DELL
+	RedfishFlavorNotInitialized uint = iota
+	RedfishGeneral
+	RedfishHP
+	RedfishHPE
+	RedfishHuawei
+	RedfishInspur
+	RedfishLenovo
+	RedfishSuperMicro
+	RedfishDell
 )
 
 // service processor capabilities
 const (
-	HAS_ACCOUNTSERVICE uint = 1 << iota // has AccountService endpoint
-	HAS_SECURITYSERVICE
-	HAS_ACCOUNT_ROLES
-	HAS_CHASSIS
-	HAS_LICENSE
+	HasAccountService uint = 1 << iota // has AccountService endpoint
+	HasSecurityService
+	HasAccountRoles
+	HasChassis
+	HasLicense
 )
 
-// map capabilities by vendor
+// VendorCapabilities - map capabilities by vendor
 var VendorCapabilities = map[string]uint{
-	"hp":         HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_CHASSIS | HAS_LICENSE,
-	"hpe":        HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_CHASSIS | HAS_LICENSE,
-	"huawei":     HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
+	"hp":         HasAccountService | HasSecurityService | HasChassis | HasLicense,
+	"hpe":        HasAccountService | HasSecurityService | HasChassis | HasLicense,
+	"huawei":     HasAccountService | HasSecurityService | HasAccountRoles | HasChassis,
 	"inspur":     0,
-	"supermicro": HAS_ACCOUNTSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
-	"dell":       HAS_ACCOUNTSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
-	"lenovo":     HAS_CHASSIS,
-	"vanilla":    HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
-	"":           HAS_ACCOUNTSERVICE | HAS_SECURITYSERVICE | HAS_ACCOUNT_ROLES | HAS_CHASSIS,
+	"supermicro": HasAccountService | HasAccountRoles | HasChassis,
+	"dell":       HasAccountService | HasAccountRoles | HasChassis,
+	"lenovo":     HasChassis,
+	"vanilla":    HasAccountService | HasSecurityService | HasAccountRoles | HasChassis,
+	"":           HasAccountService | HasSecurityService | HasAccountRoles | HasChassis,
 }
 
-type HttpResult struct {
-	Url        string
+// HTTPResult - result of the http_request calls
+type HTTPResult struct {
+	URL        string
 	StatusCode int
 	Status     string
 	Header     http.Header
 	Content    []byte
 }
 
+// BaseRedfish - interface definition
 type BaseRedfish interface {
 	Initialize() error
 	Login() error
 	Logout() error
 	GetSystems() ([]string, error)
 	GetSystemData(string) (*SystemData, error)
-	MapSystensById() (map[string]*SystemData, error)
-	MapSystemsByUuid() (map[string]*SystemData, error)
+	MapSystensByID() (map[string]*SystemData, error)
+	MapSystemsByUUID() (map[string]*SystemData, error)
 	MapSystemsBySerialNumber() (map[string]*SystemData, error)
 	GetAccounts() ([]string, error)
 	GetAccountData(string) (*AccountData, error)
 	MapAccountsByName() (map[string]*AccountData, error)
-	MapAccountsById() (map[string]*AccountData, error)
+	MapAccountsByID() (map[string]*AccountData, error)
 	GetRoles() ([]string, error)
 	GetRoleData(string) (*AccountData, error)
 	MapRolesByName() (map[string]*RoleData, error)
-	MapRolesById() (map[string]*RoleData, error)
+	MapRolesByID() (map[string]*RoleData, error)
 	GenCSR(CSRData) error
 	FetchCSR() (string, error)
 	ImportCertificate(string) error
@@ -432,13 +466,17 @@ type BaseRedfish interface {
 	DeleteAccount(string) error
 	ChangePassword(string, string) error
 	SetSystemPowerState(*SystemData, string) error
-	ProcessError(HttpResult) (*RedfishError, error)
+	ProcessError(HTTPResult) (*Error, error)
 	GetLicense(*ManagerData) (*ManagerLicenseData, error)
-	GetErrorMessage(*RedfishError) string
+	GetErrorMessage(*Error) string
 	IsInitialised() bool
 	Clone() *Redfish
+	GetManagers() ([]string, error)
+	GetManagerData(string) (*ManagerData, error)
+	MapManagersByID() (map[string]*ManagerData, error)
+	MapManagersByUUID() (map[string]*ManagerData, error)
 
-	httpRequest(string, string, *map[string]string, io.Reader, bool) (HttpResult, error)
+	httpRequest(string, string, *map[string]string, io.Reader, bool) (HTTPResult, error)
 	getCSRTarget_HP(*ManagerData) (string, error)
 	getCSRTarget_HPE(*ManagerData) (string, error)
 	getCSRTarget_Huawei(*ManagerData) (string, error)
@@ -458,6 +496,7 @@ type BaseRedfish interface {
 	hpHpePrepareLicensePayload([]byte) string
 }
 
+// Redfish - object to access Redfish API
 type Redfish struct {
 	Hostname        string
 	Port            int

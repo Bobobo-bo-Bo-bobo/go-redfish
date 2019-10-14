@@ -1,6 +1,6 @@
 package redfish
 
-// HP/HPE: Oem data for Manager endpoint and SecurityService endpoint
+// ManagerDataOemHpeLicense - HP/HPE: Oem data for Manager endpoint and SecurityService endpoint
 type ManagerDataOemHpeLicense struct {
 	Key    *string `json:"LicenseKey"`
 	String *string `json:"LicenseString"`
@@ -8,6 +8,7 @@ type ManagerDataOemHpeLicense struct {
 	Expire *string `json:"LicenseExpire"`
 }
 
+// ManagerDataOemHpeFederationConfig - HP/HPE federatin information
 type ManagerDataOemHpeFederationConfig struct {
 	IPv6MulticastScope            *string `json:"IPv6MulticastScope"`
 	MulticastAnnouncementInterval *int64  `json:"MulticastAnnouncementInterval"`
@@ -16,6 +17,7 @@ type ManagerDataOemHpeFederationConfig struct {
 	ILOFederationManagement       *string `json:"iLOFederationManagement"`
 }
 
+// ManagerDataOemHpeFirmwareData - HP/HPE firmware data
 type ManagerDataOemHpeFirmwareData struct {
 	Date         *string `json:"Date"`
 	DebugBuild   *bool   `json:"DebugBuild"`
@@ -25,10 +27,12 @@ type ManagerDataOemHpeFirmwareData struct {
 	Version      *string `json:"Version"`
 }
 
+// ManagerDataOemHpeFirmware - current firmware of the management processor
 type ManagerDataOemHpeFirmware struct {
 	Current ManagerDataOemHpeFirmwareData `json:"Current"`
 }
 
+// ManagerDataOemHpeLinks - link targets for HPE vendor specific extensions
 // NOTE: The result for HP/HPE are different depending if the HTTP header
 // OData-Version is set or not. If OData-Version is _NOT_ set data are returned in
 // .Oem.Hp.links with endpoints in "href". If OData-Version is set
@@ -55,35 +59,40 @@ type _managerDataOemHpe struct {
 	Links            ManagerDataOemHpeLinks            `json:"Links"`
 }
 
+// ManagerDataOemHpe - OEM data for HPE systems
 type ManagerDataOemHpe struct {
 	Hpe *_managerDataOemHpe `json:"Hpe"`
 }
 
+// SecurityServiceDataOemHpeLinks - HPE extension
 type SecurityServiceDataOemHpeLinks struct {
 	ESKM      OData `json:"ESKM"`
-	HttpsCert OData `json:"HttpsCert"`
+	HTTPSCert OData `json:"HttpsCert"`
 	SSO       OData `json:"SSO"`
 }
 
+// SecurityServiceDataOemHpe - HPE extension
 type SecurityServiceDataOemHpe struct {
-	Id    *string                        `json:"Id"`
+	ID    *string                        `json:"Id"`
 	Type  *string                        `json:"Type"`
 	Links SecurityServiceDataOemHpeLinks `json:"Links"`
 }
 
-type HttpsCertActionsOemHpe struct {
+// HTTPSCertActionsOemHpe - OEM extension for certificate management
+type HTTPSCertActionsOemHpe struct {
 	GenerateCSR                LinkTargets  `json:"#HpeHttpsCert.GenerateCSR"`
 	ImportCertificate          LinkTargets  `json:"#HpeHttpsCert.ImportCertificate"`
 	X509CertificateInformation X509CertInfo `json:"X509CertificateInformation"`
 }
 
-type HttpsCertDataOemHpe struct {
+// HTTPSCertDataOemHpe - HPE OEM extension
+type HTTPSCertDataOemHpe struct {
 	CSR     *string                `json:"CertificateSigningRequest"`
-	Id      *string                `json:"Id"`
-	Actions HttpsCertActionsOemHpe `json:"Actions"`
+	ID      *string                `json:"Id"`
+	Actions HTTPSCertActionsOemHpe `json:"Actions"`
 }
 
-// HP(E) uses it's own privilege map instead of roles
+// AccountPrivilegeMapOemHpe - HP(E) uses it's own privilege map instead of roles
 type AccountPrivilegeMapOemHpe struct {
 	Login                bool `json:"LoginPriv"`
 	RemoteConsole        bool `json:"RemoteConsolePriv"`

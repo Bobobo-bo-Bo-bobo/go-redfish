@@ -1,6 +1,6 @@
 package redfish
 
-// Supermicro: Oem data for Manager.Actions endpoint
+// ManagerActionsDataOemSupermicro - ManagerActionsDataOemSupermicro - Supermicro: Oem data for Manager.Actions endpoint
 type ManagerActionsDataOemSupermicro struct {
 	Oem _managerActionsDataOemSupermicro `json:"Oem"`
 }

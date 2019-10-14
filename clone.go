@@ -1,11 +1,11 @@
 package redfish
 
-// make a deep copy
+// Clone - make a deep copy
 func (r *Redfish) Clone() *Redfish {
-	var a *string = new(string)
-	var sl *string = new(string)
+	var a = new(string)
+	var sl = new(string)
 
-	var cpy *Redfish = new(Redfish)
+	var cpy = new(Redfish)
 
 	if cpy != nil {
 		cpy.Hostname = r.Hostname

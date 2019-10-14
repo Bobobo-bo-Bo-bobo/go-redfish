@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Login to SessionEndpoint and get authentication token for this session
+// Login - Login to SessionEndpoint and get authentication token for this session
 func (r *Redfish) Login() error {
 	var sessions sessionServiceEndpoint
 
@@ -38,7 +38,7 @@ func (r *Redfish) Login() error {
 		}
 
 		if response.StatusCode != http.StatusOK {
-			return fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+			return fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 		}
 
 		raw := response.Content
@@ -51,19 +51,19 @@ func (r *Redfish) Login() error {
 		// check if management boards reports "ServiceEnabled" and if it does, check if is true
 		if sessions.Enabled != nil {
 			if !*sessions.Enabled {
-				return fmt.Errorf("Session information from %s reports session service as disabled\n", response.Url)
+				return fmt.Errorf("Session information from %s reports session service as disabled", response.URL)
 			}
 		}
 
 		if sessions.Sessions == nil {
-			return fmt.Errorf("BUG: No Sessions endpoint reported from %s\n", response.Url)
+			return fmt.Errorf("BUG: No Sessions endpoint reported from %s", response.URL)
 		}
 
-		if sessions.Sessions.Id == nil {
-			return fmt.Errorf("BUG: Malformed Sessions endpoint reported from %s: no @odata.id field found\n", response.Url)
+		if sessions.Sessions.ID == nil {
+			return fmt.Errorf("BUG: Malformed Sessions endpoint reported from %s: no @odata.id field found", response.URL)
 		}
 
-		r.Sessions = *sessions.Sessions.Id
+		r.Sessions = *sessions.Sessions.ID
 	}
 
 	jsonPayload := fmt.Sprintf("{ \"UserName\":\"%s\",\"Password\":\"%s\" }", r.Username, r.Password)
@@ -100,27 +100,26 @@ func (r *Redfish) Login() error {
 	}
 
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
-		redfish_error, err := r.ProcessError(response)
+		redfishError, err := r.ProcessError(response)
 		if err != nil {
-			return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status)
+			return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.URL, response.Status)
 		}
-		msg := r.GetErrorMessage(redfish_error)
+		msg := r.GetErrorMessage(redfishError)
 		if msg != "" {
-			return fmt.Errorf("Login failed: %s\n", msg)
-		} else {
-			return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.Url, response.Status)
+			return fmt.Errorf("Login failed: %s", msg)
 		}
+		return fmt.Errorf("HTTP POST for %s returned \"%s\" instead of \"200 OK\" or \"201 Created\"", response.URL, response.Status)
 	}
 
 	token := response.Header.Get("x-auth-token")
 	if token == "" {
-		return fmt.Errorf("BUG: HTTP POST to SessionService endpoint %s returns OK but no X-Auth-Token in reply", response.Url)
+		return fmt.Errorf("BUG: HTTP POST to SessionService endpoint %s returns OK but no X-Auth-Token in reply", response.URL)
 	}
 	r.AuthToken = &token
 
 	session := response.Header.Get("location")
 	if session == "" {
-		return fmt.Errorf("BUG: HTTP POST to SessionService endpoint %s returns OK but has no Location in reply", response.Url)
+		return fmt.Errorf("BUG: HTTP POST to SessionService endpoint %s returns OK but has no Location in reply", response.URL)
 	}
 
 	// check if is a full URL

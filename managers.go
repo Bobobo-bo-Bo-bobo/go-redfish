@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-//get array of managers and their endpoints
+// GetManagers - get array of managers and their endpoints
 func (r *Redfish) GetManagers() ([]string, error) {
 	var mgrs OData
 	var result = make([]string, 0)
@@ -37,7 +37,7 @@ func (r *Redfish) GetManagers() ([]string, error) {
 
 	raw := response.Content
 	if response.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &mgrs)
@@ -50,12 +50,12 @@ func (r *Redfish) GetManagers() ([]string, error) {
 	}
 
 	for _, m := range mgrs.Members {
-		result = append(result, *m.Id)
+		result = append(result, *m.ID)
 	}
 	return result, nil
 }
 
-// get manager data for a particular account
+// GetManagerData - get manager data for an particular account
 func (r *Redfish) GetManagerData(managerEndpoint string) (*ManagerData, error) {
 	var result ManagerData
 
@@ -84,7 +84,7 @@ func (r *Redfish) GetManagerData(managerEndpoint string) (*ManagerData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -95,8 +95,8 @@ func (r *Redfish) GetManagerData(managerEndpoint string) (*ManagerData, error) {
 	return &result, nil
 }
 
-// map ID -> manager data
-func (r *Redfish) MapManagersById() (map[string]*ManagerData, error) {
+// MapManagersByID - map ID -> manager data
+func (r *Redfish) MapManagersByID() (map[string]*ManagerData, error) {
 	var result = make(map[string]*ManagerData)
 
 	ml, err := r.GetManagers()
@@ -111,17 +111,17 @@ func (r *Redfish) MapManagersById() (map[string]*ManagerData, error) {
 		}
 
 		// should NEVER happen
-		if m.Id == nil {
+		if m.ID == nil {
 			return result, fmt.Errorf("BUG: No Id found or Id is null in JSON data from %s", mgr)
 		}
-		result[*m.Id] = m
+		result[*m.ID] = m
 	}
 
 	return result, nil
 }
 
-// map UUID -> manager data
-func (r *Redfish) MapManagersByUuid() (map[string]*ManagerData, error) {
+// MapManagersByUUID - map UUID -> manager data
+func (r *Redfish) MapManagersByUUID() (map[string]*ManagerData, error) {
 	var result = make(map[string]*ManagerData)
 
 	ml, err := r.GetManagers()

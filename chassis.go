@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-//get array of chassis and their endpoints
+// GetChassis - get array of chassis and their endpoints
 func (r *Redfish) GetChassis() ([]string, error) {
 	var chassis OData
 	var result = make([]string, 0)
@@ -38,7 +38,7 @@ func (r *Redfish) GetChassis() ([]string, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return result, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &chassis)
@@ -51,12 +51,12 @@ func (r *Redfish) GetChassis() ([]string, error) {
 	}
 
 	for _, endpoint := range chassis.Members {
-		result = append(result, *endpoint.Id)
+		result = append(result, *endpoint.ID)
 	}
 	return result, nil
 }
 
-// get chassis data for a particular chassis
+// GetChassisData - get chassis data for a particular chassis
 func (r *Redfish) GetChassisData(chassisEndpoint string) (*ChassisData, error) {
 	var result ChassisData
 
@@ -85,7 +85,7 @@ func (r *Redfish) GetChassisData(chassisEndpoint string) (*ChassisData, error) {
 	raw := response.Content
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(raw, &result)
@@ -97,8 +97,8 @@ func (r *Redfish) GetChassisData(chassisEndpoint string) (*ChassisData, error) {
 	return &result, nil
 }
 
-// Map chassis by ID
-func (r *Redfish) MapChassisById() (map[string]*ChassisData, error) {
+// MapChassisByID - Map chassis by ID
+func (r *Redfish) MapChassisByID() (map[string]*ChassisData, error) {
 	var result = make(map[string]*ChassisData)
 
 	chasl, err := r.GetChassis()
@@ -113,17 +113,17 @@ func (r *Redfish) MapChassisById() (map[string]*ChassisData, error) {
 		}
 
 		// should NEVER happen
-		if s.Id == nil {
+		if s.ID == nil {
 			return result, fmt.Errorf("BUG: No Id found for Chassis at %s", chas)
 		}
 
-		result[*s.Id] = s
+		result[*s.ID] = s
 	}
 
 	return result, nil
 }
 
-// get Power data from
+// GetPowerData - get power data from endpoint
 func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
 	var result PowerData
 
@@ -150,7 +150,7 @@ func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(response.Content, &result)
@@ -162,7 +162,7 @@ func (r *Redfish) GetPowerData(powerEndpoint string) (*PowerData, error) {
 	return &result, nil
 }
 
-// get Thermal data from
+// GetThermalData - get thermal data from endpoint
 func (r *Redfish) GetThermalData(thermalEndpoint string) (*ThermalData, error) {
 	var result ThermalData
 
@@ -189,7 +189,7 @@ func (r *Redfish) GetThermalData(thermalEndpoint string) (*ThermalData, error) {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.Url, response.Status)
+		return nil, fmt.Errorf("HTTP GET for %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
 	}
 
 	err = json.Unmarshal(response.Content, &result)
