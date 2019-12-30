@@ -2,7 +2,7 @@ package redfish
 
 // HTTPSCertActionsOemHuawei - Huawei: Oem data for Manager endpoint and SecurityService endpoint
 type HTTPSCertActionsOemHuawei struct {
-	GenerateCSR                LinkTargets  `json:"#HpHttpsCert.GenerateCSR"`
+	GenerateCSR                LinkTargets  `json:"#HttpsCert.GenerateCSR"`
 	ImportCertificate          LinkTargets  `json:"#HttpsCert.ImportServerCertificate"`
 	X509CertificateInformation X509CertInfo `json:"X509CertificateInformation"`
 }
