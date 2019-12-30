@@ -683,6 +683,45 @@ func (r *Redfish) makeCSRPayload(csr CSRData) string {
 	return csrstr
 }
 
+func (r *Redfish) validateCSRData(csr CSRData) error {
+	switch r.Flavor {
+	case RedfishDell:
+		return nil
+	case RedfishHP:
+		return nil
+	case RedfishHPE:
+		return nil
+	case RedfishHuawei:
+		// Huwaei: Doesn't accept / as part of any field - see Issue#11
+		if strings.Index(csr.C, "/") != -1 {
+			return fmt.Errorf("Huwaei doesn't accept / as part of any field")
+		}
+		if strings.Index(csr.S, "/") != -1 {
+			return fmt.Errorf("Huwaei doesn't accept / as part of any field")
+		}
+		if strings.Index(csr.L, "/") != -1 {
+			return fmt.Errorf("Huwaei doesn't accept / as part of any field")
+		}
+		if strings.Index(csr.O, "/") != -1 {
+			return fmt.Errorf("Huwaei doesn't accept / as part of any field")
+		}
+		if strings.Index(csr.OU, "/") != -1 {
+			return fmt.Errorf("Huwaei doesn't accept / as part of any field")
+		}
+		if strings.Index(csr.CN, "/") != -1 {
+			return fmt.Errorf("Huwaei doesn't accept / as part of any field")
+		}
+
+	case RedfishInspur:
+		return nil
+	case RedfishSuperMicro:
+		return nil
+	default:
+		return nil
+	}
+	return nil
+}
+
 // GenCSR - generate CSR
 func (r *Redfish) GenCSR(csr CSRData) error {
 	var csrstr string
@@ -694,6 +733,11 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 
 	// set vendor flavor
 	err := r.GetVendorFlavor()
+	if err != nil {
+		return err
+	}
+
+	err = r.validateCSRData(csr)
 	if err != nil {
 		return err
 	}
@@ -773,8 +817,14 @@ func (r *Redfish) GenCSR(csr CSRData) error {
 	}
 	// XXX: do we need to look at the content returned by HTTP POST ?
 
-	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP POST to %s returned \"%s\" instead of \"200 OK\"", response.URL, response.Status)
+	switch response.StatusCode {
+	case http.StatusOK:
+		fallthrough
+	case http.StatusCreated:
+		fallthrough
+	case http.StatusAccepted:
+	default:
+		return fmt.Errorf("HTTP POST to %s returned \"%s\" instead of \"200 OK\", \"201 Created\" or \"202 Accepted\"", response.URL, response.Status)
 	}
 
 	return nil
