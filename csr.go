@@ -692,7 +692,7 @@ func (r *Redfish) validateCSRData(csr CSRData) error {
 	case RedfishHPE:
 		return nil
 	case RedfishHuawei:
-		// Huwaei: Doesn't accept / as part of any field - see Issue#11
+		// Huawei: Doesn't accept / as part of any field - see Issue#11
 		if strings.Index(csr.C, "/") != -1 {
 			return fmt.Errorf("Huwaei doesn't accept / as part of any field")
 		}
