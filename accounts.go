@@ -421,6 +421,8 @@ func (r *Redfish) AddAccount(acd AccountCreateData) error {
 			_flags |= acd.HPEPrivileges
 
 			acd.OemHpPrivilegeMap = r.hpBuildPrivilegeMap(_flags)
+		} else {
+			acd.OemHpPrivilegeMap = r.hpBuildPrivilegeMap(acd.HPEPrivileges)
 		}
 
 		rawPrivPayload, err := json.Marshal(*acd.OemHpPrivilegeMap)
