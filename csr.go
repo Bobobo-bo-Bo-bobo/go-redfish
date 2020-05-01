@@ -688,9 +688,13 @@ func (r *Redfish) validateCSRData(csr CSRData) error {
 	case RedfishDell:
 		return nil
 	case RedfishHP:
-		return nil
+		if csr.C == "" || csr.CN == "" || csr.O == "" || csr.OU == "" || csr.L == "" || csr.S == "" {
+			return fmt.Errorf("HP requires C, CN, O, OU, L and S to be set")
+		}
 	case RedfishHPE:
-		return nil
+		if csr.C == "" || csr.CN == "" || csr.O == "" || csr.OU == "" || csr.L == "" || csr.S == "" {
+			return fmt.Errorf("HP requires C, CN, O, OU, L and S to be set")
+		}
 	case RedfishHuawei:
 		// Huawei: Doesn't accept / as part of any field - see Issue#11
 		if strings.Index(csr.C, "/") != -1 {
